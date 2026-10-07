@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Program settings
+    match /programs/{programId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Vendors
+    match /vendors/{vendorId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Rubric
+    match /rubrics/{rubricId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Applications
+    match /applications/{applicationId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
+
+      // Subcollection: Reviews
+      match /reviews/{reviewId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null;
+      }
+
+      // Subcollection: Timeline
+      match /timeline/{timelineId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null;
+      }
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+  }
+}

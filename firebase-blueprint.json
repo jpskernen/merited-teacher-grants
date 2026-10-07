@@ -1,0 +1,174 @@
+{
+  "entities": {
+    "ProgramSettings": {
+      "title": "ProgramSettings",
+      "description": "Administrative configuration for the NEF grant program cycle",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "schoolYear": { "type": "string" },
+        "callForGrantsDate": { "type": "string" },
+        "applicationsDueDate": { "type": "string" },
+        "awardsAnnouncedDate": { "type": "string" },
+        "category1Cap": { "type": "number" },
+        "category2Cap": { "type": "number" },
+        "availableFunds": { "type": "number" },
+        "blindReviewEnabled": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "category1Cap", "category2Cap"]
+    },
+    "Vendor": {
+      "title": "Vendor",
+      "description": "Approved district vendor record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "website": { "type": "string" },
+        "notes": { "type": "string" },
+        "isApproved": { "type": "boolean" }
+      },
+      "required": ["id", "name", "isApproved"]
+    },
+    "Rubric": {
+      "title": "Rubric",
+      "description": "Scoring rubric criteria, weights, and descriptors",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "criteria": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "criteria"]
+    },
+    "Application": {
+      "title": "Application",
+      "description": "Teacher grant proposal document",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "applicantEmail": { "type": "string" },
+        "applicantNames": { "type": "array" },
+        "campus": { "type": "string" },
+        "gradeLevels": { "type": "array" },
+        "subjectArea": { "type": "string" },
+        "category": { "type": "string" },
+        "title": { "type": "string" },
+        "objectives": { "type": "string" },
+        "areaOfFocus": { "type": "string" },
+        "areaOfFocusOther": { "type": "string" },
+        "abstract": { "type": "string" },
+        "amountRequested": { "type": "number" },
+        "studentsImpacted": { "type": "number" },
+        "evaluationStrategy": { "type": "string" },
+        "partners": { "type": "string" },
+        "sustainability": { "type": "string" },
+        "budgetItems": { "type": "array" },
+        "plainTextBudget": { "type": "string" },
+        "involvesTech": { "type": "boolean" },
+        "involvesFacilities": { "type": "boolean" },
+        "principalEmail": { "type": "string" },
+        "principalApproved": { "type": "boolean" },
+        "principalComment": { "type": "string" },
+        "ackImplementation": { "type": "boolean" },
+        "ackProperty": { "type": "boolean" },
+        "ackApprovals": { "type": "boolean" },
+        "electronicSignature": { "type": "string" },
+        "signedAt": { "type": "string" },
+        "status": { "type": "string" },
+        "statusReason": { "type": "string" },
+        "committeeFeedback": { "type": "string" },
+        "awardedAmount": { "type": "number" },
+        "moreInfoQuestion": { "type": "string" },
+        "moreInfoResponse": { "type": "string" },
+        "finalReport": { "type": "object" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "applicantEmail", "campus", "title", "status"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Individual reviewer rubric evaluation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "applicationId": { "type": "string" },
+        "reviewerEmail": { "type": "string" },
+        "reviewerName": { "type": "string" },
+        "isVoting": { "type": "boolean" },
+        "scores": { "type": "object" },
+        "comments": { "type": "object" },
+        "totalScore": { "type": "number" },
+        "eligibilityChecklist": { "type": "object" },
+        "generalFeedback": { "type": "string" },
+        "shareWithApplicant": { "type": "boolean" },
+        "recused": { "type": "boolean" },
+        "submittedAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "applicationId", "reviewerEmail"]
+    },
+    "TimelineEvent": {
+      "title": "TimelineEvent",
+      "description": "Audit trail status history for application",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "applicationId": { "type": "string" },
+        "status": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "actorEmail": { "type": "string" },
+        "actorRole": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "applicationId", "status", "timestamp"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account and permission definition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string" },
+        "campus": { "type": "string" }
+      },
+      "required": ["id", "email", "role"]
+    }
+  },
+  "firestore": {
+    "/programs/{programId}": {
+      "schema": "ProgramSettings",
+      "description": "Program configuration"
+    },
+    "/vendors/{vendorId}": {
+      "schema": "Vendor",
+      "description": "Approved vendor list"
+    },
+    "/rubrics/{rubricId}": {
+      "schema": "Rubric",
+      "description": "Rubric settings"
+    },
+    "/applications/{applicationId}": {
+      "schema": "Application",
+      "description": "Submitted and draft grant applications"
+    },
+    "/applications/{applicationId}/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Reviewer assessments of applications"
+    },
+    "/applications/{applicationId}/timeline/{timelineId}": {
+      "schema": "TimelineEvent",
+      "description": "Application lifecycle event log"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles and assigned role"
+    }
+  }
+}

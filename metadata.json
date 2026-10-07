@@ -1,0 +1,6 @@
+{
+  "name": "Merited Grants - NEF Innovative Teaching Grants",
+  "description": "Nacogdoches ISD Education Foundation Innovative Teaching Grant application and review platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
