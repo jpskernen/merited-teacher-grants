@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Building2,
   Users,
+  History,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -234,6 +235,17 @@ export const Header: React.FC<HeaderProps> = ({
                   <Settings className="w-4 h-4 text-[#8CC8E8]" />
                   <span>Cycles & Rubric</span>
                 </button>
+                <button
+                  onClick={() => setActiveTab('admin-audit')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${
+                    activeTab === 'admin-audit'
+                      ? 'bg-white/15 text-white border-b-2 border-[#8CC8E8]'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <History className="w-4 h-4 text-[#8CC8E8]" />
+                  <span>Audit Log</span>
+                </button>
               </>
             )}
           </nav>
@@ -332,6 +344,127 @@ export const Header: React.FC<HeaderProps> = ({
               </>
             )}
           </div>
+        </div>
+
+        {/* Mobile Navigation Sub-bar */}
+        <div className="md:hidden border-t border-white/10 py-2 overflow-x-auto flex items-center space-x-1.5 scrollbar-none text-xs">
+          {currentUser.role === 'Teacher' && (
+            <>
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`px-2.5 py-1.5 rounded-md font-medium whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'dashboard'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:bg-white/10'
+                }`}
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-[#8CC8E8]" />
+                <span>My Grants</span>
+              </button>
+              <button
+                onClick={() => {
+                  if (onNewApplication) onNewApplication();
+                  setActiveTab('application');
+                }}
+                disabled={userPendingFinalReport}
+                className={`px-2.5 py-1.5 rounded-md font-semibold whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'application'
+                    ? 'bg-[#8CC8E8] text-[#062A3D]'
+                    : 'bg-[#8CC8E8]/20 text-white'
+                } ${userPendingFinalReport ? 'opacity-50' : ''}`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>New App</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('program-info')}
+                className={`px-2.5 py-1.5 rounded-md font-medium whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'program-info'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:bg-white/10'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#8CC8E8]" />
+                <span>Rules & Tips</span>
+              </button>
+            </>
+          )}
+
+          {(currentUser.role === 'Reviewer' || currentUser.role === 'NonVotingReviewer') && (
+            <>
+              <button
+                onClick={() => setActiveTab('reviewer-queue')}
+                className={`px-2.5 py-1.5 rounded-md font-medium whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'reviewer-queue' || activeTab === 'reviewer-score'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:bg-white/10'
+                }`}
+              >
+                <CheckSquare className="w-3.5 h-3.5 text-[#8CC8E8]" />
+                <span>Review Queue</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('rubric-guide')}
+                className={`px-2.5 py-1.5 rounded-md font-medium whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'rubric-guide'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:bg-white/10'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#8CC8E8]" />
+                <span>Rubric Guide</span>
+              </button>
+            </>
+          )}
+
+          {(currentUser.role === 'Admin' || currentUser.role === 'Owner') && (
+            <>
+              <button
+                onClick={() => setActiveTab('admin-rankings')}
+                className={`px-2.5 py-1.5 rounded-md font-medium whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'admin-rankings'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:bg-white/10'
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-[#8CC8E8]" />
+                <span>Rankings</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('admin-vendors')}
+                className={`px-2.5 py-1.5 rounded-md font-medium whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'admin-vendors'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:bg-white/10'
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5 text-[#8CC8E8]" />
+                <span>Vendors</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('admin-settings')}
+                className={`px-2.5 py-1.5 rounded-md font-medium whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'admin-settings'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:bg-white/10'
+                }`}
+              >
+                <Settings className="w-3.5 h-3.5 text-[#8CC8E8]" />
+                <span>Settings</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('admin-audit')}
+                className={`px-2.5 py-1.5 rounded-md font-medium whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'admin-audit'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:bg-white/10'
+                }`}
+              >
+                <History className="w-3.5 h-3.5 text-[#8CC8E8]" />
+                <span>Audit Log</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>

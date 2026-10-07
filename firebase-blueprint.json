@@ -139,6 +139,23 @@
         "campus": { "type": "string" }
       },
       "required": ["id", "email", "role"]
+    },
+    "AdminAuditLog": {
+      "title": "AdminAuditLog",
+      "description": "System-wide administrative change and audit record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "action": { "type": "string" },
+        "category": { "type": "string" },
+        "details": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "userName": { "type": "string" },
+        "userRole": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["id", "action", "details", "userEmail", "timestamp"]
     }
   },
   "firestore": {
@@ -169,6 +186,10 @@
     "/users/{userId}": {
       "schema": "UserProfile",
       "description": "User profiles and assigned role"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "AdminAuditLog",
+      "description": "Administrative audit trail logs"
     }
   }
 }

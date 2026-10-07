@@ -168,3 +168,24 @@ export interface Vendor {
   notes: string;
   isApproved: boolean;
 }
+
+export type AuditCategory =
+  | 'Settings'
+  | 'Vendors'
+  | 'Rubric'
+  | 'Awards & Decisions'
+  | 'Inquiries'
+  | 'System';
+
+export interface AdminAuditLog {
+  id: string;
+  action: string;
+  category: AuditCategory;
+  details: string;
+  userEmail: string;
+  userName: string;
+  userRole: UserRole;
+  timestamp: string;
+  metadata?: Record<string, any>;
+}
+

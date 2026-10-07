@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import {
+  AdminAuditLog,
   Application,
   ApplicationStatus,
+  AuditCategory,
   BudgetItem,
   FinalReportData,
   ProgramSettings,
@@ -14,6 +16,7 @@ import {
 } from '../types/grant';
 import {
   INITIAL_APPLICATIONS,
+  INITIAL_AUDIT_LOGS,
   INITIAL_PROGRAM_SETTINGS,
   INITIAL_REVIEWS,
   INITIAL_RUBRIC,
@@ -42,6 +45,7 @@ interface GrantContextType {
   uploadVendorCsv: (csvText: string) => Promise<number>;
   rubric: RubricCriterion[];
   updateRubricCriterion: (criterion: RubricCriterion) => Promise<void>;
+  resetRubricToDefaults: () => Promise<void>;
   reviews: Review[];
   saveReview: (review: Review) => Promise<void>;
   saveApplicationDraft: (app: Partial<Application> & { id?: string }) => Promise<string>;
@@ -59,6 +63,14 @@ interface GrantContextType {
   simulatePrincipalApproval: (appId: string, approved: boolean, comment?: string) => Promise<void>;
   toggleRecusal: (appId: string, recused: boolean, reason?: string) => Promise<void>;
   timelineEvents: TimelineEvent[];
+  auditLogs: AdminAuditLog[];
+  recordAuditLog: (entry: {
+    action: string;
+    category: AuditCategory;
+    details: string;
+    metadata?: Record<string, any>;
+  }) => Promise<void>;
+  clearAuditLogs: () => Promise<void>;
   isSyncing: boolean;
   activeNotification: { title: string; message: string; type?: 'info' | 'success' | 'warn' } | null;
   dismissNotification: () => void;
@@ -145,6 +157,11 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     ];
   });
 
+  const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>(() => {
+    const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_audit_logs`);
+    return cached ? JSON.parse(cached) : INITIAL_AUDIT_LOGS;
+  });
+
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [activeNotification, setActiveNotification] = useState<{
     title: string;
@@ -163,16 +180,18 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       localStorage.setItem(`${LOCAL_STORAGE_KEY}_apps`, JSON.stringify(applications));
       localStorage.setItem(`${LOCAL_STORAGE_KEY}_reviews`, JSON.stringify(reviews));
       localStorage.setItem(`${LOCAL_STORAGE_KEY}_timeline`, JSON.stringify(timelineEvents));
+      localStorage.setItem(`${LOCAL_STORAGE_KEY}_audit_logs`, JSON.stringify(auditLogs));
     } catch {
       // ignore quota errors
     }
-  }, [programSettings, vendors, rubric, applications, reviews, timelineEvents]);
+  }, [programSettings, vendors, rubric, applications, reviews, timelineEvents, auditLogs]);
 
   // Initial Firestore synchronization with defensive error handling
   useEffect(() => {
     let unsubscribeSettings: (() => void) | undefined;
     let unsubscribeVendors: (() => void) | undefined;
     let unsubscribeApps: (() => void) | undefined;
+    let unsubscribeAuditLogs: (() => void) | undefined;
 
     const setupFirestoreListeners = async () => {
       try {
@@ -194,6 +213,15 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             await setDoc(doc(db, 'vendors', vendor.id), vendor).catch(() => {});
           }
           await setDoc(doc(db, 'programs', INITIAL_PROGRAM_SETTINGS.id), INITIAL_PROGRAM_SETTINGS).catch(() => {});
+        }
+
+        // Bootstrap audit logs if empty
+        const auditRef = collection(db, 'auditLogs');
+        const auditSnap = await getDocs(auditRef).catch(() => null);
+        if (auditSnap && auditSnap.empty) {
+          for (const log of INITIAL_AUDIT_LOGS) {
+            await setDoc(doc(db, 'auditLogs', log.id), log).catch(() => {});
+          }
         }
 
         // Setup real-time listener for applications
@@ -240,6 +268,24 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             console.warn('Firestore programs listener fallback:', error.message);
           }
         );
+
+        // Setup listener for audit logs
+        unsubscribeAuditLogs = onSnapshot(
+          collection(db, 'auditLogs'),
+          (snapshot) => {
+            if (!snapshot.empty) {
+              const loaded: AdminAuditLog[] = [];
+              snapshot.forEach((d) => loaded.push(d.data() as AdminAuditLog));
+              loaded.sort(
+                (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+              );
+              setAuditLogs(loaded);
+            }
+          },
+          (error) => {
+            console.warn('Firestore auditLogs listener fallback:', error.message);
+          }
+        );
       } catch (err) {
         console.warn('Firestore initialization notice:', err);
       } finally {
@@ -253,6 +299,7 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       unsubscribeSettings?.();
       unsubscribeVendors?.();
       unsubscribeApps?.();
+      unsubscribeAuditLogs?.();
     };
   }, []);
 
@@ -314,6 +361,7 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const updateProgramSettings = async (settings: Partial<ProgramSettings>) => {
+    const prev = programSettings;
     const updated = {
       ...programSettings,
       ...settings,
@@ -326,6 +374,41 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // local state already updated
     }
+
+    // Build human-readable audit trail details
+    const changes: string[] = [];
+    if (settings.category1Cap !== undefined && settings.category1Cap !== prev.category1Cap) {
+      changes.push(`Category 1 Cap: $${prev.category1Cap.toLocaleString()} → $${settings.category1Cap.toLocaleString()}`);
+    }
+    if (settings.category2Cap !== undefined && settings.category2Cap !== prev.category2Cap) {
+      changes.push(`Category 2 Cap: $${prev.category2Cap.toLocaleString()} → $${settings.category2Cap.toLocaleString()}`);
+    }
+    if (settings.availableFunds !== undefined && settings.availableFunds !== prev.availableFunds) {
+      changes.push(`Available Grant Pool: $${prev.availableFunds.toLocaleString()} → $${settings.availableFunds.toLocaleString()}`);
+    }
+    if (settings.blindReviewEnabled !== undefined && settings.blindReviewEnabled !== prev.blindReviewEnabled) {
+      changes.push(`Blind Review: ${settings.blindReviewEnabled ? 'Enabled' : 'Disabled'}`);
+    }
+    if (settings.callForGrantsDate !== undefined && settings.callForGrantsDate !== prev.callForGrantsDate) {
+      changes.push(`Call for Grants Date: "${settings.callForGrantsDate}"`);
+    }
+    if (settings.applicationsDueDate !== undefined && settings.applicationsDueDate !== prev.applicationsDueDate) {
+      changes.push(`Applications Due Date: "${settings.applicationsDueDate}"`);
+    }
+    if (settings.awardsAnnouncedDate !== undefined && settings.awardsAnnouncedDate !== prev.awardsAnnouncedDate) {
+      changes.push(`Awards Announced Date: "${settings.awardsAnnouncedDate}"`);
+    }
+
+    const detailText = changes.length > 0
+      ? `Updated program cycle configuration: ${changes.join('; ')}`
+      : 'Updated program settings configuration.';
+
+    await recordAuditLog({
+      action: 'CYCLE_OR_SETTINGS_UPDATED',
+      category: 'Settings',
+      details: detailText,
+      metadata: { previous: prev, updated: settings },
+    });
   };
 
   const addVendor = async (vendorData: Omit<Vendor, 'id'>) => {
@@ -340,6 +423,13 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // local state updated
     }
+
+    await recordAuditLog({
+      action: 'VENDOR_ADDED',
+      category: 'Vendors',
+      details: `Added approved district vendor "${newVendor.name}" (Category: ${newVendor.category}).`,
+      metadata: { vendorId: newVendor.id, vendorName: newVendor.name, category: newVendor.category },
+    });
   };
 
   const updateVendor = async (vendor: Vendor) => {
@@ -349,10 +439,25 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // local state updated
     }
+
+    await recordAuditLog({
+      action: 'VENDOR_UPDATED',
+      category: 'Vendors',
+      details: `Updated vendor details for "${vendor.name}" (Category: ${vendor.category}).`,
+      metadata: { vendorId: vendor.id, vendorName: vendor.name },
+    });
   };
 
   const deleteVendor = async (vendorId: string) => {
+    const target = vendors.find((v) => v.id === vendorId);
     setVendors((prev) => prev.filter((v) => v.id !== vendorId));
+
+    await recordAuditLog({
+      action: 'VENDOR_DELETED',
+      category: 'Vendors',
+      details: `Removed vendor "${target?.name || vendorId}" from district approved vendor list.`,
+      metadata: { vendorId, vendorName: target?.name },
+    });
   };
 
   const uploadVendorCsv = async (csvText: string): Promise<number> => {
@@ -386,12 +491,41 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     if (newVendors.length > 0) {
       setVendors((prev) => [...newVendors, ...prev]);
+      await recordAuditLog({
+        action: 'VENDORS_CSV_IMPORTED',
+        category: 'Vendors',
+        details: `Imported ${addedCount} approved vendors via CSV batch upload.`,
+        metadata: { importedCount: addedCount },
+      });
     }
     return addedCount;
   };
 
   const updateRubricCriterion = async (criterion: RubricCriterion) => {
-    setRubric((prev) => prev.map((c) => (c.id === criterion.id ? criterion : c)));
+    const prev = rubric.find((c) => c.id === criterion.id);
+    setRubric((prevList) => prevList.map((c) => (c.id === criterion.id ? criterion : c)));
+
+    await recordAuditLog({
+      action: 'RUBRIC_CRITERION_UPDATED',
+      category: 'Rubric',
+      details: `Updated rubric criterion "${criterion.title}" (weight: ${prev?.weight}x → ${criterion.weight}x, helper: "${criterion.helper.slice(0, 60)}...").`,
+      metadata: { criterionId: criterion.id, title: criterion.title, weight: criterion.weight },
+    });
+  };
+
+  const resetRubricToDefaults = async () => {
+    setRubric(INITIAL_RUBRIC);
+    await recordAuditLog({
+      action: 'RUBRIC_RESET_TO_DEFAULTS',
+      category: 'Rubric',
+      details: 'Reset scoring rubric to standard NISD NEF 8-criterion foundation defaults.',
+      metadata: { criteriaCount: INITIAL_RUBRIC.length },
+    });
+    setActiveNotification({
+      title: 'Rubric Restored',
+      message: 'Scoring rubric has been reset to foundation default criteria and weights.',
+      type: 'info',
+    });
   };
 
   const saveReview = async (review: Review) => {
@@ -588,6 +722,22 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // local state updated
     }
+
+    // Record admin decision audit log
+    await recordAuditLog({
+      action: 'DECISION_OR_STATUS_UPDATED',
+      category: 'Awards & Decisions',
+      details: `Application ${appId} ("${app.title}") status changed to "${status}"${
+        awardedAmount !== undefined && awardedAmount > 0 ? ` with award amount of $${awardedAmount.toFixed(2)}` : ''
+      }${committeeFeedback ? ` (Feedback provided)` : ''}.`,
+      metadata: {
+        applicationId: appId,
+        title: app.title,
+        status,
+        awardedAmount,
+        reason,
+      },
+    });
   };
 
   const sendMoreInfoRequest = async (appId: string, question: string) => {
@@ -620,6 +770,62 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
     } catch {
       // local state updated
+    }
+
+    // Record inquiry in admin audit log
+    await recordAuditLog({
+      action: 'INQUIRY_SENT',
+      category: 'Inquiries',
+      details: `Sent official committee inquiry to application ${appId} ("${app.title}"): "${question.slice(0, 100)}${
+        question.length > 100 ? '...' : ''
+      }"`,
+      metadata: { applicationId: appId, title: app.title, question },
+    });
+  };
+
+  const recordAuditLog = async (entry: {
+    action: string;
+    category: AuditCategory;
+    details: string;
+    metadata?: Record<string, any>;
+  }) => {
+    const newLog: AdminAuditLog = {
+      id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      action: entry.action,
+      category: entry.category,
+      details: entry.details,
+      userEmail: currentUser.email,
+      userName: currentUser.displayName,
+      userRole: currentUser.role,
+      timestamp: new Date().toISOString(),
+      metadata: entry.metadata,
+    };
+
+    setAuditLogs((prev) => [newLog, ...prev]);
+
+    try {
+      await setDoc(doc(db, 'auditLogs', newLog.id), newLog);
+    } catch {
+      // local state maintained
+    }
+  };
+
+  const clearAuditLogs = async () => {
+    const resetLog: AdminAuditLog = {
+      id: `log-${Date.now()}`,
+      action: 'AUDIT_LOGS_ARCHIVED',
+      category: 'System',
+      details: `Admin audit log history archived and reset by ${currentUser.displayName} (${currentUser.role}).`,
+      userEmail: currentUser.email,
+      userName: currentUser.displayName,
+      userRole: currentUser.role,
+      timestamp: new Date().toISOString(),
+    };
+    setAuditLogs([resetLog]);
+    try {
+      await setDoc(doc(db, 'auditLogs', resetLog.id), resetLog);
+    } catch {
+      // local state maintained
     }
   };
 
@@ -796,6 +1002,7 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         uploadVendorCsv,
         rubric,
         updateRubricCriterion,
+        resetRubricToDefaults,
         reviews,
         saveReview,
         saveApplicationDraft,
@@ -807,6 +1014,9 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         simulatePrincipalApproval,
         toggleRecusal,
         timelineEvents,
+        auditLogs,
+        recordAuditLog,
+        clearAuditLogs,
         isSyncing,
         activeNotification,
         dismissNotification,

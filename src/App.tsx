@@ -17,6 +17,7 @@ import { RubricGuide } from './components/reviewer/RubricGuide';
 import { AdminRankingsView } from './components/admin/AdminRankingsView';
 import { VendorManagement } from './components/admin/VendorManagement';
 import { AdminSettings } from './components/admin/AdminSettings';
+import { AdminAuditLogView } from './components/admin/audit/AdminAuditLogView';
 import { Application } from './types/grant';
 
 const MainAppContent: React.FC = () => {
@@ -98,9 +99,15 @@ const MainAppContent: React.FC = () => {
         {/* Admin / Owner Views */}
         {activeTab === 'admin-rankings' && <AdminRankingsView />}
 
-        {activeTab === 'admin-vendors' && <VendorManagement />}
+        {activeTab === 'admin-vendors' && (
+          <VendorManagement onNavigateAuditLog={() => setActiveTab('admin-audit')} />
+        )}
 
-        {activeTab === 'admin-settings' && <AdminSettings />}
+        {activeTab === 'admin-settings' && (
+          <AdminSettings onNavigateAuditLog={() => setActiveTab('admin-audit')} />
+        )}
+
+        {activeTab === 'admin-audit' && <AdminAuditLogView />}
       </main>
 
       {/* Confirmation Modal */}

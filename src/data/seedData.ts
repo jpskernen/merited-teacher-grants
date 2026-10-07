@@ -1,4 +1,11 @@
-import { Application, ProgramSettings, Review, RubricCriterion, Vendor } from '../types/grant';
+import {
+  AdminAuditLog,
+  Application,
+  ProgramSettings,
+  Review,
+  RubricCriterion,
+  Vendor,
+} from '../types/grant';
 
 export const INITIAL_PROGRAM_SETTINGS: ProgramSettings = {
   id: 'nef-2026-2027',
@@ -557,3 +564,105 @@ export const INITIAL_REVIEWS: Review[] = [
     updatedAt: '2026-10-26T09:30:00Z',
   },
 ];
+
+export const INITIAL_AUDIT_LOGS: AdminAuditLog[] = [
+  {
+    id: 'log-101',
+    action: 'CYCLE_DATES_CONFIGURED',
+    category: 'Settings',
+    details: 'Cycle dates established: Call for Grants Oct 21, 2026; Applications Due Nov 12, 2026; Awards Announced Nov 17–21, 2026.',
+    userEmail: 'director@nefgrants.org',
+    userName: 'Sarah Holcomb',
+    userRole: 'Admin',
+    timestamp: '2026-10-20T08:30:00Z',
+    metadata: {
+      callForGrantsDate: 'October 21, 2026',
+      applicationsDueDate: 'November 12, 2026',
+      awardsAnnouncedDate: 'November 17–21, 2026',
+    },
+  },
+  {
+    id: 'log-102',
+    action: 'BUDGET_CAPS_ESTABLISHED',
+    category: 'Settings',
+    details: 'Program budget parameters set: Category 1 Cap $1,500.00; Category 2 Cap $4,500.00; Foundation Grant Pool $35,000.00.',
+    userEmail: 'board.president@nefgrants.org',
+    userName: 'Marcus Sterling',
+    userRole: 'Owner',
+    timestamp: '2026-10-20T09:00:00Z',
+    metadata: {
+      category1Cap: 1500,
+      category2Cap: 4500,
+      availableFunds: 35000,
+    },
+  },
+  {
+    id: 'log-103',
+    action: 'VENDORS_DATABASE_INITIALIZED',
+    category: 'Vendors',
+    details: 'Loaded 8 approved NISD instructional vendors (Amazon Business, Lakeshore, School Specialty, Carolina Biological, Scholastic, Blick, CDW-G, Really Good Stuff).',
+    userEmail: 'director@nefgrants.org',
+    userName: 'Sarah Holcomb',
+    userRole: 'Admin',
+    timestamp: '2026-10-20T10:15:00Z',
+    metadata: {
+      vendorCount: 8,
+    },
+  },
+  {
+    id: 'log-104',
+    action: 'RUBRIC_CONFIGURED',
+    category: 'Rubric',
+    details: 'Configured 8-criterion scoring rubric with standard 1 to 5 descriptors and mandatory evaluator comment gates.',
+    userEmail: 'director@nefgrants.org',
+    userName: 'Sarah Holcomb',
+    userRole: 'Admin',
+    timestamp: '2026-10-20T11:00:00Z',
+    metadata: {
+      criteriaCount: 8,
+    },
+  },
+  {
+    id: 'log-105',
+    action: 'BLIND_REVIEW_ENABLED',
+    category: 'Settings',
+    details: 'Enforced Blind Review Protocol across all evaluator screens to mask applicant names, emails, and campus affiliations.',
+    userEmail: 'board.president@nefgrants.org',
+    userName: 'Marcus Sterling',
+    userRole: 'Owner',
+    timestamp: '2026-10-20T11:30:00Z',
+    metadata: {
+      blindReviewEnabled: true,
+    },
+  },
+  {
+    id: 'log-106',
+    action: 'DECISION_RECORDED',
+    category: 'Awards & Decisions',
+    details: 'Awarded $1,420.00 to proposal "Kinesthetic Digital Sculpting & Tactile 3D Ceramic Prototyping" (McMichael Middle School). Status updated to Funded.',
+    userEmail: 'director@nefgrants.org',
+    userName: 'Sarah Holcomb',
+    userRole: 'Admin',
+    timestamp: '2026-10-28T18:00:00Z',
+    metadata: {
+      applicationId: 'app-nef-003',
+      awardedAmount: 1420.00,
+      status: 'Funded',
+    },
+  },
+  {
+    id: 'log-107',
+    action: 'INQUIRY_SENT',
+    category: 'Inquiries',
+    details: 'Issued clarification request to proposal "Bilingual Phonics & Audio-Assisted Family Literacy Hub" regarding wi-fi filtering and future headphone cords.',
+    userEmail: 'director@nefgrants.org',
+    userName: 'Sarah Holcomb',
+    userRole: 'Admin',
+    timestamp: '2026-10-27T16:30:00Z',
+    metadata: {
+      applicationId: 'app-nef-002',
+      status: 'More Info Needed',
+    },
+  },
+];
+
