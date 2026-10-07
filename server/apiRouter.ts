@@ -1,4 +1,5 @@
-import { Router, Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import {
   scanCampusMentions,
   checkApplicationQuality,
@@ -6,7 +7,7 @@ import {
   summarizeApplicationForReviewer,
 } from './geminiService.ts';
 
-export const apiRouter = Router();
+export const apiRouter = express.Router();
 
 apiRouter.post('/gemini/scan-campus', async (req: Request, res: Response) => {
   try {
