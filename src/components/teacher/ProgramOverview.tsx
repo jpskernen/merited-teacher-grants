@@ -65,50 +65,65 @@ export const ProgramOverview: React.FC<ProgramOverviewProps> = ({
         </div>
       </div>
 
-      {/* Cycle Dates Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-3.5">
-          <div className="p-2.5 rounded-lg bg-[#062A3D]/5 text-[#062A3D]">
+      {/* 4 Cycle Dates Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-3">
+          <div className="p-2 rounded-lg bg-[#062A3D]/5 text-[#062A3D]">
             <Calendar className="w-5 h-5 text-[#062A3D]" />
           </div>
           <div>
-            <div className="text-xs uppercase font-semibold text-slate-500 tracking-wider">
-              Call for Grants
+            <div className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
+              Applications Open
             </div>
-            <div className="text-base font-bold text-[#062A3D] mt-0.5">
-              {programSettings.callForGrantsDate}
+            <div className="text-sm font-bold text-[#062A3D] mt-0.5">
+              {programSettings.applicationsOpenDate || programSettings.callForGrantsDate || 'October 21, 2026'}
             </div>
-            <div className="text-xs text-slate-500 mt-1">Application window opens</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">Online portal opens</div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-3.5">
-          <div className="p-2.5 rounded-lg bg-amber-50 text-amber-700">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-3">
+          <div className="p-2 rounded-lg bg-amber-50 text-amber-700">
             <Calendar className="w-5 h-5 text-amber-600" />
           </div>
           <div>
-            <div className="text-xs uppercase font-semibold text-amber-700 tracking-wider">
+            <div className="text-[10px] uppercase font-semibold text-amber-700 tracking-wider">
               Applications Due
             </div>
-            <div className="text-base font-bold text-[#062A3D] mt-0.5">
-              {programSettings.applicationsDueDate}
+            <div className="text-sm font-bold text-[#062A3D] mt-0.5">
+              {programSettings.applicationsDueDate || 'November 11, 2026'}
             </div>
-            <div className="text-xs text-slate-500 mt-1">Firm deadline at 11:59 PM CT</div>
+            <div className="text-[11px] text-amber-700 font-semibold mt-0.5">Closes 11:59 PM CT</div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-3.5">
-          <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-700">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-3">
+          <div className="p-2 rounded-lg bg-purple-50 text-purple-700">
+            <Calendar className="w-5 h-5 text-purple-600" />
+          </div>
+          <div>
+            <div className="text-[10px] uppercase font-semibold text-purple-700 tracking-wider">
+              Review Closes
+            </div>
+            <div className="text-sm font-bold text-[#062A3D] mt-0.5">
+              {programSettings.reviewClosesDate || 'November 16, 2026'}
+            </div>
+            <div className="text-[11px] text-purple-700 font-semibold mt-0.5">Closes 11:59 PM CT</div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-3">
+          <div className="p-2 rounded-lg bg-emerald-50 text-emerald-700">
             <CheckCircle className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
-            <div className="text-xs uppercase font-semibold text-emerald-700 tracking-wider">
-              Awards Announced
+            <div className="text-[10px] uppercase font-semibold text-emerald-700 tracking-wider">
+              Awards Presented
             </div>
-            <div className="text-base font-bold text-[#062A3D] mt-0.5">
-              {programSettings.awardsAnnouncedDate}
+            <div className="text-sm font-bold text-[#062A3D] mt-0.5">
+              {programSettings.awardsPresentedDate || programSettings.awardsAnnouncedDate || 'November 18, 2026'}
             </div>
-            <div className="text-xs text-slate-500 mt-1">Surprise grant patrol visits</div>
+            <div className="text-[11px] text-emerald-700 font-semibold mt-0.5">Before Thanksgiving</div>
           </div>
         </div>
       </div>

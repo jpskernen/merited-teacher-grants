@@ -26,6 +26,23 @@ export interface UserProfile {
   recusedAppIds: string[];
 }
 
+export interface ReviewerProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: 'Reviewer' | 'NonVotingReviewer';
+  cyclesServed: number; // e.g. 1, 2, 3...
+  mailingAddress?: string; // for thank-you cards and swag
+  shirtSize?: 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
+  invitedAt?: string;
+  magicLinkToken?: string;
+  lastActiveAt?: string;
+  reminderSent3Day?: boolean;
+  reminderSent1Day?: boolean;
+  thankYouSent?: boolean;
+  notes?: string;
+}
+
 export interface BudgetItem {
   id: string;
   name: string;
@@ -90,6 +107,17 @@ export interface Application {
   moreInfoResponse?: string;
   moreInfoRespondedAt?: string;
   finalReport?: FinalReportData;
+  grantCode?: string; // e.g. IGF2601 (format: [Program][Season][YY][Line])
+  sequenceNumber?: number; // 1, 2, ...
+  adminEligibility?: AdminEligibilityScreening; // Completed by admin before reviewer scoring
+  assignedReviewerIds?: string[]; // Reviewer IDs assigned (empty or ['all'] means all reviewers)
+  checkSent?: boolean; // When finance/foundation disburses check
+  checkSentAt?: string;
+  checkNumber?: string;
+  checkAmount?: number;
+  checkNotes?: string;
+  poSubmittedAt?: string; // When teacher reports PO submitted
+  eventDate?: string; // When teacher shares an upcoming showcase/project event date
   createdAt: string;
   updatedAt: string;
 }
@@ -98,8 +126,9 @@ export interface RubricCriterion {
   id: string;
   order: number;
   title: string;
+  formSource: string; // e.g. "Q9 Abstract", "Q7", "Q8, Q9", "Q10, Q11", "Q12", "Q14", "Q15", "Q13"
   helper: string;
-  weight: number; // 1 to 5 multiplier or standard weight
+  weight: number; // Exact points weight totaling 100: 15, 15, 20, 15, 10, 10, 10, 5
   levelDescriptors: {
     level1: string; // Missing or unclear
     level3: string; // Adequate
@@ -108,11 +137,26 @@ export interface RubricCriterion {
 }
 
 export interface EligibilityChecklist {
+  eligibleApplicant: boolean; // NISD teacher or team in instruction or student support
+  withinCategoryCap: boolean; // <= $1,500 (Cat 1) or <= $4,500 (Cat 2)
+  acknowledgementsYes: boolean; // Q16, Q17, Q18 all "Yes" and e-signature present
+  noProhibitedCosts: boolean; // No unaligned travel/training or items district already provides
+  priorReportSubmitted: boolean; // Any past recipient has submitted final report
+  checkedAt?: string;
+  checkedBy?: string;
+  notes?: string;
+}
+
+export interface AdminEligibilityScreening {
+  passed: boolean;
   eligibleApplicant: boolean;
   withinCategoryCap: boolean;
   acknowledgementsYes: boolean;
   noProhibitedCosts: boolean;
   priorReportSubmitted: boolean;
+  checkedBy: string;
+  checkedAt: string;
+  notes?: string;
 }
 
 export interface Review {
@@ -146,17 +190,40 @@ export interface TimelineEvent {
   timestamp: string;
 }
 
+export interface AdminNotificationSettings {
+  largeRequestThreshold: number; // default 6000
+  emailAdminOnLargeRequest: boolean; // default true
+  notifyNewSubmission: boolean; // default true
+  notifyThresholdExceeded: boolean; // default true
+  notifyReviewerFinished: boolean; // default true
+  notifyAllReviewsComplete: boolean; // default true
+  notifyTeacherPoSubmitted: boolean; // default true
+  notifyTeacherEventDate: boolean; // default true
+  notifyFinalReportSubmitted: boolean; // default true
+  adminEmailRecipient: string; // default e.g. director@nefgrants.org
+}
+
 export interface ProgramSettings {
   id: string;
   schoolYear: string;
-  callForGrantsDate: string;
-  applicationsDueDate: string;
-  awardsAnnouncedDate: string;
-  spendingDeadlineDate: string;
-  category1Cap: number;
-  category2Cap: number;
-  availableFunds: number;
+  eligibilityDescription: string;
+  applicationsOpenDate: string; // e.g. "October 21, 2026"
+  callForGrantsDate?: string;
+  applicationsDueDate: string; // default e.g. "November 11, 2026" (Closes at 11:59 PM)
+  reviewClosesDate: string; // default e.g. "November 16, 2026" (Closes at 11:59 PM)
+  awardsPresentedDate: string; // default e.g. "November 18, 2026" (before Thanksgiving)
+  awardsAnnouncedDate?: string;
+  spendingDeadlineDate: string; // e.g. "End of following school year (May 26, 2028)"
+  category1Cap: number; // up to $1,500
+  category2Cap: number; // up to $4,500 for campus teams (3+ teachers), departments & district-initiated
+  availableFunds: number; // default $52,000 (editable)
   blindReviewEnabled: boolean;
+  // Grant Code Configuration: [Program][Season][YY][Line] e.g. IGF2601
+  cycleProgramCode: 'IG' | 'MG'; // IG = Innovative Grant, MG = Mini Grant
+  cycleSeasonCode: 'F' | 'S'; // F = Fall, S = Spring
+  cycleTwoDigitYear: string; // e.g. "26"
+  // Admin Notification Settings
+  notifications: AdminNotificationSettings;
   updatedAt: string;
 }
 

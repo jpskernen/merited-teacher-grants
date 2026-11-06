@@ -39,6 +39,14 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
         {/* Details Card */}
         <div className="bg-[#F4F7F9] rounded-xl p-4 border border-slate-200 space-y-2 text-xs">
+          {application.grantCode && (
+            <div className="flex justify-between items-center pb-2 border-b border-slate-200">
+              <span className="text-slate-500 font-medium">Assigned Grant Code:</span>
+              <span className="font-mono font-bold text-xs bg-[#062A3D] text-[#8CC8E8] px-2 py-0.5 rounded shadow-2xs">
+                {application.grantCode}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between items-center pb-2 border-b border-slate-200">
             <span className="text-slate-500 font-medium">Application ID:</span>
             <span className="font-mono font-bold text-[#062A3D]">{application.id}</span>

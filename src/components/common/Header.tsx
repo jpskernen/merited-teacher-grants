@@ -12,7 +12,11 @@ import {
   Building2,
   Users,
   History,
+  RotateCcw,
+  FileSpreadsheet,
+  GraduationCap,
 } from 'lucide-react';
+import { isApplicationWindowClosed } from '../../utils/cycleDates';
 
 interface HeaderProps {
   activeTab: string;
@@ -25,14 +29,26 @@ export const Header: React.FC<HeaderProps> = ({
   setActiveTab,
   onNewApplication,
 }) => {
-  const { currentUser, switchUser, userPendingFinalReport, programSettings } = useGrant();
+  const {
+    currentUser,
+    switchUser,
+    userPendingFinalReport,
+    programSettings,
+    applications,
+    reviewers,
+    resetToGoogleSheetData,
+  } = useGrant();
   const [roleMenuOpen, setRoleMenuOpen] = React.useState(false);
+  const [switcherTab, setSwitcherTab] = React.useState<'roles' | 'sheet-teachers' | 'committee'>('roles');
 
   const roles: { role: UserRole; title: string; subtitle: string }[] = [
     {
       role: 'Teacher',
       title: 'Teacher (Applicant)',
-      subtitle: 'Jane Kernen • Raguet Elementary',
+      subtitle:
+        currentUser.role === 'Teacher'
+          ? `${currentUser.displayName} • ${currentUser.campus || 'Brooks Quinn Jones Elementary'}`
+          : 'Jessica May • Brooks Quinn Jones Elementary',
     },
     {
       role: 'Reviewer',
@@ -148,16 +164,30 @@ export const Header: React.FC<HeaderProps> = ({
                     if (onNewApplication) onNewApplication();
                     setActiveTab('application');
                   }}
-                  disabled={userPendingFinalReport}
-                  title={userPendingFinalReport ? 'Submit final report on prior grant before applying' : ''}
+                  disabled={userPendingFinalReport || isApplicationWindowClosed(programSettings.applicationsDueDate)}
+                  title={
+                    userPendingFinalReport
+                      ? 'Submit final report on prior grant before applying'
+                      : isApplicationWindowClosed(programSettings.applicationsDueDate)
+                      ? `Application window closed at 11:59 PM on ${programSettings.applicationsDueDate}`
+                      : 'Start a new grant proposal'
+                  }
                   className={`px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${
                     activeTab === 'application'
                       ? 'bg-[#8CC8E8] text-[#062A3D] font-semibold'
                       : 'bg-[#8CC8E8]/20 text-white hover:bg-[#8CC8E8]/30 border border-[#8CC8E8]/40'
-                  } ${userPendingFinalReport ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  } ${
+                    userPendingFinalReport || isApplicationWindowClosed(programSettings.applicationsDueDate)
+                      ? 'opacity-50 cursor-not-allowed'
+                      : ''
+                  }`}
                 >
                   <FileText className="w-4 h-4 text-[#062A3D]" />
-                  <span>Start New Application</span>
+                  <span>
+                    {isApplicationWindowClosed(programSettings.applicationsDueDate)
+                      ? 'Applications Closed'
+                      : 'Start New Application'}
+                  </span>
                 </button>
                 <button
                   onClick={() => setActiveTab('program-info')}
@@ -212,6 +242,17 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                   <ShieldCheck className="w-4 h-4 text-[#8CC8E8]" />
                   <span>Rankings & Awards</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('admin-reviewers')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${
+                    activeTab === 'admin-reviewers'
+                      ? 'bg-white/15 text-white border-b-2 border-[#8CC8E8]'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Users className="w-4 h-4 text-[#8CC8E8]" />
+                  <span>Reviewers & Swag</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('admin-vendors')}
@@ -281,64 +322,267 @@ export const Header: React.FC<HeaderProps> = ({
                   className="fixed inset-0 z-40"
                   onClick={() => setRoleMenuOpen(false)}
                 />
-                <div className="absolute right-0 mt-2 w-80 bg-white text-[#1E2A33] rounded-xl shadow-2xl py-2 z-50 border border-slate-200">
-                  <div className="px-4 py-2 border-b border-slate-100 bg-[#F4F7F9]">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                      Switch Active Role
+                <div className="absolute right-0 mt-2 w-96 bg-white text-[#1E2A33] rounded-2xl shadow-2xl py-2 z-50 border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
+                  <div className="px-4 py-2.5 border-b border-slate-100 bg-[#F4F7F9]">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold uppercase tracking-wider text-[#062A3D]">
+                        Switch Active User
+                      </p>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                        Google Sheet Synced
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Test any applicant, reviewer, or administrator from the cycle sheet
                     </p>
-                    <p className="text-[11px] text-slate-600 mt-0.5">
-                      Test each perspective across Teacher, Reviewer, and Admin
-                    </p>
+
+                    {/* Sub tabs */}
+                    <div className="grid grid-cols-3 gap-1 mt-2.5 bg-slate-200/70 p-0.5 rounded-lg text-[11px] font-semibold">
+                      <button
+                        type="button"
+                        onClick={() => setSwitcherTab('roles')}
+                        className={`py-1 rounded-md transition ${
+                          switcherTab === 'roles'
+                            ? 'bg-white text-[#062A3D] shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        Roles (5)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSwitcherTab('sheet-teachers')}
+                        className={`py-1 rounded-md transition ${
+                          switcherTab === 'sheet-teachers'
+                            ? 'bg-white text-[#062A3D] shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        Teachers ({applications.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSwitcherTab('committee')}
+                        className={`py-1 rounded-md transition ${
+                          switcherTab === 'committee'
+                            ? 'bg-white text-[#062A3D] shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        Reviewers ({reviewers.length})
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="p-1.5 space-y-1">
-                    {roles.map((r) => {
-                      const isSelected = currentUser.role === r.role;
-                      return (
-                        <button
-                          key={r.role}
-                          onClick={() => {
-                            switchUser(r.role);
-                            setRoleMenuOpen(false);
-                            if (r.role === 'Teacher') setActiveTab('dashboard');
-                            else if (r.role === 'Reviewer' || r.role === 'NonVotingReviewer') setActiveTab('reviewer-queue');
-                            else setActiveTab('admin-rankings');
-                          }}
-                          className={`w-full text-left px-3 py-2.5 rounded-lg transition flex items-start space-x-2.5 ${
-                            isSelected
-                              ? 'bg-[#062A3D] text-white'
-                              : 'hover:bg-[#F4F7F9] text-slate-800'
-                          }`}
-                        >
-                          <div
-                            className={`p-1.5 rounded-md mt-0.5 ${
-                              isSelected
-                                ? 'bg-[#8CC8E8] text-[#062A3D]'
-                                : 'bg-slate-100 text-slate-600'
-                            }`}
-                          >
-                            <Users className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="text-xs font-bold leading-snug">
-                              {r.title}
-                            </div>
-                            <div
-                              className={`text-[11px] leading-tight ${
-                                isSelected ? 'text-[#8CC8E8]' : 'text-slate-500'
+                  <div className="p-2 space-y-1 overflow-y-auto max-h-[360px]">
+                    {switcherTab === 'roles' && (
+                      <div className="space-y-1">
+                        {roles.map((r) => {
+                          const isSelected = currentUser.role === r.role;
+                          return (
+                            <button
+                              key={r.role}
+                              onClick={() => {
+                                switchUser(r.role);
+                                setRoleMenuOpen(false);
+                                if (r.role === 'Teacher') setActiveTab('dashboard');
+                                else if (r.role === 'Reviewer' || r.role === 'NonVotingReviewer')
+                                  setActiveTab('reviewer-queue');
+                                else setActiveTab('admin-rankings');
+                              }}
+                              className={`w-full text-left px-3 py-2 rounded-xl transition flex items-start space-x-2.5 ${
+                                isSelected
+                                  ? 'bg-[#062A3D] text-white'
+                                  : 'hover:bg-[#F4F7F9] text-slate-800'
                               }`}
                             >
-                              {r.subtitle}
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
+                              <div
+                                className={`p-1.5 rounded-lg mt-0.5 ${
+                                  isSelected
+                                    ? 'bg-[#8CC8E8] text-[#062A3D]'
+                                    : 'bg-slate-100 text-slate-600'
+                                }`}
+                              >
+                                <Users className="w-4 h-4" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs font-bold leading-snug">{r.title}</div>
+                                <div
+                                  className={`text-[11px] truncate leading-tight ${
+                                    isSelected ? 'text-[#8CC8E8]' : 'text-slate-500'
+                                  }`}
+                                >
+                                  {r.subtitle}
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {switcherTab === 'sheet-teachers' && (
+                      <div className="space-y-1">
+                        <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          11 Google Sheet Applicants (Submission Order)
+                        </div>
+                        {applications.map((app) => {
+                          const isSelected =
+                            currentUser.role === 'Teacher' &&
+                            currentUser.email.toLowerCase() === app.applicantEmail.toLowerCase();
+                          return (
+                            <button
+                              key={app.id}
+                              onClick={() => {
+                                switchUser('Teacher', app.applicantEmail, app.applicantNames[0]?.name);
+                                setRoleMenuOpen(false);
+                                setActiveTab('dashboard');
+                              }}
+                              className={`w-full text-left p-2 rounded-xl transition flex items-start gap-2.5 border ${
+                                isSelected
+                                  ? 'bg-[#062A3D] text-white border-[#062A3D]'
+                                  : 'hover:bg-slate-50 text-slate-800 border-slate-100'
+                              }`}
+                            >
+                              <div
+                                className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold mt-0.5 ${
+                                  isSelected
+                                    ? 'bg-[#8CC8E8] text-[#062A3D]'
+                                    : 'bg-slate-100 text-[#062A3D]'
+                                }`}
+                              >
+                                {app.grantCode || 'APP'}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-1">
+                                  <span className="text-xs font-bold truncate">
+                                    {app.applicantNames.map((n) => n.name).join(', ')}
+                                  </span>
+                                  <span
+                                    className={`text-[10px] font-semibold shrink-0 ${
+                                      isSelected ? 'text-[#8CC8E8]' : 'text-slate-500'
+                                    }`}
+                                  >
+                                    ${app.amountRequested.toLocaleString()}
+                                  </span>
+                                </div>
+                                <p
+                                  className={`text-[11px] truncate italic ${
+                                    isSelected ? 'text-white/80' : 'text-slate-600'
+                                  }`}
+                                >
+                                  "{app.title}"
+                                </p>
+                                <p
+                                  className={`text-[10px] ${
+                                    isSelected ? 'text-[#8CC8E8]' : 'text-slate-400'
+                                  }`}
+                                >
+                                  {app.campus} • {app.category}
+                                </p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {switcherTab === 'committee' && (
+                      <div className="space-y-1">
+                        <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          Scoring Committee & Advisory Members
+                        </div>
+                        {reviewers.map((rev) => {
+                          const isSelected =
+                            currentUser.email.toLowerCase() === rev.email.toLowerCase();
+                          return (
+                            <button
+                              key={rev.id}
+                              onClick={() => {
+                                switchUser(rev.role, rev.email, rev.name);
+                                setRoleMenuOpen(false);
+                                setActiveTab('reviewer-queue');
+                              }}
+                              className={`w-full text-left p-2.5 rounded-xl transition flex items-start gap-2.5 border ${
+                                isSelected
+                                  ? 'bg-[#062A3D] text-white border-[#062A3D]'
+                                  : 'hover:bg-slate-50 text-slate-800 border-slate-100'
+                              }`}
+                            >
+                              <div
+                                className={`p-1.5 rounded-lg mt-0.5 ${
+                                  isSelected
+                                    ? 'bg-[#8CC8E8] text-[#062A3D]'
+                                    : 'bg-slate-100 text-slate-600'
+                                }`}
+                              >
+                                <Users className="w-4 h-4" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-bold truncate">{rev.name}</span>
+                                  <span
+                                    className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded ${
+                                      rev.role === 'NonVotingReviewer'
+                                        ? isSelected
+                                          ? 'bg-amber-400 text-slate-900'
+                                          : 'bg-amber-50 text-amber-700'
+                                        : isSelected
+                                        ? 'bg-[#8CC8E8] text-[#062A3D]'
+                                        : 'bg-blue-50 text-blue-700'
+                                    }`}
+                                  >
+                                    {rev.role === 'NonVotingReviewer' ? 'Non-Voting' : 'Voting'}
+                                  </span>
+                                </div>
+                                <div
+                                  className={`text-[11px] truncate ${
+                                    isSelected ? 'text-[#8CC8E8]' : 'text-slate-500'
+                                  }`}
+                                >
+                                  {rev.email}
+                                </div>
+                                {rev.notes && (
+                                  <div
+                                    className={`text-[10px] truncate mt-0.5 ${
+                                      isSelected ? 'text-white/70' : 'text-slate-400'
+                                    }`}
+                                  >
+                                    {rev.notes}
+                                  </div>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="px-3 py-2 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center bg-slate-50">
-                    <span>District: Nacogdoches ISD</span>
-                    <span className="font-semibold text-[#062A3D]">NEF Grants</span>
+                  {/* Footer with Reset to Google Sheet Data */}
+                  <div className="px-3 py-2 border-t border-slate-100 bg-slate-50 flex flex-col gap-1.5">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await resetToGoogleSheetData();
+                        setRoleMenuOpen(false);
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-emerald-800 hover:bg-emerald-100/70 transition flex items-center justify-between border border-emerald-200/60 bg-emerald-50/50"
+                      title="Reset and reload all 11 applications and people directly from the Google Sheet"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <RotateCcw className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Reload Google Sheet Dataset</span>
+                      </span>
+                      <span className="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.2 rounded">
+                        11 Apps
+                      </span>
+                    </button>
+
+                    <div className="flex justify-between items-center text-[10px] text-slate-400 px-0.5">
+                      <span>Nacogdoches ISD Education Foundation</span>
+                      <span className="font-semibold text-[#062A3D]">NEF Grants 2026</span>
+                    </div>
                   </div>
                 </div>
               </>
@@ -429,6 +673,17 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-[#8CC8E8]" />
                 <span>Rankings</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('admin-reviewers')}
+                className={`px-2.5 py-1.5 rounded-md font-medium whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'admin-reviewers'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:bg-white/10'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5 text-[#8CC8E8]" />
+                <span>Reviewers</span>
               </button>
               <button
                 onClick={() => setActiveTab('admin-vendors')}

@@ -15,7 +15,10 @@ import {
   FileCheck,
   Check,
   AlertTriangle,
+  Clock,
 } from 'lucide-react';
+
+import { isApplicationWindowClosed } from '../../utils/cycleDates';
 
 interface ApplicationFormProps {
   initialAppId?: string;
@@ -41,6 +44,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [lastSavedTime, setLastSavedTime] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  // Check if application window is closed (after 11:59 pm on due date)
+  const isClosed = isApplicationWindowClosed(programSettings.applicationsDueDate);
 
   // Load existing application if editing draft
   const existingApp = applications.find((a) => a.id === initialAppId);
@@ -155,6 +161,31 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         >
           Return to Dashboard
         </button>
+      </div>
+    );
+  }
+
+  if (isClosed) {
+    return (
+      <div className="max-w-3xl mx-auto my-12 p-8 bg-white rounded-2xl border border-slate-200 shadow-md text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-700 mx-auto flex items-center justify-center">
+          <Clock className="w-6 h-6" />
+        </div>
+        <h2 className="text-xl font-bold text-[#062A3D]">Application Window Closed</h2>
+        <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          The application submission window for the {programSettings.schoolYear} cycle closed automatically at 11:59 PM on <strong>{programSettings.applicationsDueDate}</strong>. New applications and draft edits are no longer accepted for this grant cycle.
+        </p>
+        <div className="text-xs text-slate-500">
+          Review committee scoring is underway. Awards will be announced on <strong>{programSettings.awardsPresentedDate || programSettings.awardsAnnouncedDate || 'November 18, 2026'}</strong>.
+        </div>
+        <div className="pt-2">
+          <button
+            onClick={onCancel}
+            className="px-6 py-2.5 rounded-xl font-semibold bg-[#062A3D] text-white text-xs hover:bg-[#0A3D59]"
+          >
+            Return to Dashboard
+          </button>
+        </div>
       </div>
     );
   }

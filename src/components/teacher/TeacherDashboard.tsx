@@ -39,6 +39,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     simulatePrincipalApproval,
     timelineEvents,
     userPendingFinalReport,
+    reportPoSubmitted,
+    reportEventDate,
   } = useGrant();
 
   const [expandedAppId, setExpandedAppId] = useState<string | null>(null);
@@ -46,6 +48,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   // Inquiry response state
   const [inquiryText, setInquiryText] = useState<{ [appId: string]: string }>({});
   const [submittingInquiry, setSubmittingInquiry] = useState<{ [appId: string]: boolean }>({});
+
+  // Event Date modal state
+  const [eventDateApp, setEventDateApp] = useState<Application | null>(null);
+  const [eventDateInput, setEventDateInput] = useState<string>('');
 
   // Final report modal state
   const [activeReportApp, setActiveReportApp] = useState<Application | null>(null);
@@ -203,6 +209,11 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 >
                   <div className="space-y-1.5 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
+                      {app.grantCode && (
+                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#062A3D] text-[#8CC8E8] shadow-2xs">
+                          {app.grantCode}
+                        </span>
+                      )}
                       <span
                         className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${getStatusBadge(
                           app.status
@@ -215,6 +226,17 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       </span>
                       <span className="text-slate-300">•</span>
                       <span className="text-xs text-slate-500">{app.campus}</span>
+
+                      {app.poSubmittedAt && (
+                        <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          ✓ PO Placed
+                        </span>
+                      )}
+                      {app.eventDate && (
+                        <span className="text-[10px] font-semibold text-purple-800 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                          Showcase: {app.eventDate}
+                        </span>
+                      )}
                     </div>
 
                     <h3 className="text-base font-bold text-[#062A3D]">
@@ -238,7 +260,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   </div>
 
                   {/* Actions & Chevron */}
-                  <div className="flex items-center space-x-3 self-end md:self-center">
+                  <div className="flex flex-wrap items-center gap-2 self-end md:self-center">
                     {app.status === 'Draft' && (
                       <button
                         onClick={(e) => {
@@ -249,6 +271,37 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       >
                         Resume Draft
                       </button>
+                    )}
+
+                    {(app.status === 'Funded' || app.status === 'Partially Funded') && (
+                      <>
+                        {!app.poSubmittedAt && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              reportPoSubmitted(app.id);
+                            }}
+                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-2xs"
+                            title="Report purchase order placed through campus secretary"
+                          >
+                            Report PO Placed
+                          </button>
+                        )}
+
+                        {!app.eventDate && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEventDateApp(app);
+                              setEventDateInput('');
+                            }}
+                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-800 shadow-2xs"
+                            title="Share upcoming project demonstration or classroom showcase date"
+                          >
+                            Share Event Date
+                          </button>
+                        )}
+                      </>
                     )}
 
                     {app.status === 'Funded' && !app.finalReport && (
@@ -549,6 +602,70 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 className="px-5 py-2.5 rounded-lg text-xs font-bold bg-[#8CC8E8] text-[#062A3D] hover:bg-[#a0d4ef] shadow-sm disabled:opacity-50"
               >
                 Submit Complete Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Event Date Modal */}
+      {eventDateApp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                  Foundation Event Notice
+                </span>
+                <h3 className="text-base font-bold text-[#062A3D] mt-1">
+                  Share Project Showcase Date
+                </h3>
+              </div>
+              <button
+                onClick={() => setEventDateApp(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Let the Nacogdoches ISD Education Foundation know when your project demonstration, student showcase, or classroom celebration will occur so board directors can attend!
+            </p>
+
+            <div className="space-y-1 text-xs">
+              <label className="block font-semibold text-slate-700">
+                Showcase Date & Time / Notes
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. December 4, 2026 at 1:30 PM (Room 204)"
+                value={eventDateInput}
+                onChange={(e) => setEventDateInput(e.target.value)}
+                className="w-full text-xs rounded-lg border border-slate-200 p-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#8CC8E8]"
+              />
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setEventDateApp(null)}
+                className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!eventDateInput.trim()}
+                onClick={async () => {
+                  if (eventDateApp && eventDateInput.trim()) {
+                    await reportEventDate(eventDateApp.id, eventDateInput.trim());
+                    setEventDateApp(null);
+                  }
+                }}
+                className="px-4 py-2 text-xs font-bold rounded-lg bg-[#062A3D] text-white hover:bg-[#0A3D59] disabled:opacity-50"
+              >
+                Notify Foundation
               </button>
             </div>
           </div>

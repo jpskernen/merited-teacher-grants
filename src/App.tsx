@@ -18,14 +18,32 @@ import { AdminRankingsView } from './components/admin/AdminRankingsView';
 import { VendorManagement } from './components/admin/VendorManagement';
 import { AdminSettings } from './components/admin/AdminSettings';
 import { AdminAuditLogView } from './components/admin/audit/AdminAuditLogView';
+import { ReviewerAppreciationView } from './components/admin/ReviewerAppreciationView';
 import { Application } from './types/grant';
 
 const MainAppContent: React.FC = () => {
-  const { currentUser, applications, programSettings } = useGrant();
+  const { currentUser, applications, programSettings, loginWithMagicLink } = useGrant();
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [editingAppId, setEditingAppId] = useState<string | undefined>(undefined);
   const [scoringAppId, setScoringAppId] = useState<string | null>(null);
+
+  // Magic link login auto-detection via query string (?reviewerToken=xxx or ?token=xxx)
+  React.useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('reviewerToken') || params.get('token');
+      if (token) {
+        const success = loginWithMagicLink(token);
+        if (success) {
+          setActiveTab('reviewer-queue');
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+    } catch {
+      // Ignore URL parsing errors
+    }
+  }, [loginWithMagicLink]);
 
   // Submitted confirmation modal
   const [justSubmittedApp, setJustSubmittedApp] = useState<Application | null>(null);
@@ -98,6 +116,8 @@ const MainAppContent: React.FC = () => {
 
         {/* Admin / Owner Views */}
         {activeTab === 'admin-rankings' && <AdminRankingsView />}
+
+        {activeTab === 'admin-reviewers' && <ReviewerAppreciationView />}
 
         {activeTab === 'admin-vendors' && (
           <VendorManagement onNavigateAuditLog={() => setActiveTab('admin-audit')} />
