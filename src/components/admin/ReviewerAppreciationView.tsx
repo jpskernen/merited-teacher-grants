@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useGrant } from '../../context/GrantContext';
+import { useGrants } from '../../context/GrantContext';
 import { ReviewerProfile } from '../../types/grant';
 import {
   Users,
@@ -21,12 +21,17 @@ import {
   Sparkles,
   Calendar,
   X,
+  RotateCw,
+  Ban,
 } from 'lucide-react';
 
 export const ReviewerAppreciationView: React.FC = () => {
   const {
     reviewers,
+    invites,
     inviteReviewer,
+    resendInvite,
+    revokeInvite,
     updateReviewerProfile,
     deleteReviewerProfile,
     sendReviewerReminder,
@@ -36,7 +41,7 @@ export const ReviewerAppreciationView: React.FC = () => {
     reviews,
     programSettings,
     rubric,
-  } = useGrant();
+  } = useGrants();
 
   // Invite modal state
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -138,7 +143,7 @@ export const ReviewerAppreciationView: React.FC = () => {
     const rows = reviewerStats.map(({ rev, scoredCount, totalAssigned, isFinished }) => [
       `"${rev.name}"`,
       `"${rev.email}"`,
-      `"${rev.role === 'NonVotingReviewer' ? 'Non-Voting Observer' : 'Voting Member'}"`,
+      `"${rev.role === 'admin' ? 'Admin' : 'Reviewer'}"`,
       rev.cyclesServed,
       `"${(rev.mailingAddress || '').replace(/"/g, '""')}"`,
       `"${rev.shirtSize || 'N/A'}"`,
@@ -213,7 +218,7 @@ export const ReviewerAppreciationView: React.FC = () => {
           </div>
 
           <div className="text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200">
-            Scoring Closes: {programSettings.reviewClosesDate || 'November 16, 2026'} at 11:59 PM
+            Scoring Closes: {programSettings.reviewClosesDate || 'November 11, 2026'} at 11:59 PM
           </div>
         </div>
 
@@ -243,6 +248,145 @@ export const ReviewerAppreciationView: React.FC = () => {
               High-priority urgent reminder ensuring all scores are in before automated 11:59 PM portal lock for awards deliberation.
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Pending Reviewer Invitations (14-Day Expiry) */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+          <div className="flex items-center gap-2">
+            <Mail className="w-4 h-4 text-[#062A3D]" />
+            <h3 className="text-xs font-bold text-[#062A3D] uppercase tracking-wider">
+              Invitations Audit & 14-Day Expiry Controls
+            </h3>
+          </div>
+          <span className="text-xs text-slate-500 font-medium">
+            {invites.filter((i) => i.status === 'pending').length} Active Pending Invites
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#062A3D] text-white uppercase text-[10px] tracking-wider">
+              <tr>
+                <th className="py-2.5 px-4 font-bold">Recipient</th>
+                <th className="py-2.5 px-4 font-bold">Role</th>
+                <th className="py-2.5 px-4 font-bold">Dispatched</th>
+                <th className="py-2.5 px-4 font-bold">14-Day Expiry</th>
+                <th className="py-2.5 px-4 font-bold">Status</th>
+                <th className="py-2.5 px-4 font-bold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {invites.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-6 text-center text-slate-400 text-xs">
+                    No invitations generated yet. Click "Invite Reviewer" above to dispatch an invitation.
+                  </td>
+                </tr>
+              ) : (
+                invites.map((invite) => {
+                  const now = new Date();
+                  const expDate = new Date(invite.expiresAt);
+                  const isExpired = expDate < now && invite.status === 'pending';
+                  const daysLeft = Math.max(0, Math.ceil((expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+                  const magicLink = `${window.location.origin}/?invite=${encodeURIComponent(invite.token)}`;
+
+                  return (
+                    <tr key={invite.id} className="hover:bg-slate-50/80 transition">
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-[#062A3D]">{invite.name || 'Unnamed Evaluator'}</div>
+                        <div className="text-[11px] text-slate-500 font-mono">{invite.email}</div>
+                      </td>
+
+                      <td className="py-3 px-4">
+                        <span
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                            invite.role === 'admin'
+                              ? 'bg-rose-100 text-rose-800'
+                              : 'bg-sky-100 text-sky-800'
+                          }`}
+                        >
+                          {invite.role}
+                        </span>
+                      </td>
+
+                      <td className="py-3 px-4 text-slate-600 whitespace-nowrap">
+                        {new Date(invite.createdAt).toLocaleDateString()}
+                      </td>
+
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <div className="text-slate-800 font-semibold">
+                          {expDate.toLocaleDateString()}
+                        </div>
+                        {invite.status === 'pending' && !isExpired && (
+                          <div className="text-[10px] text-emerald-700 font-medium">
+                            {daysLeft} day{daysLeft === 1 ? '' : 's'} remaining
+                          </div>
+                        )}
+                      </td>
+
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        {invite.status === 'accepted' ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            Accepted
+                          </span>
+                        ) : invite.status === 'revoked' ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">
+                            Revoked
+                          </span>
+                        ) : isExpired ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                            Expired
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                            Pending
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3 px-4 text-right whitespace-nowrap space-x-1.5">
+                        {invite.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => resendInvite(invite.id)}
+                              className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 transition inline-flex items-center gap-1"
+                              title="Resend invitation and renew 14-day validity window"
+                            >
+                              <RotateCw className="w-3 h-3" />
+                              <span>Resend (Renew 14d)</span>
+                            </button>
+
+                            <button
+                              onClick={() => revokeInvite(invite.id)}
+                              className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 transition inline-flex items-center gap-1"
+                              title="Revoke this pending invitation link"
+                            >
+                              <Ban className="w-3 h-3" />
+                              <span>Revoke</span>
+                            </button>
+                          </>
+                        )}
+
+                        <button
+                          onClick={() => handleCopyMagicLink(magicLink, invite.id)}
+                          className="p-1.5 text-slate-500 hover:text-[#062A3D] hover:bg-slate-100 rounded-lg transition"
+                          title="Copy magic invite link"
+                        >
+                          {copiedLink === invite.id ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -298,12 +442,8 @@ export const ReviewerAppreciationView: React.FC = () => {
                         <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
                           <span>{rev.email}</span>
                           <span className="text-slate-300">•</span>
-                          <span
-                            className={`font-semibold ${
-                              rev.role === 'NonVotingReviewer' ? 'text-purple-700' : 'text-sky-800'
-                            }`}
-                          >
-                            {rev.role === 'NonVotingReviewer' ? 'Non-Voting Observer' : 'Voting Member'}
+                          <span className="font-semibold text-sky-800">
+                            Reviewer
                           </span>
                         </div>
                       </td>
@@ -386,7 +526,7 @@ export const ReviewerAppreciationView: React.FC = () => {
                         {/* Send Reminders */}
                         {!isFinished && (
                           <button
-                            onClick={() => sendReviewerReminder(rev.id, rev.reminderSent3Day ? '1-day' : '3-day')}
+                            onClick={() => sendReviewerReminder(rev.id, rev.reminderSent3Day ? '1day' : '3day')}
                             className="px-2 py-1 rounded-md text-[11px] font-semibold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 transition"
                             title="Dispatch deadline reminder email"
                           >
@@ -468,7 +608,7 @@ export const ReviewerAppreciationView: React.FC = () => {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Dr. Arthur Campbell"
+                    placeholder="e.g. Judy Abbott"
                     value={inviteName}
                     onChange={(e) => setInviteName(e.target.value)}
                     className="w-full text-xs rounded-lg border border-slate-200 p-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#8CC8E8]"
@@ -482,7 +622,7 @@ export const ReviewerAppreciationView: React.FC = () => {
                   <input
                     type="email"
                     required
-                    placeholder="e.g. arthur@nacisd.org"
+                    placeholder="e.g. judy@example.com"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     className="w-full text-xs rounded-lg border border-slate-200 p-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#8CC8E8]"
@@ -500,8 +640,7 @@ export const ReviewerAppreciationView: React.FC = () => {
                     onChange={(e) => setInviteRole(e.target.value as any)}
                     className="w-full text-xs rounded-lg border border-slate-200 p-2.5 bg-white font-semibold"
                   >
-                    <option value="Reviewer">Voting Committee Member</option>
-                    <option value="NonVotingReviewer">Non-Voting Observer</option>
+                    <option value="Reviewer">Reviewer</option>
                   </select>
                 </div>
 
@@ -560,7 +699,7 @@ export const ReviewerAppreciationView: React.FC = () => {
                   • Instant passwordless magic link to log in directly.
                 </p>
                 <p className="text-[11px] leading-snug">
-                  • Short welcome notice explaining the 8-criterion 100-pt rubric and the {programSettings.reviewClosesDate || 'November 16'} deadline.
+                  • Short welcome notice explaining the 8-criterion 100-pt rubric and the {programSettings.reviewClosesDate || 'November 11'} deadline.
                 </p>
               </div>
 
@@ -647,7 +786,7 @@ export const ReviewerAppreciationView: React.FC = () => {
                   Thank you for serving on the <strong>Nacogdoches ISD Education Foundation Grants Committee</strong> for {programSettings.schoolYear}!
                 </p>
                 <p>
-                  Your review queue has proposals assigned to evaluate against our 8-criterion 100-point rubric. Scoring closes on <strong>{programSettings.reviewClosesDate || 'November 16, 2026'} at 11:59 PM</strong>.
+                  Your review queue has proposals assigned to evaluate against our 8-criterion 100-point rubric. Scoring closes on <strong>{programSettings.reviewClosesDate || 'November 11, 2026'} at 11:59 PM</strong>.
                 </p>
                 <p>
                   You can sign in instantly without a password using your personal link below:

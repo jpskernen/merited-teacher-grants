@@ -1,59 +1,218 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Default deny
+
+    // Global default-deny catch-all
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Program settings
-    match /programs/{programId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // Vendors
-    match /vendors/{vendorId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+    function getUserEmail() {
+      return request.auth.token.email.lower();
     }
 
-    // Rubric
-    match /rubrics/{rubricId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+    // Consistent lowercase role checking
+    function hasRole(roleName) {
+      return isSignedIn() && (
+        (request.auth.token.role != null && request.auth.token.role.lower() == roleName.lower()) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role.lower() == roleName.lower())
+      );
     }
 
-    // Applications
+    // Administrators
+    function isAdmin() {
+      return isSignedIn() && (
+        hasRole('admin') ||
+        getUserEmail() in [
+          'ewindham@nacisd.org',
+          'director@nefgrants.org',
+          'board.president@nefgrants.org',
+          'janekernen@gmail.com'
+        ] ||
+        (exists(/databases/$(database)/documents/reviewers/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/reviewers/$(request.auth.uid)).data.role.lower() == 'admin')
+      );
+    }
+
+    // Committee Reviewers (Voting and Non-Voting)
+    function isReviewer() {
+      return isSignedIn() && (
+        isAdmin() ||
+        hasRole('reviewer') ||
+        getUserEmail() in [
+          'abottja021820@gmail.com',
+          'sydneykr@gmail.com',
+          'mmloa@asp-inc.com',
+          'curriculum@nacisd.org',
+          'studentsupport@nacisd.org'
+        ] ||
+        (exists(/databases/$(database)/documents/reviewers/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/reviewers/$(request.auth.uid)).data.role.lower() in ['reviewer', 'nonvotingreviewer'])
+      );
+    }
+
+    // 1. Grant Applications (Blind Proposal Content Only)
+    // - Reviewers see only non-draft applications assigned to them.
+    // - Teachers read/write only their own applications, and write only while in draft.
+    // - Opening an application for the first time moves it from submitted to under_review.
     match /applications/{applicationId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
-      allow delete: if request.auth != null;
+      allow get: if isSignedIn() && (
+        isAdmin() ||
+        (isReviewer() &&
+         resource.data.status.lower() != 'draft' &&
+         (resource.data.assignedReviewerIds == null ||
+          'all' in resource.data.assignedReviewerIds ||
+          request.auth.uid in resource.data.assignedReviewerIds ||
+          getUserEmail() in resource.data.assignedReviewerIds)) ||
+        (resource.data.teacherUid == request.auth.uid ||
+         (resource.data.teacherEmail != null && resource.data.teacherEmail.lower() == getUserEmail()))
+      );
 
-      // Subcollection: Reviews
+      allow list: if isSignedIn() && (
+        isAdmin() ||
+        (isReviewer() && resource.data.status.lower() != 'draft') ||
+        (resource.data.teacherUid == request.auth.uid ||
+         (resource.data.teacherEmail != null && resource.data.teacherEmail.lower() == getUserEmail()))
+      );
+
+      // Teachers write only their own drafts; Admins have full access
+      allow create: if isSignedIn() && (
+        isAdmin() ||
+        (request.resource.data.status.lower() == 'draft' &&
+         (request.resource.data.teacherUid == request.auth.uid ||
+          request.resource.data.teacherEmail.lower() == getUserEmail()))
+      );
+
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        // Teacher updating their draft
+        (resource.data.status.lower() == 'draft' &&
+         (resource.data.teacherUid == request.auth.uid ||
+          (resource.data.teacherEmail != null && resource.data.teacherEmail.lower() == getUserEmail())) &&
+         request.resource.data.status.lower() in ['draft', 'submitted']) ||
+        // Reviewer opening for the first time (moves from submitted to under_review)
+        (isReviewer() &&
+         resource.data.status.lower() == 'submitted' &&
+         request.resource.data.status.lower() == 'under_review' &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'openedForReviewAt', 'updatedAt']))
+      );
+
+      allow delete: if isAdmin();
+
+      // Subcollection: Review evaluations
+      // One review per reviewer: reviewId equals reviewer UID or email hash.
+      // Submitted reviews are locked. Cannot score after final decision.
       match /reviews/{reviewId} {
-        allow read: if request.auth != null;
-        allow write: if request.auth != null;
-      }
+        allow read, get: if isSignedIn() && (
+          isAdmin() ||
+          reviewId == request.auth.uid ||
+          resource.data.reviewerEmail.lower() == getUserEmail() ||
+          resource.data.reviewerId == request.auth.uid
+        );
 
-      // Subcollection: Timeline
-      match /timeline/{timelineId} {
-        allow read: if request.auth != null;
-        allow write: if request.auth != null;
+        allow list: if isSignedIn() && (
+          isAdmin() ||
+          resource.data.reviewerEmail.lower() == getUserEmail() ||
+          resource.data.reviewerId == request.auth.uid
+        );
+
+        allow create: if isSignedIn() && (
+          isAdmin() ||
+          (isReviewer() &&
+           (reviewId == request.auth.uid ||
+            request.resource.data.reviewerEmail.lower() == getUserEmail() ||
+            request.resource.data.reviewerId == request.auth.uid) &&
+           get(/databases/$(database)/documents/applications/$(applicationId)).data.status.lower() in ['submitted', 'under_review'])
+        );
+
+        allow update: if isSignedIn() && (
+          isAdmin() ||
+          (isReviewer() &&
+           (resource.data.reviewerEmail.lower() == getUserEmail() ||
+            resource.data.reviewerId == request.auth.uid ||
+            reviewId == request.auth.uid) &&
+           // Cannot update if already submitted (locked)
+           resource.data.isSubmitted != true &&
+           get(/databases/$(database)/documents/applications/$(applicationId)).data.status.lower() in ['submitted', 'under_review'])
+        );
+
+        allow delete: if isAdmin();
       }
     }
 
-    // Users
+    // 2. Applicant Identities (Strictly Admin-Only Collection)
+    // Stores applicant names, emails, campus, signatures.
+    match /applicantIdentities/{applicationId} {
+      allow read, list, write: if isAdmin();
+    }
+
+    // 3. Counter for atomic Firestore grant code generation (IGF2601, IGF2602...)
+    match /counters/{counterId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 4. Sent Emails Log
+    // Only admins can read it; server writes it.
+    match /sent_emails/{emailId} {
+      allow read, list: if isAdmin();
+      allow write: if true; // Written by server email dispatch
+    }
+
+    // 5. Invites
+    // Can only be opened by document token/ID (never listed by non-admins).
+    match /invites/{inviteId} {
+      allow list: if isAdmin();
+      allow get: if true; // Fetchable directly by unguessable ID/token to verify & accept
+      allow write: if true; // Generated and managed by server
+    }
+
+    // 6. User Profiles and Roles
+    // Stored roles can only be set/modified by admin/server. Users cannot edit their own role.
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
     }
 
-    // Admin Audit Logs
+    // 7. Reviewer Roster and Swag/Appreciation
+    match /reviewers/{reviewerId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 8. Program Cycle Settings and Scoring Rubric
+    match /settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /programs/{programId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /rubrics/{rubricId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 9. Terms of Service and Privacy Policy
+    match /legal/{docId} {
+      allow read: if true; // Publicly accessible to applicants and evaluators
+      allow write: if isAdmin();
+    }
+
+    // 10. Audit Logs
     match /auditLogs/{logId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow read, list: if isAdmin();
+      allow write: if isAdmin();
+    }
+    match /audit_logs/{logId} {
+      allow read, list: if isAdmin();
+      allow write: if isAdmin();
     }
   }
 }

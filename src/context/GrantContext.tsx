@@ -1,77 +1,127 @@
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import {
-  AdminAuditLog,
-  AdminEligibilityScreening,
   Application,
+  ApplicantIdentity,
   ApplicationStatus,
-  AuditCategory,
-  BudgetItem,
-  FinalReportData,
   ProgramSettings,
+  RubricCriterion,
   Review,
   ReviewerProfile,
-  RubricCriterion,
-  TimelineEvent,
+  AdminEligibilityScreening,
+  AdminAuditLog,
+  AuditCategory,
   UserProfile,
   UserRole,
-  Vendor,
+  SentEmail,
+  InviteRecord,
+  LegalDocument,
 } from '../types/grant';
 import {
-  INITIAL_APPLICATIONS,
-  INITIAL_AUDIT_LOGS,
-  INITIAL_PROGRAM_SETTINGS,
-  INITIAL_REVIEWERS,
-  INITIAL_REVIEWS,
   INITIAL_RUBRIC,
-  INITIAL_VENDORS,
+  INITIAL_PROGRAM_SETTINGS,
+  INITIAL_APPLICATIONS,
+  INITIAL_APPLICANT_IDENTITIES,
+  INITIAL_REVIEWERS,
 } from '../data/seedData';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
+import { db, auth, OperationType, handleFirestoreError } from '../lib/firebase';
 import {
   collection,
   doc,
-  getDocs,
-  onSnapshot,
+  getDoc,
   setDoc,
   updateDoc,
+  deleteDoc,
+  onSnapshot,
+  runTransaction,
+  query,
+  orderBy,
+  limit,
 } from 'firebase/firestore';
-import { generateNextGrantCode } from '../utils/grantCodeUtils';
+import {
+  onAuthStateChanged,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
+  signOut,
+  User as FirebaseUser,
+} from 'firebase/auth';
+import { isReviewWindowClosed, getReviewDeadlineSummary } from '../utils/cycleDates';
+
+export interface BulkDecisionReport {
+  total: number;
+  sent: number;
+  failed: number;
+  skipped: Array<{ grantCode: string; title: string; reason: string }>;
+}
+
+export function normalizeRole(role: string | undefined): 'admin' | 'reviewer' | 'teacher' {
+  if (!role) return 'teacher';
+  const r = role.toLowerCase().trim();
+  if (r === 'admin' || r === 'owner') return 'admin';
+  if (r === 'reviewer' || r === 'nonvotingreviewer') return 'reviewer';
+  return 'teacher';
+}
 
 interface GrantContextType {
-  currentUser: UserProfile;
-  switchUser: (role: UserRole, email?: string, name?: string) => void;
+  currentUser: UserProfile | null;
+  authLoading: boolean;
+  sendEmailSignInLink: (email: string) => Promise<{ success: boolean; message: string }>;
+  signInWithEmailLinkDirect: (email: string, linkHref?: string) => Promise<void>;
+  signInAsTestUser: (email: string, role: UserRole, displayName: string) => Promise<void>;
+  logout: () => Promise<void>;
   applications: Application[];
+  applicantIdentities: Record<string, ApplicantIdentity>; // strictly accessible to Admins
   programSettings: ProgramSettings;
   updateProgramSettings: (settings: Partial<ProgramSettings>) => Promise<void>;
-  vendors: Vendor[];
-  addVendor: (vendor: Omit<Vendor, 'id'>) => Promise<void>;
-  updateVendor: (vendor: Vendor) => Promise<void>;
-  deleteVendor: (vendorId: string) => Promise<void>;
-  uploadVendorCsv: (csvText: string) => Promise<number>;
   rubric: RubricCriterion[];
   updateRubricCriterion: (criterion: RubricCriterion) => Promise<void>;
   resetRubricToDefaults: () => Promise<void>;
   reviews: Review[];
-  saveReview: (review: Review) => Promise<void>;
-  saveApplicationDraft: (app: Partial<Application> & { id?: string }) => Promise<string>;
-  submitApplication: (appId: string) => Promise<void>;
-  updateApplicationStatus: (
-    appId: string,
-    status: ApplicationStatus,
-    reason?: string,
-    committeeFeedback?: string,
-    awardedAmount?: number
-  ) => Promise<void>;
-  sendMoreInfoRequest: (appId: string, question: string) => Promise<void>;
-  respondToMoreInfo: (appId: string, response: string) => Promise<void>;
+  saveReviewDraft: (review: Review) => Promise<void>;
+  submitOfficialReview: (review: Review) => Promise<void>;
+  saveReview: (review: Review) => Promise<void>; // backward-compatible alias to saveReviewDraft
+  openApplicationForReview: (appId: string) => Promise<void>;
+  toggleRecusal: (appId: string, recused: boolean, reason?: string) => Promise<void>;
   saveAdminEligibility: (appId: string, screening: AdminEligibilityScreening) => Promise<void>;
   assignReviewersToApplication: (appId: string, reviewerIds: string[]) => Promise<void>;
-  markCheckSent: (appId: string, checkData: { checkNumber: string; checkSentAt: string; checkAmount?: number; checkNotes?: string }) => Promise<void>;
-  reportPoSubmitted: (appId: string) => Promise<void>;
-  reportEventDate: (appId: string, eventDate: string) => Promise<void>;
-  submitFinalReport: (appId: string, report: FinalReportData) => Promise<void>;
-  simulatePrincipalApproval: (appId: string, approved: boolean, comment?: string) => Promise<void>;
-  toggleRecusal: (appId: string, recused: boolean, reason?: string) => Promise<void>;
-  timelineEvents: TimelineEvent[];
+  updateApplicationAward: (
+    appId: string,
+    status: ApplicationStatus,
+    awardedAmount?: number,
+    committeeFeedback?: string
+  ) => Promise<void>;
+  updateApplicationStatus: (appId: string, status: ApplicationStatus, reason?: string) => Promise<void>;
+  executeBulkDecisions: (decisions: any[]) => Promise<BulkDecisionReport>;
+  loginWithMagicLink: (token: string) => boolean;
+  reviewers: ReviewerProfile[];
+  invites: InviteRecord[];
+  inviteReviewer: (reviewer: {
+    name: string;
+    email: string;
+    role: 'reviewer' | 'admin' | 'Reviewer' | 'NonVotingReviewer';
+    cyclesServed?: number;
+    mailingAddress?: string;
+    shirtSize?: 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
+    notes?: string;
+  }) => Promise<{ reviewer: ReviewerProfile; magicLink: string }>;
+  resendInvite: (inviteId: string) => Promise<void>;
+  revokeInvite: (inviteId: string) => Promise<void>;
+  acceptInviteByToken: (token: string) => Promise<{ success: boolean; role: string; email: string }>;
+  updateReviewerProfile: (reviewer: ReviewerProfile) => Promise<void>;
+  deleteReviewerProfile: (reviewerId: string) => Promise<void>;
+  sendReviewerReminder: (reviewerId: string, reminderType: '3day' | '1day') => Promise<void>;
+  sendReviewerThankYou: (reviewerId: string) => Promise<void>;
+  sentEmails: SentEmail[];
+  fetchSentEmails: () => Promise<SentEmail[]>;
+  uploadFileToServer: (file: File, context?: 'proposal' | 'final_report') => Promise<{ url: string; fileName: string; fileSize: number }>;
+  legalTerms: LegalDocument | null;
+  legalPrivacy: LegalDocument | null;
+  saveLegalDocument: (type: 'terms' | 'privacy', title: string, content: string) => Promise<void>;
   auditLogs: AdminAuditLog[];
   recordAuditLog: (entry: {
     action: string;
@@ -80,173 +130,86 @@ interface GrantContextType {
     metadata?: Record<string, any>;
   }) => Promise<void>;
   clearAuditLogs: () => Promise<void>;
+  importGoogleFormResponses: (
+    csvText: string,
+    customMappings?: Record<string, string>
+  ) => Promise<{ importedCount: number; duplicatesSkipped: number; startCode: string; endCode: string }>;
+  saveSubmittedApplicationToFirestore: (app: Application, identity?: ApplicantIdentity) => Promise<void>;
+  syncAllApplicationsToFirestore: () => Promise<{ syncedCount: number; errorCount: number }>;
+  isReviewClosed: boolean;
+  reviewDeadlineInfo: { isClosed: boolean; formattedCutoff: string; timeRemaining?: string };
   isSyncing: boolean;
   activeNotification: { title: string; message: string; type?: 'info' | 'success' | 'warn' } | null;
   dismissNotification: () => void;
-  userPendingFinalReport: boolean;
-  reviewers: ReviewerProfile[];
-  inviteReviewer: (reviewer: {
-    name: string;
-    email: string;
-    role: 'Reviewer' | 'NonVotingReviewer';
-    cyclesServed?: number;
-    mailingAddress?: string;
-    shirtSize?: 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
-  }) => Promise<{ reviewer: ReviewerProfile; magicLink: string }>;
-  updateReviewerProfile: (reviewer: ReviewerProfile) => Promise<void>;
-  deleteReviewerProfile: (reviewerId: string) => Promise<void>;
-  sendReviewerReminder: (reviewerId: string, reminderType: '3-day' | '1-day') => Promise<void>;
-  sendReviewerThankYou: (reviewerId: string) => Promise<void>;
-  loginWithMagicLink: (tokenOrEmail: string) => boolean;
-  resetToGoogleSheetData: () => Promise<void>;
 }
 
 const GrantContext = createContext<GrantContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'merited_grants_cache_v2_gsheet';
+const ADMIN_EMAILS = [
+  'ewindham@nacisd.org',
+  'director@nefgrants.org',
+  'board.president@nefgrants.org',
+  'janekernen@gmail.com',
+];
+
+const NON_VOTING_EMAILS = [
+  'curriculum@nacisd.org',
+  'studentsupport@nacisd.org',
+];
 
 export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Current user state (Defaulting to first applicant in Google Sheet)
-  const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('merited_current_user');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          return {
+            ...parsed,
+            role: normalizeRole(parsed.role),
+          };
+        } catch {
+          // ignore error
+        }
+      }
+    }
+    // Default preview user is Primary Admin Erin Windham
     return {
-      id: 'usr-teacher-1',
-      email: 'jcmay@nacisd.org',
-      displayName: 'Jessica May',
-      role: 'Teacher',
-      campus: 'Brooks Quinn Jones Elementary',
-      recusedAppIds: [],
+      id: 'admin-erin-windham',
+      email: 'ewindham@nacisd.org',
+      displayName: 'Erin Windham (Admin)',
+      role: 'admin',
+      isVoting: false,
     };
   });
 
-  // State collections initialized from seed data or local cache
-  const [programSettings, setProgramSettings] = useState<ProgramSettings>(() => {
-    const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_settings`);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        return {
-          ...INITIAL_PROGRAM_SETTINGS,
-          ...parsed,
-          reviewClosesDate: parsed.reviewClosesDate || INITIAL_PROGRAM_SETTINGS.reviewClosesDate,
-          awardsPresentedDate: parsed.awardsPresentedDate || INITIAL_PROGRAM_SETTINGS.awardsPresentedDate,
-          applicationsOpenDate: parsed.applicationsOpenDate || INITIAL_PROGRAM_SETTINGS.applicationsOpenDate,
-          eligibilityDescription: parsed.eligibilityDescription || INITIAL_PROGRAM_SETTINGS.eligibilityDescription,
-          availableFunds: parsed.availableFunds && parsed.availableFunds !== 35000 ? parsed.availableFunds : 52000,
-        };
-      } catch {
-        // fallback
-      }
-    }
-    return INITIAL_PROGRAM_SETTINGS;
-  });
-
-  const [vendors, setVendors] = useState<Vendor[]>(() => {
-    const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_vendors`);
-    return cached ? JSON.parse(cached) : INITIAL_VENDORS;
-  });
-
-  const [rubric, setRubric] = useState<RubricCriterion[]>(() => {
-    const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_rubric`);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached) as RubricCriterion[];
-        // Auto-upgrade if previous schema or total weight is under 100
-        const totalWeight = parsed.reduce((sum, c) => sum + (c.weight || 0), 0);
-        if (totalWeight === 100 && parsed.every((p) => p.formSource)) {
-          return parsed;
-        }
-      } catch {
-        // fallback to INITIAL_RUBRIC
-      }
-    }
-    return INITIAL_RUBRIC;
-  });
-
-  const [applications, setApplications] = useState<Application[]>(() => {
-    const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_apps`);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached) as Application[];
-        if (Array.isArray(parsed) && parsed.length >= 10 && parsed.some((a) => a.id.startsWith('app-nisd-'))) {
-          return parsed;
-        }
-      } catch {}
-    }
-    return INITIAL_APPLICATIONS;
-  });
-
+  const [authLoading, setAuthLoading] = useState<boolean>(false);
+  const [applications, setApplications] = useState<Application[]>(INITIAL_APPLICATIONS);
+  const [applicantIdentities, setApplicantIdentities] = useState<Record<string, ApplicantIdentity>>(
+    INITIAL_APPLICANT_IDENTITIES
+  );
+  const [programSettings, setProgramSettings] = useState<ProgramSettings>(INITIAL_PROGRAM_SETTINGS);
+  const [rubric, setRubric] = useState<RubricCriterion[]>(INITIAL_RUBRIC);
   const [reviews, setReviews] = useState<Review[]>(() => {
-    const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_reviews`);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached) as Review[];
-        if (Array.isArray(parsed) && parsed.some((r) => r.applicationId.startsWith('app-nisd-'))) {
-          return parsed;
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('merited_reviews');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        } catch {
+          // ignore error
         }
-      } catch {}
+      }
     }
-    return INITIAL_REVIEWS;
+    return [];
   });
-
-  const [reviewers, setReviewers] = useState<ReviewerProfile[]>(() => {
-    const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_reviewers`);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached) as ReviewerProfile[];
-        if (Array.isArray(parsed) && parsed.length >= 4) {
-          return parsed;
-        }
-      } catch {}
-    }
-    return INITIAL_REVIEWERS;
-  });
-
-  useEffect(() => {
-    localStorage.setItem(`${LOCAL_STORAGE_KEY}_reviewers`, JSON.stringify(reviewers));
-  }, [reviewers]);
-
-  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>(() => {
-    const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_timeline`);
-    if (cached) return JSON.parse(cached);
-    return [
-      {
-        id: 'tl-1',
-        applicationId: 'app-nef-001',
-        status: 'Submitted',
-        title: 'Application Submitted',
-        description: 'Completed multi-step application and budget verification.',
-        actorEmail: 'janekernen@gmail.com',
-        actorRole: 'Teacher',
-        timestamp: '2026-10-23T11:20:00Z',
-      },
-      {
-        id: 'tl-2',
-        applicationId: 'app-nef-001',
-        status: 'Principal Approval',
-        title: 'Principal Endorsement Received',
-        description: 'Principal approved proposal with commendation.',
-        actorEmail: 'principal.raguet@nacisd.org',
-        actorRole: 'Principal',
-        timestamp: '2026-10-24T14:15:00Z',
-      },
-      {
-        id: 'tl-3',
-        applicationId: 'app-nef-001',
-        status: 'Under Review',
-        title: 'Assigned to Committee',
-        description: 'Proposal entered blind scoring queue.',
-        actorEmail: 'admin@nefgrants.org',
-        actorRole: 'Admin',
-        timestamp: '2026-10-24T15:00:00Z',
-      },
-    ];
-  });
-
-  const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>(() => {
-    const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_audit_logs`);
-    return cached ? JSON.parse(cached) : INITIAL_AUDIT_LOGS;
-  });
-
+  const [reviewers, setReviewers] = useState<ReviewerProfile[]>(INITIAL_REVIEWERS);
+  const [invites, setInvites] = useState<InviteRecord[]>([]);
+  const [sentEmails, setSentEmails] = useState<SentEmail[]>([]);
+  const [legalTerms, setLegalTerms] = useState<LegalDocument | null>(null);
+  const [legalPrivacy, setLegalPrivacy] = useState<LegalDocument | null>(null);
+  const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [activeNotification, setActiveNotification] = useState<{
     title: string;
@@ -256,656 +219,841 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const dismissNotification = () => setActiveNotification(null);
 
-  // Sync to local storage
+  // Compute deadline lock at 11:59 pm America/Chicago
+  const reviewDeadlineInfo = useMemo(() => {
+    return getReviewDeadlineSummary(programSettings.reviewClosesDate);
+  }, [programSettings.reviewClosesDate]);
+
+  const isReviewClosed = reviewDeadlineInfo.isClosed;
+
+  // Track Firebase Auth state & determine role
   useEffect(() => {
-    try {
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_settings`, JSON.stringify(programSettings));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_vendors`, JSON.stringify(vendors));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_rubric`, JSON.stringify(rubric));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_apps`, JSON.stringify(applications));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_reviews`, JSON.stringify(reviews));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_timeline`, JSON.stringify(timelineEvents));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_audit_logs`, JSON.stringify(auditLogs));
-    } catch {
-      // ignore quota errors
-    }
-  }, [programSettings, vendors, rubric, applications, reviews, timelineEvents, auditLogs]);
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
+      if (fbUser && fbUser.email) {
+        const email = fbUser.email.toLowerCase().trim();
+        let role: 'admin' | 'reviewer' | 'teacher' = 'reviewer';
+        let isVoting = true;
 
-  // Initial Firestore synchronization with defensive error handling
-  useEffect(() => {
-    let unsubscribeSettings: (() => void) | undefined;
-    let unsubscribeVendors: (() => void) | undefined;
-    let unsubscribeApps: (() => void) | undefined;
-    let unsubscribeAuditLogs: (() => void) | undefined;
-
-    const setupFirestoreListeners = async () => {
-      try {
-        setIsSyncing(true);
-
-        // Bootstrap initial records if Firestore is completely empty
-        const appsRef = collection(db, 'applications');
-        const snap = await getDocs(appsRef).catch((e) => {
-          console.warn('Initial apps read note:', e);
-          return null;
-        });
-
-        if (snap && (snap.empty || snap.docs.length < 10 || !snap.docs.some((d) => d.id.startsWith('app-nisd-')))) {
-          // Seed Google Sheet applications to Firestore
-          for (const app of INITIAL_APPLICATIONS) {
-            await setDoc(doc(db, 'applications', app.id), app).catch(() => {});
-          }
-          for (const vendor of INITIAL_VENDORS) {
-            await setDoc(doc(db, 'vendors', vendor.id), vendor).catch(() => {});
-          }
-          await setDoc(doc(db, 'programs', INITIAL_PROGRAM_SETTINGS.id), INITIAL_PROGRAM_SETTINGS).catch(() => {});
-        }
-
-        // Bootstrap audit logs if empty
-        const auditRef = collection(db, 'auditLogs');
-        const auditSnap = await getDocs(auditRef).catch(() => null);
-        if (auditSnap && auditSnap.empty) {
-          for (const log of INITIAL_AUDIT_LOGS) {
-            await setDoc(doc(db, 'auditLogs', log.id), log).catch(() => {});
-          }
-        }
-
-        // Setup real-time listener for applications
-        unsubscribeApps = onSnapshot(
-          collection(db, 'applications'),
-          (snapshot) => {
-            if (!snapshot.empty) {
-              const loaded: Application[] = [];
-              snapshot.forEach((d) => loaded.push(d.data() as Application));
-              if (loaded.length >= 10 || loaded.some((a) => a.id.startsWith('app-nisd-'))) {
-                setApplications(loaded);
+        if (ADMIN_EMAILS.includes(email) || email === 'ewindham@nacisd.org') {
+          role = 'admin';
+        } else if (NON_VOTING_EMAILS.includes(email)) {
+          role = 'reviewer';
+          isVoting = false;
+        } else {
+          // Check server-controlled /users/{uid} document
+          try {
+            const userSnap = await getDoc(doc(db, 'users', fbUser.uid));
+            if (userSnap.exists()) {
+              const uData = userSnap.data();
+              role = normalizeRole(uData.role);
+              if (uData.isVoting !== undefined) isVoting = Boolean(uData.isVoting);
+            } else {
+              // Check reviewers collection
+              const revSnap = await getDoc(doc(db, 'reviewers', fbUser.uid));
+              if (revSnap.exists()) {
+                const rData = revSnap.data();
+                role = normalizeRole(rData.role);
+                isVoting = rData.isVoting ?? (role === 'reviewer');
               }
             }
-          },
-          (error) => {
-            console.warn('Firestore apps listener fallback:', error.message);
+          } catch {
+            // fallback
           }
-        );
+        }
 
-        // Setup listener for vendors
-        unsubscribeVendors = onSnapshot(
-          collection(db, 'vendors'),
-          (snapshot) => {
-            if (!snapshot.empty) {
-              const loaded: Vendor[] = [];
-              snapshot.forEach((d) => loaded.push(d.data() as Vendor));
-              setVendors(loaded);
-            }
-          },
-          (error) => {
-            console.warn('Firestore vendors listener fallback:', error.message);
-          }
-        );
+        const displayName =
+          fbUser.displayName ||
+          (role === 'admin' && email.includes('windham')
+            ? 'Erin Windham (Admin)'
+            : email.split('@')[0]);
 
-        // Setup listener for program settings
-        unsubscribeSettings = onSnapshot(
-          collection(db, 'programs'),
-          (snapshot) => {
-            if (!snapshot.empty) {
-              snapshot.forEach((d) => {
-                setProgramSettings(d.data() as ProgramSettings);
-              });
-            }
-          },
-          (error) => {
-            console.warn('Firestore programs listener fallback:', error.message);
-          }
-        );
+        const profile: UserProfile = {
+          id: fbUser.uid,
+          email,
+          displayName,
+          role,
+          isVoting,
+        };
 
-        // Setup listener for audit logs
-        unsubscribeAuditLogs = onSnapshot(
-          collection(db, 'auditLogs'),
-          (snapshot) => {
-            if (!snapshot.empty) {
-              const loaded: AdminAuditLog[] = [];
-              snapshot.forEach((d) => loaded.push(d.data() as AdminAuditLog));
-              loaded.sort(
-                (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-              );
-              setAuditLogs(loaded);
-            }
-          },
-          (error) => {
-            console.warn('Firestore auditLogs listener fallback:', error.message);
-          }
-        );
-      } catch (err) {
-        console.warn('Firestore initialization notice:', err);
-      } finally {
-        setIsSyncing(false);
+        setCurrentUser(profile);
+        localStorage.setItem('merited_current_user', JSON.stringify(profile));
       }
-    };
+    });
 
-    setupFirestoreListeners();
+    return () => unsubscribe();
+  }, []);
+
+  // Handle incoming email link authentication if present in URL
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isSignInWithEmailLink(auth, window.location.href)) {
+      let email = window.localStorage.getItem('emailForSignIn');
+      if (!email) {
+        email = window.prompt('Please confirm your email address for passwordless sign-in') || '';
+      }
+      if (email) {
+        setAuthLoading(true);
+        signInWithEmailLink(auth, email, window.location.href)
+          .then(() => {
+            window.localStorage.removeItem('emailForSignIn');
+            setActiveNotification({
+              title: 'Authenticated Successfully',
+              message: `Signed in as ${email}.`,
+              type: 'success',
+            });
+            window.history.replaceState({}, document.title, window.location.pathname);
+          })
+          .catch((error) => {
+            console.error('Passwordless sign-in error:', error);
+            setActiveNotification({
+              title: 'Sign-in Failed',
+              message: error.message || 'Invalid or expired sign-in link.',
+              type: 'warn',
+            });
+          })
+          .finally(() => setAuthLoading(false));
+      }
+    }
+  }, []);
+
+  // Sync settings and rubric from Firestore
+  useEffect(() => {
+    const unsubSettings = onSnapshot(
+      doc(db, 'settings', 'nacogdoches-nef-2026'),
+      (snap) => {
+        if (snap.exists()) {
+          const data = snap.data() as ProgramSettings;
+          setProgramSettings((prev) => ({
+            ...prev,
+            ...data,
+            reviewClosesDate:
+              data.reviewClosesDate === '2026-11-16' || data.reviewClosesDate === 'November 16, 2026'
+                ? '2026-11-11'
+                : (data.reviewClosesDate || '2026-11-11'),
+          }));
+        }
+      },
+      (err) => console.warn('Settings listener:', err.message)
+    );
+
+    const unsubRubric = onSnapshot(
+      doc(db, 'rubrics', 'default'),
+      (snap) => {
+        if (snap.exists() && snap.data().criteria) {
+          setRubric(snap.data().criteria as RubricCriterion[]);
+        }
+      },
+      (err) => console.warn('Rubric listener:', err.message)
+    );
+
+    // Reviewers collection
+    const unsubReviewers = onSnapshot(
+      collection(db, 'reviewers'),
+      (snap) => {
+        if (!snap.empty) {
+          const list = snap.docs.map((d) => d.data() as ReviewerProfile);
+          const cleaned = list.filter(
+            (r) =>
+              !['dr. arthur campbell', 'dr. karen myers', 'elena rostova'].includes(
+                (r.name || '').toLowerCase().trim()
+              ) &&
+              !['rev1@nacisd.org', 'rev2@nacisd.org', 'curriculum@nacisd.org'].includes(
+                (r.email || '').toLowerCase().trim()
+              )
+          );
+          const map = new Map<string, ReviewerProfile>();
+          INITIAL_REVIEWERS.forEach((r) => map.set(r.email.toLowerCase(), r));
+          cleaned.forEach((r) => map.set(r.email.toLowerCase(), r));
+          setReviewers(Array.from(map.values()));
+        } else {
+          setReviewers(INITIAL_REVIEWERS);
+        }
+      },
+      (err) => {
+        console.warn('Reviewers listener:', err.message);
+        setReviewers(INITIAL_REVIEWERS);
+      }
+    );
+
+    // Invites collection (admin-accessible)
+    const unsubInvites = onSnapshot(
+      collection(db, 'invites'),
+      (snap) => {
+        const list = snap.docs.map((d) => d.data() as InviteRecord);
+        setInvites(list);
+      },
+      (err) => console.warn('Invites listener:', err.message)
+    );
+
+    // Audit logs
+    const unsubAudit = onSnapshot(
+      collection(db, 'auditLogs'),
+      (snap) => {
+        const list = snap.docs.map((d) => d.data() as AdminAuditLog);
+        list.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        setAuditLogs(list);
+      },
+      (err) => console.warn('Audit logs listener:', err.message)
+    );
 
     return () => {
-      unsubscribeSettings?.();
-      unsubscribeVendors?.();
-      unsubscribeApps?.();
-      unsubscribeAuditLogs?.();
+      unsubSettings();
+      unsubRubric();
+      unsubReviewers();
+      unsubInvites();
+      unsubAudit();
     };
   }, []);
 
-  // Check if current user has a pending final report on a funded grant from past/current cycle
-  const userPendingFinalReport = useMemo(() => {
-    if (currentUser.role !== 'Teacher') return false;
-    return applications.some(
-      (app) =>
-        app.applicantEmail.toLowerCase() === currentUser.email.toLowerCase() &&
-        app.status === 'Funded' &&
-        !app.finalReport
-    );
-  }, [applications, currentUser]);
+  // Fetch Legal Documents on startup
+  useEffect(() => {
+    fetch('/api/legal/terms')
+      .then((r) => r.json())
+      .then((data) => setLegalTerms(data))
+      .catch(() => {});
 
-  // Switch role and prefill standard user test accounts
-  const switchUser = (role: UserRole, email?: string, name?: string) => {
-    let defaultEmail = email;
-    let defaultName = name;
-    let defaultCampus = 'Brooks Quinn Jones Elementary';
+    fetch('/api/legal/privacy')
+      .then((r) => r.json())
+      .then((data) => setLegalPrivacy(data))
+      .catch(() => {});
+  }, []);
 
-    switch (role) {
-      case 'Teacher':
-        defaultEmail = email || 'jcmay@nacisd.org';
-        defaultName = name || 'Jessica May';
-        defaultCampus = 'Brooks Quinn Jones Elementary';
-        // Auto-match campus and name from applications list
-        const matched = applications.find(
-          (a) =>
-            a.applicantEmail.toLowerCase() === (defaultEmail || '').toLowerCase() ||
-            (a.applicantNames || []).some(
-              (n) => n.email.toLowerCase() === (defaultEmail || '').toLowerCase()
-            )
-        );
-        if (matched) {
-          defaultCampus = matched.campus;
-          defaultName =
-            name ||
-            matched.applicantNames.find(
-              (n) => n.email.toLowerCase() === (defaultEmail || '').toLowerCase()
-            )?.name ||
-            matched.applicantNames[0]?.name ||
-            defaultName;
+  // Sync applications
+  useEffect(() => {
+    setIsSyncing(true);
+    const unsubApps = onSnapshot(
+      collection(db, 'applications'),
+      (snap) => {
+        if (!snap.empty) {
+          const list = snap.docs.map((d) => d.data() as Application);
+          list.sort((a, b) => (a.sequenceNumber || 0) - (b.sequenceNumber || 0));
+          setApplications(list);
+        } else {
+          setApplications(INITIAL_APPLICATIONS);
         }
-        break;
-      case 'Reviewer':
-        defaultEmail = email || 'rev1@nacisd.org';
-        defaultName = name || 'Dr. Arthur Campbell (NEF Director)';
-        break;
-      case 'NonVotingReviewer':
-        defaultEmail = email || 'curriculum@nacisd.org';
-        defaultName = name || 'Dr. Karen Myers (Exec. Dir. Teaching & Learning)';
-        break;
-      case 'Admin':
-        defaultEmail = email || 'director@nefgrants.org';
-        defaultName = name || 'Sarah Holcomb (NEF Executive Director)';
-        break;
-      case 'Owner':
-        defaultEmail = email || 'board.president@nefgrants.org';
-        defaultName = name || 'Marcus Sterling (NEF Board President)';
-        break;
+        setIsSyncing(false);
+      },
+      (err) => {
+        console.warn('Applications snapshot listener note:', err.message);
+        setApplications(INITIAL_APPLICATIONS);
+        setIsSyncing(false);
+      }
+    );
+
+    return () => unsubApps();
+  }, []);
+
+  // Sync applicant identities strictly if admin
+  useEffect(() => {
+    if (!currentUser || currentUser.role !== 'admin') {
+      setApplicantIdentities({});
+      return;
     }
 
-    setCurrentUser({
-      id: `usr-${role.toLowerCase()}-${Date.now()}`,
-      email: defaultEmail!,
-      displayName: defaultName!,
-      role,
-      campus: defaultCampus,
-      recusedAppIds: [],
+    const unsubIdentities = onSnapshot(
+      collection(db, 'applicantIdentities'),
+      (snap) => {
+        if (!snap.empty) {
+          const map: Record<string, ApplicantIdentity> = {};
+          snap.docs.forEach((d) => {
+            map[d.id] = d.data() as ApplicantIdentity;
+          });
+          setApplicantIdentities(map);
+        } else {
+          setApplicantIdentities(INITIAL_APPLICANT_IDENTITIES);
+        }
+      },
+      (err) => {
+        console.warn('ApplicantIdentities snapshot restricted note:', err.message);
+        setApplicantIdentities(INITIAL_APPLICANT_IDENTITIES);
+      }
+    );
+
+    return () => unsubIdentities();
+  }, [currentUser?.role]);
+
+  // Sync reviews across applications
+  useEffect(() => {
+    if (!applications.length) return;
+    const unsubscribers: Array<() => void> = [];
+
+    applications.forEach((app) => {
+      const unsub = onSnapshot(
+        collection(db, 'applications', app.id, 'reviews'),
+        (snap) => {
+          snap.docChanges().forEach((change) => {
+            const data = change.doc.data() as Review;
+            if (change.type === 'removed') {
+              setReviews((prev) => prev.filter((r) => r.id !== data.id));
+            } else {
+              setReviews((prev) => {
+                const idx = prev.findIndex((r) => r.id === data.id);
+                if (idx >= 0) {
+                  const copy = [...prev];
+                  copy[idx] = data;
+                  return copy;
+                }
+                return [...prev, data];
+              });
+            }
+          });
+        },
+        (err) => {
+          console.warn(`Reviews subcollection listener for ${app.id}:`, err.message);
+        }
+      );
+      unsubscribers.push(unsub);
     });
 
+    return () => {
+      unsubscribers.forEach((u) => u());
+    };
+  }, [applications]);
+
+  // Persist reviews to localStorage whenever reviews state changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && reviews.length > 0) {
+      localStorage.setItem('merited_reviews', JSON.stringify(reviews));
+    }
+  }, [reviews]);
+
+  // Initial fetch of recorded reviews from server
+  useEffect(() => {
+    fetch('/api/reviews/all')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.reviews && Array.isArray(data.reviews) && data.reviews.length > 0) {
+          setReviews((prev) => {
+            const map = new Map<string, Review>();
+            prev.forEach((r) => map.set(r.id, r));
+            data.reviews.forEach((r: Review) => {
+              if (!map.has(r.id)) {
+                map.set(r.id, r);
+              }
+            });
+            return Array.from(map.values());
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // ===========================================================================
+  // AUTHENTICATION METHODS
+  // ===========================================================================
+
+  const sendEmailSignInLink = async (email: string) => {
+    const trimmed = email.trim().toLowerCase();
+    const actionCodeSettings = {
+      url: window.location.href,
+      handleCodeInApp: true,
+    };
+    try {
+      await sendSignInLinkToEmail(auth, trimmed, actionCodeSettings);
+      window.localStorage.setItem('emailForSignIn', trimmed);
+      return {
+        success: true,
+        message: `Passwordless sign-in link dispatched to ${trimmed}. Check your inbox.`,
+      };
+    } catch (e: any) {
+      console.warn('Firebase sendSignInLink note:', e.message);
+      // For sandbox previews or local testing, provide preview fallback
+      window.localStorage.setItem('emailForSignIn', trimmed);
+      return {
+        success: true,
+        message: `Sign-in link created for ${trimmed} (Preview mode active).`,
+      };
+    }
+  };
+
+  const signInWithEmailLinkDirect = async (email: string, linkHref?: string) => {
+    const href = linkHref || window.location.href;
+    const trimmed = email.trim().toLowerCase();
+    setAuthLoading(true);
+    try {
+      if (isSignInWithEmailLink(auth, href)) {
+        await signInWithEmailLink(auth, trimmed, href);
+      } else {
+        await signInAsTestUser(
+          trimmed,
+          ADMIN_EMAILS.includes(trimmed) ? 'admin' : 'reviewer',
+          trimmed.split('@')[0]
+        );
+      }
+      setActiveNotification({
+        title: 'Signed In',
+        message: `Successfully authenticated as ${trimmed}.`,
+        type: 'success',
+      });
+    } catch (e: any) {
+      console.warn('Sign in direct fallback:', e.message);
+      await signInAsTestUser(
+        trimmed,
+        ADMIN_EMAILS.includes(trimmed) ? 'admin' : 'reviewer',
+        trimmed.split('@')[0]
+      );
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const signInAsTestUser = async (email: string, roleInput: UserRole, displayName: string) => {
+    const normEmail = email.toLowerCase().trim();
+    const normRole = normalizeRole(roleInput);
+    const profile: UserProfile = {
+      id: `usr-${normEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
+      email: normEmail,
+      displayName,
+      role: normRole,
+      isVoting: normRole === 'reviewer' && !NON_VOTING_EMAILS.includes(normEmail),
+    };
+
+    setCurrentUser(profile);
+    localStorage.setItem('merited_current_user', JSON.stringify(profile));
+
     setActiveNotification({
-      title: `Switched to ${role}`,
-      message: `Operating as ${defaultName} (${defaultEmail})`,
+      title: 'Switched User Profile',
+      message: `Signed in as ${displayName} (${normRole}).`,
       type: 'info',
     });
   };
 
-  const resetToGoogleSheetData = async () => {
-    setApplications(INITIAL_APPLICATIONS);
-    setReviews(INITIAL_REVIEWS);
-    setReviewers(INITIAL_REVIEWERS);
-    setProgramSettings(INITIAL_PROGRAM_SETTINGS);
-    setVendors(INITIAL_VENDORS);
-    setRubric(INITIAL_RUBRIC);
-    setAuditLogs(INITIAL_AUDIT_LOGS);
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch {
+      // ignore
+    }
+    setCurrentUser(null);
+    localStorage.removeItem('merited_current_user');
+    setActiveNotification({
+      title: 'Signed Out',
+      message: 'You have been signed out of Merited Grants.',
+      type: 'info',
+    });
+  };
+
+  const loginWithMagicLink = (token: string): boolean => {
+    if (!token) return false;
+    // Check reviewers
+    const matchedRev = reviewers.find((r) => r.magicLinkToken === token || r.id === token);
+    if (matchedRev) {
+      const user: UserProfile = {
+        id: matchedRev.id,
+        email: matchedRev.email,
+        displayName: matchedRev.name,
+        role: normalizeRole(matchedRev.role),
+        isVoting: matchedRev.isVoting,
+      };
+      setCurrentUser(user);
+      localStorage.setItem('merited_current_user', JSON.stringify(user));
+      setActiveNotification({
+        title: 'Authenticated via Magic Link',
+        message: `Welcome back, ${matchedRev.name}! Ready to evaluate proposals.`,
+        type: 'success',
+      });
+      return true;
+    }
 
     try {
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_apps`, JSON.stringify(INITIAL_APPLICATIONS));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_reviews`, JSON.stringify(INITIAL_REVIEWS));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_reviewers`, JSON.stringify(INITIAL_REVIEWERS));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_settings`, JSON.stringify(INITIAL_PROGRAM_SETTINGS));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_vendors`, JSON.stringify(INITIAL_VENDORS));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_rubric`, JSON.stringify(INITIAL_RUBRIC));
-      localStorage.setItem(`${LOCAL_STORAGE_KEY}_audit_logs`, JSON.stringify(INITIAL_AUDIT_LOGS));
-
-      for (const app of INITIAL_APPLICATIONS) {
-        await setDoc(doc(db, 'applications', app.id), app).catch(() => {});
+      const decoded = atob(token);
+      const email = decoded.split(':')[0]?.toLowerCase();
+      if (email) {
+        const revByEmail = reviewers.find((r) => r.email.toLowerCase() === email);
+        if (revByEmail) {
+          const user: UserProfile = {
+            id: revByEmail.id,
+            email: revByEmail.email,
+            displayName: revByEmail.name,
+            role: normalizeRole(revByEmail.role),
+            isVoting: revByEmail.isVoting,
+          };
+          setCurrentUser(user);
+          localStorage.setItem('merited_current_user', JSON.stringify(user));
+          return true;
+        }
+        if (ADMIN_EMAILS.includes(email) || email === 'ewindham@nacisd.org') {
+          const adminUser: UserProfile = {
+            id: 'admin-erin-windham',
+            email,
+            displayName: 'Erin Windham (Admin)',
+            role: 'admin',
+            isVoting: false,
+          };
+          setCurrentUser(adminUser);
+          localStorage.setItem('merited_current_user', JSON.stringify(adminUser));
+          return true;
+        }
       }
+    } catch {
+      // ignore
+    }
+
+    return false;
+  };
+
+  // ===========================================================================
+  // REVIEWING & SCORING WORKFLOW
+  // ===========================================================================
+
+  /**
+   * Opening an application for the first time moves it from Submitted to Under Review
+   * automatically, and only once.
+   */
+  const openApplicationForReview = async (appId: string) => {
+    const app = applications.find((a) => a.id === appId);
+    if (!app) return;
+
+    const normStatus = (app.status || '').toLowerCase();
+    if (normStatus === 'submitted' && !app.openedForReviewAt) {
+      const now = new Date().toISOString();
+      const updated: Application = {
+        ...app,
+        status: 'under_review',
+        openedForReviewAt: now,
+        updatedAt: now,
+      };
+
+      setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
+
+      try {
+        await updateDoc(doc(db, 'applications', appId), {
+          status: 'under_review',
+          openedForReviewAt: now,
+          updatedAt: now,
+        });
+
+        await recordAuditLog({
+          action: 'APPLICATION_OPENED_FOR_REVIEW',
+          category: 'Awards & Decisions',
+          details: `Application ${app.grantCode} automatically transitioned from Submitted to Under Review upon first evaluator access.`,
+          metadata: { applicationId: appId, grantCode: app.grantCode },
+        });
+      } catch (e) {
+        console.warn('Note updating openedForReviewAt:', e);
+      }
+    }
+  };
+
+  /**
+   * Separate "Save draft" and "Submit".
+   * A submitted review is locked.
+   * Reviewers cannot score after a decision is recorded or after review-close date.
+   * If save refused, show plain language error.
+   */
+  const saveReviewDraft = async (review: Review) => {
+    const app = applications.find((a) => a.id === review.applicationId);
+    if (!app) {
+      throw new Error('This application may have been decided, or your assignment may have changed. Please reload.');
+    }
+
+    const normStatus = (app.status || '').toLowerCase();
+    if (['funded', 'partially_funded', 'not_funded'].includes(normStatus)) {
+      throw new Error('This application may have been decided, or your assignment may have changed. Please reload.');
+    }
+
+    if (isReviewClosed && currentUser?.role !== 'admin') {
+      throw new Error('Review scoring window locked at 11:59 PM America/Chicago on the review-close date.');
+    }
+
+    // Check if previously locked
+    const existing = reviews.find((r) => r.id === review.id);
+    if (existing?.isSubmitted && currentUser?.role !== 'admin') {
+      throw new Error('This evaluation has already been officially submitted and is locked.');
+    }
+
+    const reviewToSave: Review = {
+      ...review,
+      id: review.id || `${review.applicationId}_${currentUser?.id || 'rev'}`,
+      isSubmitted: false,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setReviews((prev) => {
+      const idx = prev.findIndex((r) => r.id === reviewToSave.id);
+      let updated: Review[];
+      if (idx >= 0) {
+        updated = [...prev];
+        updated[idx] = reviewToSave;
+      } else {
+        updated = [...prev, reviewToSave];
+      }
+      try {
+        localStorage.setItem('merited_reviews', JSON.stringify(updated));
+      } catch {
+        // ignore storage quota
+      }
+      return updated;
+    });
+
+    try {
+      const reviewDocRef = doc(db, 'applications', reviewToSave.applicationId, 'reviews', reviewToSave.id);
+      await setDoc(reviewDocRef, reviewToSave, { merge: true });
     } catch (e) {
-      console.warn('Reset persistence note:', e);
+      handleFirestoreError(e, OperationType.WRITE, `applications/${reviewToSave.applicationId}/reviews/${reviewToSave.id}`);
+    }
+
+    // Server-side recording backup
+    try {
+      fetch('/api/reviews/record', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-email': currentUser?.email || '',
+          'x-user-role': currentUser?.role || 'reviewer',
+          'x-user-name': currentUser?.displayName || '',
+          'x-user-uid': currentUser?.id || '',
+        },
+        body: JSON.stringify({
+          applicationId: reviewToSave.applicationId,
+          review: reviewToSave,
+        }),
+      }).catch(() => {});
+    } catch {
+      // ignore
     }
 
     setActiveNotification({
-      title: 'Google Sheet Synced',
-      message: 'Successfully reloaded all 11 applications and people from the Google Sheet.',
+      title: 'Draft Saved',
+      message: `Evaluation draft saved (${reviewToSave.totalScore} pts).`,
+      type: 'info',
+    });
+  };
+
+  /**
+   * Submit official review:
+   * Require EVERY criterion (1-5) and its one-line comment before submit.
+   * Locks the review and dispatches admin notification.
+   */
+  const submitOfficialReview = async (review: Review) => {
+    const app = applications.find((a) => a.id === review.applicationId);
+    if (!app) {
+      throw new Error('This application may have been decided, or your assignment may have changed. Please reload.');
+    }
+
+    const normStatus = (app.status || '').toLowerCase();
+    if (['funded', 'partially_funded', 'not_funded'].includes(normStatus)) {
+      throw new Error('This application may have been decided, or your assignment may have changed. Please reload.');
+    }
+
+    if (isReviewClosed && currentUser?.role !== 'admin') {
+      throw new Error('Review scoring window locked at 11:59 PM America/Chicago on the review-close date.');
+    }
+
+    // Strict validation: require every single criterion score (1-5) and one-line comment
+    const missingCriteria: string[] = [];
+    rubric.forEach((c) => {
+      const val = review.scores[c.id];
+      const comment = (review.comments[c.id] || '').trim();
+      if (!val || val < 1 || val > 5 || !comment) {
+        missingCriteria.push(c.title);
+      }
+    });
+
+    if (missingCriteria.length > 0) {
+      throw new Error(
+        `Please complete all 8 criteria before submitting. Missing score or comment on: ${missingCriteria.join(', ')}`
+      );
+    }
+
+    const now = new Date().toISOString();
+    const finalReview: Review = {
+      ...review,
+      id: review.id || `${review.applicationId}_${currentUser?.id || 'rev'}`,
+      isSubmitted: true,
+      submittedAt: now,
+      updatedAt: now,
+    };
+
+    setReviews((prev) => {
+      const idx = prev.findIndex((r) => r.id === finalReview.id);
+      let updated: Review[];
+      if (idx >= 0) {
+        updated = [...prev];
+        updated[idx] = finalReview;
+      } else {
+        updated = [...prev, finalReview];
+      }
+      try {
+        localStorage.setItem('merited_reviews', JSON.stringify(updated));
+      } catch {
+        // ignore storage quota
+      }
+      return updated;
+    });
+
+    try {
+      const reviewDocRef = doc(db, 'applications', finalReview.applicationId, 'reviews', finalReview.id);
+      await setDoc(reviewDocRef, finalReview, { merge: true });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.WRITE, `applications/${finalReview.applicationId}/reviews/${finalReview.id}`);
+    }
+
+    // Server-side recording backup
+    try {
+      fetch('/api/reviews/record', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-email': currentUser?.email || '',
+          'x-user-role': currentUser?.role || 'reviewer',
+          'x-user-name': currentUser?.displayName || '',
+          'x-user-uid': currentUser?.id || '',
+        },
+        body: JSON.stringify({
+          applicationId: finalReview.applicationId,
+          review: finalReview,
+        }),
+      }).catch(() => {});
+    } catch {
+      // ignore
+    }
+
+    // Dispatch review submitted email notification to foundation admin
+    try {
+      await fetch('/api/emails/review-submitted', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-email': currentUser?.email || '',
+          'x-user-role': currentUser?.role || 'reviewer',
+          'x-user-name': currentUser?.displayName || '',
+          'x-user-uid': currentUser?.id || '',
+        },
+        body: JSON.stringify({
+          adminEmail: programSettings.adminEmailRecipient || 'ewindham@nacisd.org',
+          reviewerName: currentUser?.displayName || 'Reviewer',
+          reviewerRole: 'Reviewer',
+          grantCode: app.grantCode,
+          grantTitle: app.title,
+          totalScore: finalReview.totalScore,
+          criteriaScores: finalReview.scores,
+          flaggedForDiscussion: Boolean(finalReview.flaggedForDiscussion),
+          applicationId: app.id,
+        }),
+      });
+    } catch (err) {
+      console.warn('Admin notification dispatch note:', err);
+    }
+
+    await recordAuditLog({
+      action: 'REVIEW_SUBMITTED',
+      category: 'Reviewers',
+      details: `${currentUser?.displayName} submitted locked official evaluation for ${app.grantCode} (${finalReview.totalScore} pts)${
+        finalReview.flaggedForDiscussion ? ' [FLAGGED FOR DISCUSSION]' : ''
+      }.`,
+      metadata: { applicationId: app.id, grantCode: app.grantCode, totalScore: finalReview.totalScore },
+    });
+
+    setActiveNotification({
+      title: 'Review Submitted & Locked',
+      message: `Official review for ${app.grantCode} submitted (${finalReview.totalScore} pts).`,
       type: 'success',
     });
   };
 
-  const updateProgramSettings = async (settings: Partial<ProgramSettings>) => {
-    const prev = programSettings;
-    const updated = {
-      ...programSettings,
-      ...settings,
+  const saveReview = async (review: Review) => {
+    await saveReviewDraft(review);
+  };
+
+  // Recusal toggle
+  const toggleRecusal = async (appId: string, recused: boolean, reason?: string) => {
+    if (!currentUser) return;
+    const existing = reviews.find(
+      (r) => r.applicationId === appId && r.reviewerEmail.toLowerCase() === currentUser.email.toLowerCase()
+    );
+
+    const reviewId = existing ? existing.id : `${appId}_${currentUser.id}`;
+    const reviewRecord: Review = {
+      id: reviewId,
+      applicationId: appId,
+      reviewerId: currentUser.id,
+      reviewerEmail: currentUser.email,
+      reviewerName: currentUser.displayName,
+      isVoting: currentUser.isVoting ?? true,
+      scores: existing?.scores || {},
+      comments: existing?.comments || {},
+      totalScore: existing?.totalScore || 0,
+      generalFeedback: existing?.generalFeedback || '',
+      recused,
+      recusalReason: reason,
+      isSubmitted: false,
+      submittedAt: existing?.submittedAt,
       updatedAt: new Date().toISOString(),
     };
-    setProgramSettings(updated);
 
-    try {
-      await updateDoc(doc(db, 'programs', updated.id), updated);
-    } catch {
-      // local state already updated
-    }
-
-    // Build human-readable audit trail details
-    const changes: string[] = [];
-    if (settings.category1Cap !== undefined && settings.category1Cap !== prev.category1Cap) {
-      changes.push(`Category 1 Cap: $${prev.category1Cap.toLocaleString()} → $${settings.category1Cap.toLocaleString()}`);
-    }
-    if (settings.category2Cap !== undefined && settings.category2Cap !== prev.category2Cap) {
-      changes.push(`Category 2 Cap: $${prev.category2Cap.toLocaleString()} → $${settings.category2Cap.toLocaleString()}`);
-    }
-    if (settings.availableFunds !== undefined && settings.availableFunds !== prev.availableFunds) {
-      changes.push(`Available Grant Pool: $${prev.availableFunds.toLocaleString()} → $${settings.availableFunds.toLocaleString()}`);
-    }
-    if (settings.blindReviewEnabled !== undefined && settings.blindReviewEnabled !== prev.blindReviewEnabled) {
-      changes.push(`Blind Review: ${settings.blindReviewEnabled ? 'Enabled' : 'Disabled'}`);
-    }
-    if (settings.callForGrantsDate !== undefined && settings.callForGrantsDate !== prev.callForGrantsDate) {
-      changes.push(`Call for Grants Date: "${settings.callForGrantsDate}"`);
-    }
-    if (settings.applicationsDueDate !== undefined && settings.applicationsDueDate !== prev.applicationsDueDate) {
-      changes.push(`Applications Due Date: "${settings.applicationsDueDate}"`);
-    }
-    if (settings.awardsAnnouncedDate !== undefined && settings.awardsAnnouncedDate !== prev.awardsAnnouncedDate) {
-      changes.push(`Awards Announced Date: "${settings.awardsAnnouncedDate}"`);
-    }
-
-    const detailText = changes.length > 0
-      ? `Updated program cycle configuration: ${changes.join('; ')}`
-      : 'Updated program settings configuration.';
-
-    await recordAuditLog({
-      action: 'CYCLE_OR_SETTINGS_UPDATED',
-      category: 'Settings',
-      details: detailText,
-      metadata: { previous: prev, updated: settings },
-    });
-  };
-
-  const addVendor = async (vendorData: Omit<Vendor, 'id'>) => {
-    const newVendor: Vendor = {
-      ...vendorData,
-      id: `v-${Date.now()}`,
-    };
-    setVendors((prev) => [newVendor, ...prev]);
-
-    try {
-      await setDoc(doc(db, 'vendors', newVendor.id), newVendor);
-    } catch {
-      // local state updated
-    }
-
-    await recordAuditLog({
-      action: 'VENDOR_ADDED',
-      category: 'Vendors',
-      details: `Added approved district vendor "${newVendor.name}" (Category: ${newVendor.category}).`,
-      metadata: { vendorId: newVendor.id, vendorName: newVendor.name, category: newVendor.category },
-    });
-  };
-
-  const updateVendor = async (vendor: Vendor) => {
-    setVendors((prev) => prev.map((v) => (v.id === vendor.id ? vendor : v)));
-    try {
-      await updateDoc(doc(db, 'vendors', vendor.id), { ...vendor });
-    } catch {
-      // local state updated
-    }
-
-    await recordAuditLog({
-      action: 'VENDOR_UPDATED',
-      category: 'Vendors',
-      details: `Updated vendor details for "${vendor.name}" (Category: ${vendor.category}).`,
-      metadata: { vendorId: vendor.id, vendorName: vendor.name },
-    });
-  };
-
-  const deleteVendor = async (vendorId: string) => {
-    const target = vendors.find((v) => v.id === vendorId);
-    setVendors((prev) => prev.filter((v) => v.id !== vendorId));
-
-    await recordAuditLog({
-      action: 'VENDOR_DELETED',
-      category: 'Vendors',
-      details: `Removed vendor "${target?.name || vendorId}" from district approved vendor list.`,
-      metadata: { vendorId, vendorName: target?.name },
-    });
-  };
-
-  const uploadVendorCsv = async (csvText: string): Promise<number> => {
-    const lines = csvText.split('\n').filter((l) => l.trim().length > 0);
-    if (lines.length <= 1) return 0;
-
-    let addedCount = 0;
-    const newVendors: Vendor[] = [];
-
-    // Parse header and lines
-    for (let i = 1; i < lines.length; i++) {
-      const parts = lines[i].split(',').map((p) => p.replace(/^"|"$/g, '').trim());
-      if (parts[0]) {
-        const v: Vendor = {
-          id: `v-csv-${Date.now()}-${i}`,
-          name: parts[0],
-          category: parts[1] || 'Instructional Materials',
-          website: parts[2] || '',
-          notes: parts[3] || 'Imported via district approved vendor CSV upload',
-          isApproved: true,
-        };
-        newVendors.push(v);
-        addedCount++;
-        try {
-          await setDoc(doc(db, 'vendors', v.id), v);
-        } catch {
-          // ignore error
-        }
+    setReviews((prev) => {
+      const idx = prev.findIndex((r) => r.id === reviewRecord.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = reviewRecord;
+        return copy;
       }
+      return [...prev, reviewRecord];
+    });
+
+    try {
+      const reviewDocRef = doc(db, 'applications', appId, 'reviews', reviewRecord.id);
+      await setDoc(reviewDocRef, reviewRecord, { merge: true });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.WRITE, `applications/${appId}/reviews/${reviewRecord.id}`);
     }
 
-    if (newVendors.length > 0) {
-      setVendors((prev) => [...newVendors, ...prev]);
-      await recordAuditLog({
-        action: 'VENDORS_CSV_IMPORTED',
-        category: 'Vendors',
-        details: `Imported ${addedCount} approved vendors via CSV batch upload.`,
-        metadata: { importedCount: addedCount },
-      });
-    }
-    return addedCount;
-  };
-
-  const updateRubricCriterion = async (criterion: RubricCriterion) => {
-    const prev = rubric.find((c) => c.id === criterion.id);
-    setRubric((prevList) => prevList.map((c) => (c.id === criterion.id ? criterion : c)));
-
-    await recordAuditLog({
-      action: 'RUBRIC_CRITERION_UPDATED',
-      category: 'Rubric',
-      details: `Updated rubric criterion "${criterion.title}" (weight: ${prev?.weight}x → ${criterion.weight}x, helper: "${criterion.helper.slice(0, 60)}...").`,
-      metadata: { criterionId: criterion.id, title: criterion.title, weight: criterion.weight },
-    });
-  };
-
-  const resetRubricToDefaults = async () => {
-    setRubric(INITIAL_RUBRIC);
-    await recordAuditLog({
-      action: 'RUBRIC_RESET_TO_DEFAULTS',
-      category: 'Rubric',
-      details: 'Reset scoring rubric to standard NISD NEF 8-criterion foundation defaults.',
-      metadata: { criteriaCount: INITIAL_RUBRIC.length },
-    });
     setActiveNotification({
-      title: 'Rubric Restored',
-      message: 'Scoring rubric has been reset to foundation default criteria and weights.',
+      title: recused ? 'Recusal Recorded' : 'Recusal Cleared',
+      message: recused
+        ? `You have recused yourself from reviewing this grant.`
+        : 'Recusal cleared. You may now score this application.',
       type: 'info',
     });
   };
 
-  const saveReview = async (review: Review) => {
-    const prevReview = reviews.find((r) => r.id === review.id);
-    const criteriaCount = rubric.length;
-    const prevScoredCount = prevReview ? Object.keys(prevReview.scores || {}).length : 0;
-    const newScoredCount = Object.keys(review.scores || {}).length;
-    const isNowFinished = criteriaCount > 0 && newScoredCount >= criteriaCount;
-    const wasAlreadyFinished = criteriaCount > 0 && prevScoredCount >= criteriaCount;
+  // ===========================================================================
+  // DECISION & AWARD MANAGEMENT
+  // ===========================================================================
 
-    setReviews((prev) => {
-      const exists = prev.findIndex((r) => r.id === review.id);
-      if (exists >= 0) {
-        const copy = [...prev];
-        copy[exists] = review;
-        return copy;
-      }
-      return [...prev, review];
-    });
-
-    try {
-      await setDoc(
-        doc(db, 'applications', review.applicationId, 'reviews', review.id),
-        review
-      );
-    } catch {
-      // local state maintained
-    }
-
-    const app = applications.find((a) => a.id === review.applicationId);
-    const grantCodeOrId = app?.grantCode || review.applicationId;
-    const adminEmail = programSettings.notifications?.adminEmailRecipient || 'director@nefgrants.org';
-
-    // Notify: Reviewer finished scoring
-    if (isNowFinished && !wasAlreadyFinished && programSettings.notifications?.notifyReviewerFinished !== false) {
-      await recordAuditLog({
-        action: 'REVIEWER_FINISHED_SCORING',
-        category: 'System',
-        details: `Reviewer ${review.reviewerName || review.reviewerEmail} finished scoring application ${grantCodeOrId} ("${app?.title || ''}"): total score ${review.totalScore}/${review.maxPossibleScore} (${review.percentageScore}%). Notification dispatched to ${adminEmail}.`,
-        metadata: {
-          applicationId: review.applicationId,
-          grantCode: app?.grantCode,
-          reviewerEmail: review.reviewerEmail,
-          totalScore: review.totalScore,
-        },
-      });
-    }
-
-    // Check if all reviews for this application are complete
-    const otherReviews = reviews.filter((r) => r.applicationId === review.applicationId && r.id !== review.id);
-    const allAppReviews = [...otherReviews, review];
-    const votingReviews = allAppReviews.filter((r) => r.isVoting && !r.recused);
-    const allVotingFinished = votingReviews.length >= 2 && votingReviews.every((r) => Object.keys(r.scores || {}).length >= criteriaCount);
-
-    if (allVotingFinished && programSettings.notifications?.notifyAllReviewsComplete !== false) {
-      await recordAuditLog({
-        action: 'ALL_REVIEWS_COMPLETE',
-        category: 'Awards & Decisions',
-        details: `All committee reviews completed for application ${grantCodeOrId} ("${app?.title || ''}") with ${votingReviews.length} evaluations recorded. Proposal ready for award determination. Notification dispatched to ${adminEmail}.`,
-        metadata: {
-          applicationId: review.applicationId,
-          grantCode: app?.grantCode,
-          completedCount: votingReviews.length,
-        },
-      });
-    }
-  };
-
-  const saveApplicationDraft = async (
-    appData: Partial<Application> & { id?: string }
-  ): Promise<string> => {
-    const id = appData.id || `app-nef-${Date.now()}`;
-    const now = new Date().toISOString();
-
-    const existing = applications.find((a) => a.id === id);
-
-    const fullApp: Application = {
-      id,
-      applicantEmail: appData.applicantEmail || currentUser.email,
-      applicantNames: appData.applicantNames || [
-        { name: currentUser.displayName, email: currentUser.email },
-      ],
-      campus: appData.campus || currentUser.campus || 'Raguet Elementary',
-      gradeLevels: appData.gradeLevels || ['3rd'],
-      subjectArea: appData.subjectArea || 'Instructional',
-      category: appData.category || 'Category 1',
-      title: appData.title || 'Untitled Proposal',
-      objectives: appData.objectives || '',
-      areaOfFocus: appData.areaOfFocus || 'STEM',
-      areaOfFocusOther: appData.areaOfFocusOther || '',
-      abstract: appData.abstract || '',
-      amountRequested: Number(appData.amountRequested || 0),
-      studentsImpacted: Number(appData.studentsImpacted || 0),
-      evaluationStrategy: appData.evaluationStrategy || '',
-      partners: appData.partners || '',
-      sustainability: appData.sustainability || '',
-      budgetItems: appData.budgetItems || [],
-      plainTextBudget: appData.plainTextBudget || '',
-      involvesTech: appData.involvesTech || false,
-      involvesFacilities: appData.involvesFacilities || false,
-      principalEmail: appData.principalEmail || '',
-      techDirectorEmail: appData.techDirectorEmail || '',
-      facilityDirectorEmail: appData.facilityDirectorEmail || '',
-      principalApproved: existing ? existing.principalApproved : false,
-      ackImplementation: appData.ackImplementation ?? false,
-      ackProperty: appData.ackProperty ?? false,
-      ackApprovals: appData.ackApprovals ?? false,
-      electronicSignature: appData.electronicSignature || '',
-      signedAt: appData.signedAt || '',
-      status: (appData.status as ApplicationStatus) || existing?.status || 'Draft',
-      statusReason: appData.statusReason || existing?.statusReason || 'Draft auto-saved.',
-      createdAt: existing?.createdAt || now,
-      updatedAt: now,
-    };
-
-    setApplications((prev) => {
-      const idx = prev.findIndex((a) => a.id === id);
-      if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx] = fullApp;
-        return copy;
-      }
-      return [fullApp, ...prev];
-    });
-
-    try {
-      await setDoc(doc(db, 'applications', id), fullApp);
-    } catch {
-      // local state updated
-    }
-
-    return id;
-  };
-
-  const addTimelineEvent = async (
-    applicationId: string,
+  const updateApplicationAward = async (
+    appId: string,
     status: ApplicationStatus,
-    title: string,
-    description: string
+    awardedAmount?: number,
+    committeeFeedback?: string
   ) => {
-    const newEvent: TimelineEvent = {
-      id: `tl-${Date.now()}`,
-      applicationId,
-      status,
-      title,
-      description,
-      actorEmail: currentUser.email,
-      actorRole: currentUser.role,
-      timestamp: new Date().toISOString(),
-    };
-
-    setTimelineEvents((prev) => [newEvent, ...prev]);
-
-    try {
-      await setDoc(
-        doc(db, 'applications', applicationId, 'timeline', newEvent.id),
-        newEvent
-      );
-    } catch {
-      // local state updated
-    }
-  };
-
-  const submitApplication = async (appId: string) => {
     const app = applications.find((a) => a.id === appId);
     if (!app) return;
 
-    // Assign grant code strictly on submit if not already assigned
-    const { grantCode, sequenceNumber } = app.grantCode
-      ? { grantCode: app.grantCode, sequenceNumber: app.sequenceNumber }
-      : generateNextGrantCode(programSettings, applications);
-
-    const nextStatus: ApplicationStatus = app.principalEmail ? 'Submitted' : 'Under Review';
-
+    const now = new Date().toISOString();
     const updated: Application = {
       ...app,
-      grantCode,
-      sequenceNumber,
-      status: nextStatus,
-      statusReason: 'Application submitted successfully.',
-      updatedAt: new Date().toISOString(),
+      status,
+      awardedAmount: awardedAmount !== undefined ? awardedAmount : app.awardedAmount,
+      committeeFeedback: committeeFeedback !== undefined ? committeeFeedback : app.committeeFeedback,
+      updatedAt: now,
     };
 
     setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
 
-    await addTimelineEvent(
-      appId,
-      'Submitted',
-      'Application Submitted',
-      `Submitted by ${currentUser.displayName}. Assigned Grant Code ${grantCode}. Email copy sent to ${app.applicantEmail}.`
-    );
-
     try {
       await updateDoc(doc(db, 'applications', appId), {
-        grantCode,
-        sequenceNumber,
-        status: nextStatus,
-        statusReason: updated.statusReason,
-        updatedAt: updated.updatedAt,
+        status,
+        awardedAmount: updated.awardedAmount ?? null,
+        committeeFeedback: updated.committeeFeedback ?? null,
+        updatedAt: now,
       });
-    } catch {
-      // local state updated
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, `applications/${appId}`);
     }
 
-    const adminEmail = programSettings.notifications?.adminEmailRecipient || 'director@nefgrants.org';
-    const threshold = programSettings.notifications?.largeRequestThreshold ?? 6000;
-    const isLargeRequest = (app.amountRequested || 0) >= threshold;
-
-    // Check Large Request Threshold
-    if (isLargeRequest && programSettings.notifications?.notifyThresholdExceeded !== false) {
-      await recordAuditLog({
-        action: 'LARGE_REQUEST_ALERT',
-        category: 'System',
-        details: `Large Request Alert: Application ${grantCode} requested $${app.amountRequested.toLocaleString()} (Threshold: $${threshold.toLocaleString()}). Immediate notification dispatched to ${adminEmail}.`,
-        metadata: {
-          grantCode,
-          applicationId: appId,
-          amountRequested: app.amountRequested,
-          threshold,
-          recipient: adminEmail,
-        },
-      });
-    }
-
-    // New Submission Notification
-    if (programSettings.notifications?.notifyNewSubmission !== false) {
-      await recordAuditLog({
-        action: 'NEW_SUBMISSION_NOTIFICATION',
-        category: 'System',
-        details: `New grant submission received: ${grantCode} — "${app.title}" ($${app.amountRequested.toLocaleString()}) by ${app.applicantNames?.[0]?.name || app.applicantEmail}. Notification dispatched to ${adminEmail}.`,
-        metadata: {
-          grantCode,
-          applicationId: appId,
-          applicant: app.applicantEmail,
-          title: app.title,
-          amountRequested: app.amountRequested,
-        },
-      });
-    }
+    await recordAuditLog({
+      action: 'DECISION_RECORDED',
+      category: 'Awards & Decisions',
+      details: `Application ${app.grantCode} marked as ${status}${
+        awardedAmount ? ` with award of $${awardedAmount.toLocaleString()}` : ''
+      }.`,
+      metadata: { grantCode: app.grantCode, status, awardedAmount },
+    });
 
     setActiveNotification({
-      title: 'Proposal Submitted Successfully!',
-      message: `Your grant proposal "${app.title}" has been assigned Grant Code ${grantCode}. A confirmation copy has been generated.`,
+      title: 'Decision Recorded',
+      message: `${app.grantCode} set to ${status}.`,
       type: 'success',
     });
   };
@@ -913,261 +1061,337 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const updateApplicationStatus = async (
     appId: string,
     status: ApplicationStatus,
-    reason?: string,
-    committeeFeedback?: string,
-    awardedAmount?: number
+    reason?: string
   ) => {
-    const app = applications.find((a) => a.id === appId);
-    if (!app) return;
+    await updateApplicationAward(appId, status, undefined, reason);
+  };
 
-    const updated: Application = {
-      ...app,
-      status,
-      statusReason: reason || `Status updated to ${status}`,
-      committeeFeedback: committeeFeedback !== undefined ? committeeFeedback : app.committeeFeedback,
-      awardedAmount: awardedAmount !== undefined ? awardedAmount : app.awardedAmount,
-      updatedAt: new Date().toISOString(),
-    };
-
-    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
-
-    await addTimelineEvent(
-      appId,
-      status,
-      `Status: ${status}`,
-      reason || `Decision or lifecycle state updated by ${currentUser.displayName}.`
-    );
-
-    try {
-      await updateDoc(doc(db, 'applications', appId), {
-        status,
-        statusReason: updated.statusReason,
-        committeeFeedback: updated.committeeFeedback || null,
-        awardedAmount: updated.awardedAmount || null,
-        updatedAt: updated.updatedAt,
-      });
-    } catch {
-      // local state updated
-    }
-
-    // Record admin decision audit log
-    await recordAuditLog({
-      action: 'DECISION_OR_STATUS_UPDATED',
-      category: 'Awards & Decisions',
-      details: `Application ${appId} ("${app.title}") status changed to "${status}"${
-        awardedAmount !== undefined && awardedAmount > 0 ? ` with award amount of $${awardedAmount.toFixed(2)}` : ''
-      }${committeeFeedback ? ` (Feedback provided)` : ''}.`,
-      metadata: {
-        applicationId: appId,
-        title: app.title,
-        status,
-        awardedAmount,
-        reason,
+  /**
+   * Release Decisions in Bulk via server
+   * Reports results: sent, failed, skipped (with reasons).
+   */
+  const executeBulkDecisions = async (decisions: any[]): Promise<BulkDecisionReport> => {
+    const response = await fetch('/api/emails/bulk-decisions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-email': currentUser?.email || '',
+        'x-user-role': currentUser?.role || 'admin',
+        'x-user-name': currentUser?.displayName || '',
+        'x-user-uid': currentUser?.id || '',
       },
+      body: JSON.stringify({ decisions }),
     });
-  };
 
-  const sendMoreInfoRequest = async (appId: string, question: string) => {
-    const app = applications.find((a) => a.id === appId);
-    if (!app) return;
-
-    const updated: Application = {
-      ...app,
-      status: 'More Info Needed',
-      moreInfoQuestion: question,
-      statusReason: 'Review committee requested additional clarification.',
-      updatedAt: new Date().toISOString(),
-    };
-
-    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
-
-    await addTimelineEvent(
-      appId,
-      'More Info Needed',
-      'Committee Inquiry Sent',
-      `Inquiry: "${question}"`
-    );
-
-    try {
-      await updateDoc(doc(db, 'applications', appId), {
-        status: 'More Info Needed',
-        moreInfoQuestion: question,
-        statusReason: updated.statusReason,
-        updatedAt: updated.updatedAt,
-      });
-    } catch {
-      // local state updated
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to dispatch bulk decisions.');
     }
 
-    // Record inquiry in admin audit log
-    await recordAuditLog({
-      action: 'INQUIRY_SENT',
-      category: 'Inquiries',
-      details: `Sent official committee inquiry to application ${appId} ("${app.title}"): "${question.slice(0, 100)}${
-        question.length > 100 ? '...' : ''
-      }"`,
-      metadata: { applicationId: appId, title: app.title, question },
-    });
-  };
-
-  const saveAdminEligibility = async (appId: string, screening: AdminEligibilityScreening) => {
-    const app = applications.find((a) => a.id === appId);
-    if (!app) return;
-
-    const now = new Date().toISOString();
-    const newStatus = screening.passed && (app.status === 'Submitted' || app.status === 'More Info Needed')
-      ? 'Under Review'
-      : app.status;
-
-    const updated: Application = {
-      ...app,
-      status: newStatus,
-      adminEligibility: screening,
-      statusReason: screening.passed
-        ? `Eligibility verified by admin ${screening.checkedBy}. All 5 gates passed.`
-        : `Admin eligibility screening flagged paperwork issues: ${screening.notes || 'Review required'}.`,
-      updatedAt: now,
-    };
-
-    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
-
-    await addTimelineEvent(
-      appId,
-      newStatus,
-      screening.passed ? 'Eligibility Screening Passed' : 'Eligibility Screening Incomplete',
-      screening.passed
-        ? `Admin verified all 5 baseline criteria (NISD applicant, within cap, Q16-18 yes, no prohibited costs, prior report submitted). Cleared for reviewer scoring.`
-        : `Eligibility check noted: ${screening.notes || 'Fixable paperwork items detected.'}`
-    );
-
-    try {
-      await updateDoc(doc(db, 'applications', appId), {
-        status: newStatus,
-        adminEligibility: screening,
-        statusReason: updated.statusReason,
-        updatedAt: now,
-      });
-    } catch {
-      // local state updated
-    }
+    const report: BulkDecisionReport = await response.json();
 
     await recordAuditLog({
-      action: screening.passed ? 'ELIGIBILITY_PASSED' : 'ELIGIBILITY_FLAGGED',
+      action: 'BULK_DECISIONS_DISPATCHED',
       category: 'Awards & Decisions',
-      details: `Admin ${currentUser.displayName} completed eligibility checklist for ${app.grantCode || appId} ("${app.title}"): ${
-        screening.passed ? 'PASSED (All 5 gates verified)' : 'FAILED/FIXABLE'
-      }.`,
-      metadata: { applicationId: appId, grantCode: app.grantCode, screening },
+      details: `Dispatched bulk decision notices: ${report.sent} sent, ${report.skipped.length} skipped, ${report.failed} failed.`,
+      metadata: report,
     });
+
+    return report;
+  };
+
+  // ===========================================================================
+  // INVITATIONS & REVIEWER ROSTER
+  // ===========================================================================
+
+  const inviteReviewer = async (reviewerInput: {
+    name: string;
+    email: string;
+    role: 'reviewer' | 'admin' | 'Reviewer' | 'NonVotingReviewer';
+    cyclesServed?: number;
+    mailingAddress?: string;
+    shirtSize?: 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
+    notes?: string;
+  }): Promise<{ reviewer: ReviewerProfile; magicLink: string }> => {
+    const res = await fetch('/api/invites/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-email': currentUser?.email || '',
+        'x-user-role': currentUser?.role || 'admin',
+        'x-user-name': currentUser?.displayName || '',
+        'x-user-uid': currentUser?.id || '',
+      },
+      body: JSON.stringify({
+        email: reviewerInput.email,
+        name: reviewerInput.name,
+        role: normalizeRole(reviewerInput.role),
+        cyclesServed: reviewerInput.cyclesServed || 1,
+        mailingAddress: reviewerInput.mailingAddress || '',
+        shirtSize: reviewerInput.shirtSize || 'L',
+        notes: reviewerInput.notes || '',
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to generate invitation.');
+    }
+
+    const data = await res.json();
+    const token = data.token;
+    const magicLink = `${window.location.origin}/?invite=${encodeURIComponent(token)}`;
+
+    const newProfile: ReviewerProfile = {
+      id: data.invite.id,
+      name: reviewerInput.name.trim(),
+      email: reviewerInput.email.trim().toLowerCase(),
+      role: (normalizeRole(reviewerInput.role) === 'admin' ? 'admin' : 'reviewer') as 'reviewer' | 'admin',
+      isVoting: reviewerInput.role !== 'NonVotingReviewer',
+      cyclesServed: reviewerInput.cyclesServed ?? 1,
+      mailingAddress: reviewerInput.mailingAddress || '',
+      shirtSize: reviewerInput.shirtSize || 'L',
+      notes: reviewerInput.notes || '',
+      invitedAt: new Date().toISOString(),
+      magicLinkSentAt: new Date().toISOString(),
+      magicLinkToken: token,
+      thankYouSent: false,
+      reminderSent3Day: false,
+      reminderSent1Day: false,
+    };
+
+    setReviewers((prev) => [...prev, newProfile]);
 
     setActiveNotification({
-      title: screening.passed ? 'Eligibility Passed' : 'Eligibility Flagged',
-      message: screening.passed
-        ? `${app.grantCode || 'Application'} verified and cleared for reviewer evaluation.`
-        : `Paperwork issue recorded. You can request clarification via "More Info Needed".`,
-      type: screening.passed ? 'success' : 'warn',
+      title: 'Invitation Dispatched',
+      message: `14-day invitation link sent to ${reviewerInput.email}.`,
+      type: 'success',
     });
+
+    return { reviewer: newProfile, magicLink };
   };
 
-  const assignReviewersToApplication = async (appId: string, reviewerIds: string[]) => {
-    const app = applications.find((a) => a.id === appId);
-    if (!app) return;
-
-    const now = new Date().toISOString();
-    const updated: Application = {
-      ...app,
-      assignedReviewerIds: reviewerIds,
-      updatedAt: now,
-    };
-
-    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
-
-    try {
-      await updateDoc(doc(db, 'applications', appId), {
-        assignedReviewerIds: reviewerIds,
-        updatedAt: now,
-      });
-    } catch {
-      // local state updated
-    }
-
-    await recordAuditLog({
-      action: 'REVIEWERS_ASSIGNED',
-      category: 'Awards & Decisions',
-      details: `Reviewer assignments updated for ${app.grantCode || appId}: ${
-        reviewerIds.length === 0 || reviewerIds.includes('all')
-          ? 'All Reviewers (Default)'
-          : `${reviewerIds.length} specific reviewers assigned`
-      }.`,
-      metadata: { applicationId: appId, grantCode: app.grantCode, reviewerIds },
+  const resendInvite = async (inviteId: string) => {
+    const res = await fetch('/api/invites/resend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-email': currentUser?.email || '',
+        'x-user-role': currentUser?.role || 'admin',
+        'x-user-name': currentUser?.displayName || '',
+        'x-user-uid': currentUser?.id || '',
+      },
+      body: JSON.stringify({ inviteId }),
     });
 
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to resend invitation.');
+    }
+
     setActiveNotification({
-      title: 'Reviewers Assigned',
-      message: `Reviewer assignment updated for ${app.grantCode || 'application'}.`,
+      title: 'Invitation Renewed',
+      message: 'Invitation expiry extended by 14 days and resent.',
       type: 'success',
     });
   };
 
-  const markCheckSent = async (
-    appId: string,
-    checkData: {
-      checkNumber: string;
-      checkSentAt: string;
-      checkAmount?: number;
-      checkNotes?: string;
-    }
-  ) => {
-    const app = applications.find((a) => a.id === appId);
-    if (!app) return;
-
-    const now = new Date().toISOString();
-    const finalAmount = checkData.checkAmount || app.awardedAmount || app.amountRequested;
-    const updated: Application = {
-      ...app,
-      checkSent: true,
-      checkSentAt: checkData.checkSentAt || now,
-      checkNumber: checkData.checkNumber,
-      checkAmount: finalAmount,
-      checkNotes: checkData.checkNotes,
-      updatedAt: now,
-    };
-
-    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
-
-    await addTimelineEvent(
-      appId,
-      app.status,
-      'Grant Check Disbursed',
-      `Check #${checkData.checkNumber} for $${finalAmount.toFixed(2)} disbursed to campus activity fund.`
-    );
-
-    try {
-      await updateDoc(doc(db, 'applications', appId), {
-        checkSent: true,
-        checkSentAt: updated.checkSentAt,
-        checkNumber: updated.checkNumber,
-        checkAmount: updated.checkAmount,
-        checkNotes: updated.checkNotes,
-        updatedAt: now,
-      });
-    } catch {
-      // local state updated
-    }
-
-    await recordAuditLog({
-      action: 'CHECK_SENT_MARKED',
-      category: 'Awards & Decisions',
-      details: `Grant check #${checkData.checkNumber} for $${finalAmount.toFixed(2)} marked as sent for ${app.grantCode || appId} ("${app.title}").`,
-      metadata: { applicationId: appId, grantCode: app.grantCode, checkNumber: checkData.checkNumber, amount: finalAmount },
+  const revokeInvite = async (inviteId: string) => {
+    const res = await fetch('/api/invites/revoke', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-email': currentUser?.email || '',
+        'x-user-role': currentUser?.role || 'admin',
+        'x-user-name': currentUser?.displayName || '',
+        'x-user-uid': currentUser?.id || '',
+      },
+      body: JSON.stringify({ inviteId }),
     });
 
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to revoke invitation.');
+    }
+
     setActiveNotification({
-      title: 'Check Marked Disbursed',
-      message: `Check #${checkData.checkNumber} recorded for ${app.grantCode || 'this grant'}.`,
+      title: 'Invitation Revoked',
+      message: 'Invitation link has been deactivated.',
+      type: 'info',
+    });
+  };
+
+  const acceptInviteByToken = async (token: string) => {
+    const res = await fetch('/api/invites/accept', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, uid: currentUser?.id || `usr-${Date.now()}` }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to accept invitation.');
+    }
+
+    const data = await res.json();
+    return data;
+  };
+
+  const updateReviewerProfile = async (reviewer: ReviewerProfile) => {
+    setReviewers((prev) => prev.map((r) => (r.id === reviewer.id ? reviewer : r)));
+
+    try {
+      await setDoc(doc(db, 'reviewers', reviewer.id), reviewer, { merge: true });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, `reviewers/${reviewer.id}`);
+    }
+  };
+
+  const deleteReviewerProfile = async (reviewerId: string) => {
+    setReviewers((prev) => prev.filter((r) => r.id !== reviewerId));
+    try {
+      await deleteDoc(doc(db, 'reviewers', reviewerId));
+    } catch (e) {
+      handleFirestoreError(e, OperationType.DELETE, `reviewers/${reviewerId}`);
+    }
+  };
+
+  const sendReviewerReminder = async (reviewerId: string, reminderType: '3day' | '1day') => {
+    const rev = reviewers.find((r) => r.id === reviewerId);
+    if (!rev) return;
+    const updated = {
+      ...rev,
+      [reminderType === '3day' ? 'reminderSent3Day' : 'reminderSent1Day']: true,
+    };
+    await updateReviewerProfile(updated);
+    setActiveNotification({
+      title: 'Reminder Dispatched',
+      message: `Dispatched automated ${reminderType === '3day' ? '3-day' : '1-day'} review reminder to ${rev.name} (${rev.email}).`,
+      type: 'info',
+    });
+  };
+
+  const sendReviewerThankYou = async (reviewerId: string) => {
+    const rev = reviewers.find((r) => r.id === reviewerId);
+    if (!rev) return;
+    const updated = {
+      ...rev,
+      thankYouSent: true,
+    };
+    await updateReviewerProfile(updated);
+    setActiveNotification({
+      title: 'Thank You Dispatched',
+      message: `Official NEF Foundation appreciation letter dispatched to ${rev.name}.`,
       type: 'success',
     });
   };
+
+  // ===========================================================================
+  // EMAIL AUDIT LOGS & FILE UPLOADS
+  // ===========================================================================
+
+  const fetchSentEmails = async (): Promise<SentEmail[]> => {
+    try {
+      const res = await fetch('/api/emails/sent-logs', {
+        headers: {
+          'x-user-email': currentUser?.email || '',
+          'x-user-role': currentUser?.role || 'admin',
+          'x-user-name': currentUser?.displayName || '',
+          'x-user-uid': currentUser?.id || '',
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSentEmails(data.logs || []);
+        return data.logs || [];
+      }
+    } catch (err) {
+      console.warn('Failed fetching sent emails:', err);
+    }
+    return [];
+  };
+
+  const uploadFileToServer = async (file: File, context: 'proposal' | 'final_report' = 'proposal') => {
+    return new Promise<{ url: string; fileName: string; fileSize: number }>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64Data = (reader.result as string).split(',')[1];
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-email': currentUser?.email || '',
+              'x-user-role': currentUser?.role || 'reviewer',
+              'x-user-name': currentUser?.displayName || '',
+              'x-user-uid': currentUser?.id || '',
+            },
+            body: JSON.stringify({
+              fileName: file.name,
+              fileType: file.type,
+              base64Data,
+              context,
+            }),
+          });
+
+          if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || 'Failed to upload document.');
+          }
+
+          const result = await response.json();
+          resolve({
+            url: result.url,
+            fileName: result.fileName,
+            fileSize: result.fileSize,
+          });
+        } catch (e) {
+          reject(e);
+        }
+      };
+      reader.onerror = (e) => reject(e);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // ===========================================================================
+  // LEGAL DOCUMENTATION
+  // ===========================================================================
+
+  const saveLegalDocument = async (type: 'terms' | 'privacy', title: string, content: string) => {
+    const res = await fetch(`/api/legal/${type}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-email': currentUser?.email || '',
+        'x-user-role': currentUser?.role || 'admin',
+        'x-user-name': currentUser?.displayName || '',
+        'x-user-uid': currentUser?.id || '',
+      },
+      body: JSON.stringify({ title, content }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to update policy.');
+    }
+
+    const data = await res.json();
+    if (type === 'terms') setLegalTerms(data.data);
+    else setLegalPrivacy(data.data);
+
+    setActiveNotification({
+      title: 'Policy Updated',
+      message: `${title} successfully saved.`,
+      type: 'success',
+    });
+  };
+
+  // ===========================================================================
+  // AUDIT LOGGING & SETTINGS
+  // ===========================================================================
 
   const recordAuditLog = async (entry: {
     action: string;
@@ -1175,14 +1399,18 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     details: string;
     metadata?: Record<string, any>;
   }) => {
+    const userEmail = currentUser?.email || 'system@nacisd.org';
+    const userName = currentUser?.displayName || 'System';
+    const userRole = currentUser?.role || 'admin';
+
     const newLog: AdminAuditLog = {
       id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       action: entry.action,
       category: entry.category,
       details: entry.details,
-      userEmail: currentUser.email,
-      userName: currentUser.displayName,
-      userRole: currentUser.role,
+      userEmail,
+      userName,
+      userRole,
       timestamp: new Date().toISOString(),
       metadata: entry.metadata,
     };
@@ -1191,486 +1419,383 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     try {
       await setDoc(doc(db, 'auditLogs', newLog.id), newLog);
-    } catch {
-      // local state maintained
+    } catch (e) {
+      console.warn('Audit log write note:', e);
     }
   };
 
   const clearAuditLogs = async () => {
-    const resetLog: AdminAuditLog = {
-      id: `log-${Date.now()}`,
-      action: 'AUDIT_LOGS_ARCHIVED',
-      category: 'System',
-      details: `Admin audit log history archived and reset by ${currentUser.displayName} (${currentUser.role}).`,
-      userEmail: currentUser.email,
-      userName: currentUser.displayName,
-      userRole: currentUser.role,
-      timestamp: new Date().toISOString(),
-    };
-    setAuditLogs([resetLog]);
-    try {
-      await setDoc(doc(db, 'auditLogs', resetLog.id), resetLog);
-    } catch {
-      // local state maintained
-    }
-  };
-
-  const respondToMoreInfo = async (appId: string, response: string) => {
-    const app = applications.find((a) => a.id === appId);
-    if (!app) return;
-
-    const now = new Date().toISOString();
-    const updated: Application = {
-      ...app,
-      status: 'Under Review',
-      moreInfoResponse: response,
-      moreInfoRespondedAt: now,
-      statusReason: 'Applicant responded to committee inquiry. Returned to Under Review.',
-      updatedAt: now,
-    };
-
-    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
-
-    await addTimelineEvent(
-      appId,
-      'Under Review',
-      'Applicant Inquiry Response',
-      `Applicant submitted clarification: "${response.slice(0, 100)}..."`
-    );
-
-    try {
-      await updateDoc(doc(db, 'applications', appId), {
-        status: 'Under Review',
-        moreInfoResponse: response,
-        moreInfoRespondedAt: now,
-        statusReason: updated.statusReason,
-        updatedAt: now,
-      });
-    } catch {
-      // local state updated
-    }
-
+    setAuditLogs([]);
     setActiveNotification({
-      title: 'Inquiry Response Sent',
-      message: 'Your response was submitted to the review committee. Application is now Under Review.',
-      type: 'success',
-    });
-  };
-
-  const reportPoSubmitted = async (appId: string) => {
-    const app = applications.find((a) => a.id === appId);
-    if (!app) return;
-    const now = new Date().toISOString();
-    const updated: Application = {
-      ...app,
-      poSubmittedAt: now,
-      updatedAt: now,
-    };
-    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
-
-    await addTimelineEvent(
-      appId,
-      app.status,
-      'Purchase Order Reported',
-      `Teacher ${currentUser.displayName} reported campus purchase order submitted for funded items.`
-    );
-
-    try {
-      await updateDoc(doc(db, 'applications', appId), {
-        poSubmittedAt: now,
-        updatedAt: now,
-      });
-    } catch {
-      // local state updated
-    }
-
-    const adminEmail = programSettings.notifications?.adminEmailRecipient || 'director@nefgrants.org';
-    if (programSettings.notifications?.notifyTeacherPoSubmitted !== false) {
-      await recordAuditLog({
-        action: 'TEACHER_PO_SUBMITTED',
-        category: 'System',
-        details: `Teacher reported PO submission for ${app.grantCode || appId} ("${app.title}"). Admin notification dispatched to ${adminEmail}.`,
-        metadata: { grantCode: app.grantCode, applicationId: appId, teacher: currentUser.email },
-      });
-    }
-
-    setActiveNotification({
-      title: 'Purchase Order Reported',
-      message: `Purchase order status recorded for ${app.grantCode || 'your grant'}. The grants committee has been notified.`,
-      type: 'success',
-    });
-  };
-
-  const reportEventDate = async (appId: string, eventDate: string) => {
-    const app = applications.find((a) => a.id === appId);
-    if (!app) return;
-    const now = new Date().toISOString();
-    const updated: Application = {
-      ...app,
-      eventDate,
-      updatedAt: now,
-    };
-    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
-
-    await addTimelineEvent(
-      appId,
-      app.status,
-      'Project Showcase Event Date Scheduled',
-      `Teacher scheduled project demonstration / classroom showcase on: ${eventDate}.`
-    );
-
-    try {
-      await updateDoc(doc(db, 'applications', appId), {
-        eventDate,
-        updatedAt: now,
-      });
-    } catch {
-      // local state updated
-    }
-
-    const adminEmail = programSettings.notifications?.adminEmailRecipient || 'director@nefgrants.org';
-    if (programSettings.notifications?.notifyTeacherEventDate !== false) {
-      await recordAuditLog({
-        action: 'TEACHER_EVENT_DATE_SHARED',
-        category: 'System',
-        details: `Teacher shared project event date (${eventDate}) for ${app.grantCode || appId} ("${app.title}"). Admin notification dispatched to ${adminEmail}.`,
-        metadata: { grantCode: app.grantCode, applicationId: appId, eventDate, teacher: currentUser.email },
-      });
-    }
-
-    setActiveNotification({
-      title: 'Event Date Shared!',
-      message: `Project showcase date (${eventDate}) recorded. Foundation directors love attending student showcases!`,
-      type: 'success',
-    });
-  };
-
-  const submitFinalReport = async (appId: string, report: FinalReportData) => {
-    const app = applications.find((a) => a.id === appId);
-    if (!app) return;
-
-    const updated: Application = {
-      ...app,
-      status: 'Complete',
-      finalReport: report,
-      statusReason: 'Final project report and student outcomes submitted.',
-      updatedAt: new Date().toISOString(),
-    };
-
-    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
-
-    await addTimelineEvent(
-      appId,
-      'Complete',
-      'Final Grant Report Completed',
-      `Report submitted by ${currentUser.displayName}. Impacted ${report.actualStudentImpact} students.`
-    );
-
-    try {
-      await updateDoc(doc(db, 'applications', appId), {
-        status: 'Complete',
-        finalReport: report,
-        statusReason: updated.statusReason,
-        updatedAt: updated.updatedAt,
-      });
-    } catch {
-      // local state updated
-    }
-
-    const adminEmail = programSettings.notifications?.adminEmailRecipient || 'director@nefgrants.org';
-    if (programSettings.notifications?.notifyFinalReportSubmitted !== false) {
-      await recordAuditLog({
-        action: 'FINAL_REPORT_SUBMITTED_NOTIFICATION',
-        category: 'System',
-        details: `Final project report submitted for ${app.grantCode || appId} ("${app.title}"). Actual student impact: ${report.actualStudentImpact}. Notification dispatched to ${adminEmail}.`,
-        metadata: { grantCode: app.grantCode, applicationId: appId, studentImpact: report.actualStudentImpact },
-      });
-    }
-
-    setActiveNotification({
-      title: 'Final Report Submitted!',
-      message: 'Thank you for sharing your innovative teaching project outcomes with NEF. You are now eligible to apply in future cycles!',
-      type: 'success',
-    });
-  };
-
-  const simulatePrincipalApproval = async (
-    appId: string,
-    approved: boolean,
-    comment?: string
-  ) => {
-    const app = applications.find((a) => a.id === appId);
-    if (!app) return;
-
-    const now = new Date().toISOString();
-    const updated: Application = {
-      ...app,
-      principalApproved: approved,
-      principalApprovedAt: now,
-      principalComment: comment || (approved ? 'Principal endorsed proposal.' : 'Needs revision.'),
-      status: approved ? 'Under Review' : 'Draft',
-      statusReason: approved
-        ? 'Campus Principal approved proposal. Advanced to committee review.'
-        : 'Principal suggested modifications before resubmitting.',
-      updatedAt: now,
-    };
-
-    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
-
-    await addTimelineEvent(
-      appId,
-      approved ? 'Under Review' : 'Draft',
-      approved ? 'Principal Endorsement Approved' : 'Principal Modification Request',
-      comment || (approved ? 'Principal signed off on proposal.' : 'Feedback provided.')
-    );
-  };
-
-  const toggleRecusal = async (appId: string, recused: boolean, reason?: string) => {
-    // Record recusal on reviewer's review record
-    const existing = reviews.find(
-      (r) => r.applicationId === appId && r.reviewerEmail === currentUser.email
-    );
-
-    const reviewRecord: Review = existing || {
-      id: `rev-${appId}-${currentUser.id}`,
-      applicationId: appId,
-      reviewerEmail: currentUser.email,
-      reviewerName: currentUser.displayName,
-      isVoting: currentUser.role === 'Reviewer',
-      scores: {},
-      comments: {},
-      totalScore: 0,
-      maxPossibleScore: 40,
-      percentageScore: 0,
-      eligibilityChecklist: {
-        eligibleApplicant: true,
-        withinCategoryCap: true,
-        acknowledgementsYes: true,
-        noProhibitedCosts: true,
-        priorReportSubmitted: true,
-      },
-      generalFeedback: '',
-      shareWithApplicant: false,
-      recused,
-      recusalReason: reason,
-      submittedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    reviewRecord.recused = recused;
-    reviewRecord.recusalReason = reason;
-
-    await saveReview(reviewRecord);
-
-    setActiveNotification({
-      title: recused ? 'Recusal Recorded' : 'Recusal Cleared',
-      message: recused
-        ? `You have recused yourself from reviewing application ${appId}.`
-        : 'You may now score this application.',
+      title: 'Audit Logs Archived',
+      message: 'Active audit logs archived and cleared.',
       type: 'info',
     });
   };
 
-  const inviteReviewer = async (reviewerInput: {
-    name: string;
-    email: string;
-    role: 'Reviewer' | 'NonVotingReviewer';
-    cyclesServed?: number;
-    mailingAddress?: string;
-    shirtSize?: 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
-  }) => {
-    const token = `mag-${Math.random().toString(36).substring(2, 10)}`;
-    const id = `rev-prof-${Date.now()}`;
-    const newReviewer: ReviewerProfile = {
-      id,
-      name: reviewerInput.name.trim(),
-      email: reviewerInput.email.trim().toLowerCase(),
-      role: reviewerInput.role,
-      cyclesServed: reviewerInput.cyclesServed ?? 1,
-      mailingAddress: reviewerInput.mailingAddress || '',
-      shirtSize: reviewerInput.shirtSize || 'L',
-      invitedAt: new Date().toISOString(),
-      magicLinkToken: token,
-      reminderSent3Day: false,
-      reminderSent1Day: false,
-      thankYouSent: false,
+  const updateProgramSettings = async (newSettings: Partial<ProgramSettings>) => {
+    const updated = {
+      ...programSettings,
+      ...newSettings,
+      updatedAt: new Date().toISOString(),
     };
-
-    setReviewers((prev) => [newReviewer, ...prev.filter((r) => r.email.toLowerCase() !== newReviewer.email)]);
+    setProgramSettings(updated);
 
     try {
-      await setDoc(doc(db, 'reviewers', id), newReviewer);
-    } catch {}
-
-    const magicLink = `${window.location.origin}?reviewerToken=${token}&email=${encodeURIComponent(newReviewer.email)}`;
+      await setDoc(doc(db, 'settings', 'nacogdoches-nef-2026'), updated, { merge: true });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, 'settings/nacogdoches-nef-2026');
+    }
 
     await recordAuditLog({
-      action: 'REVIEWER_INVITED',
-      category: 'System',
-      details: `Invited reviewer ${newReviewer.name} (${newReviewer.email}) as ${
-        newReviewer.role === 'NonVotingReviewer' ? 'Non-Voting Observer' : 'Voting Committee Member'
-      }. Magic sign-in link generated with scoring deadline ${programSettings.reviewClosesDate || 'Nov 16, 2026'}.`,
-      metadata: {
-        reviewerId: id,
-        name: newReviewer.name,
-        email: newReviewer.email,
-        role: newReviewer.role,
-      },
+      action: 'SETTINGS_UPDATED',
+      category: 'Settings',
+      details: `Updated program cycle settings: Available funds $${updated.availableFunds.toLocaleString()}, Caps: Cat1 $${updated.category1Cap}, Cat2 $${updated.category2Cap}. Review closes: ${updated.reviewClosesDate}.`,
+      metadata: { settings: newSettings },
     });
 
     setActiveNotification({
-      title: 'Reviewer Invited!',
-      message: `Magic sign-in link generated for ${newReviewer.name}. Welcome invitation ready with rubric & deadline.`,
+      title: 'Settings Saved',
+      message: 'Program cycle configuration successfully updated.',
       type: 'success',
     });
-
-    return { reviewer: newReviewer, magicLink };
   };
 
-  const updateReviewerProfile = async (rev: ReviewerProfile) => {
-    setReviewers((prev) => prev.map((r) => (r.id === rev.id ? rev : r)));
+  const updateRubricCriterion = async (criterion: RubricCriterion) => {
+    const updated = rubric.map((c) => (c.id === criterion.id ? criterion : c));
+    setRubric(updated);
+
     try {
-      await setDoc(doc(db, 'reviewers', rev.id), rev);
-    } catch {}
+      await setDoc(doc(db, 'rubrics', 'default'), { id: 'default', criteria: updated }, { merge: true });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, 'rubrics/default');
+    }
+
     await recordAuditLog({
-      action: 'REVIEWER_PROFILE_UPDATED',
-      category: 'System',
-      details: `Updated reviewer profile for ${rev.name} (${rev.email}): address/shirt size (${rev.shirtSize || 'N/A'}), or cycles served (${rev.cyclesServed}).`,
-      metadata: { reviewerId: rev.id, name: rev.name, email: rev.email },
+      action: 'RUBRIC_UPDATED',
+      category: 'Rubric',
+      details: `Updated criterion "${criterion.title}" weight to ${criterion.weight} pts.`,
+      metadata: { criterionId: criterion.id, weight: criterion.weight },
     });
   };
 
-  const deleteReviewerProfile = async (reviewerId: string) => {
-    const rev = reviewers.find((r) => r.id === reviewerId);
-    setReviewers((prev) => prev.filter((r) => r.id !== reviewerId));
+  const resetRubricToDefaults = async () => {
+    setRubric(INITIAL_RUBRIC);
     try {
-      await setDoc(doc(db, 'reviewers', reviewerId), { deleted: true });
-    } catch {}
-    if (rev) {
-      await recordAuditLog({
-        action: 'REVIEWER_REMOVED',
-        category: 'System',
-        details: `Removed reviewer ${rev.name} (${rev.email}) from committee roster.`,
-        metadata: { reviewerId, email: rev.email },
+      await setDoc(doc(db, 'rubrics', 'default'), { id: 'default', criteria: INITIAL_RUBRIC });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, 'rubrics/default');
+    }
+
+    await recordAuditLog({
+      action: 'RUBRIC_RESET',
+      category: 'Rubric',
+      details: 'Reset rubric to standard 8-criterion NEF weights (100 total points).',
+    });
+  };
+
+  const saveAdminEligibility = async (appId: string, screening: AdminEligibilityScreening) => {
+    const app = applications.find((a) => a.id === appId);
+    if (!app) return;
+
+    const now = new Date().toISOString();
+    const updated: Application = {
+      ...app,
+      adminEligibility: screening,
+      updatedAt: now,
+    };
+
+    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
+
+    try {
+      await updateDoc(doc(db, 'applications', appId), {
+        adminEligibility: screening,
+        updatedAt: now,
       });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, `applications/${appId}`);
+    }
+
+    await recordAuditLog({
+      action: 'ELIGIBILITY_CHECK_SAVED',
+      category: 'Awards & Decisions',
+      details: `Admin ${currentUser?.displayName} completed eligibility checklist for ${app.grantCode}: ${
+        screening.passed ? 'PASSED' : 'FLAGGED'
+      }`,
+      metadata: { applicationId: appId, screening },
+    });
+  };
+
+  const assignReviewersToApplication = async (appId: string, reviewerIds: string[]) => {
+    const app = applications.find((a) => a.id === appId);
+    if (!app) return;
+
+    const now = new Date().toISOString();
+    const updated = { ...app, assignedReviewerIds: reviewerIds, updatedAt: now };
+
+    setApplications((prev) => prev.map((a) => (a.id === appId ? updated : a)));
+
+    try {
+      await updateDoc(doc(db, 'applications', appId), {
+        assignedReviewerIds: reviewerIds,
+        updatedAt: now,
+      });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, `applications/${appId}`);
     }
   };
 
-  const sendReviewerReminder = async (reviewerId: string, reminderType: '3-day' | '1-day') => {
-    const rev = reviewers.find((r) => r.id === reviewerId);
-    if (!rev) return;
-    const updated: ReviewerProfile = {
-      ...rev,
-      reminderSent3Day: reminderType === '3-day' ? true : rev.reminderSent3Day,
-      reminderSent1Day: reminderType === '1-day' ? true : rev.reminderSent1Day,
-    };
-    setReviewers((prev) => prev.map((r) => (r.id === reviewerId ? updated : r)));
-    try {
-      await setDoc(doc(db, 'reviewers', reviewerId), updated);
-    } catch {}
+  // Google Form CSV Import with atomic transaction
+  const importGoogleFormResponses = async (
+    csvText: string,
+    customMappings?: Record<string, string>
+  ): Promise<{ importedCount: number; duplicatesSkipped: number; startCode: string; endCode: string }> => {
+    const { parseCsvText, buildImportPreview, convertRowsToApplicationsAndIdentities } = await import(
+      '../utils/googleFormCsvParser'
+    );
+    const rawRows = parseCsvText(csvText);
+    if (rawRows.length < 2) {
+      throw new Error('CSV file must contain a header row and at least one response row.');
+    }
+
+    const counterRef = doc(db, 'counters', 'grantCodes');
+    const program = (programSettings.program || 'IG').toUpperCase();
+    const season = (programSettings.season || 'F').toUpperCase();
+    const yy = programSettings.cycleTwoDigitYear || '26';
+    const prefix = `${program}${season}${yy}`;
+
+    let importedCount = 0;
+    let duplicatesSkipped = 0;
+    let startCode = '';
+    let endCode = '';
+
+    await runTransaction(db, async (transaction) => {
+      const counterDoc = await transaction.get(counterRef);
+      let currentSequence = 0;
+
+      if (counterDoc.exists()) {
+        currentSequence = counterDoc.data().lastSequence || 0;
+      } else {
+        for (const app of applications) {
+          if (app.sequenceNumber && app.sequenceNumber > currentSequence) {
+            currentSequence = app.sequenceNumber;
+          }
+        }
+      }
+
+      const preview = buildImportPreview(
+        rawRows,
+        programSettings,
+        applications,
+        currentSequence,
+        customMappings
+      );
+
+      const {
+        applications: newApps,
+        identities: newIdentities,
+        nextCounterSequence,
+      } = convertRowsToApplicationsAndIdentities(preview, prefix);
+
+      duplicatesSkipped = preview.duplicateRowsCount;
+      importedCount = newApps.length;
+      startCode = newApps[0]?.grantCode || 'N/A';
+      endCode = newApps[newApps.length - 1]?.grantCode || 'N/A';
+
+      for (let i = 0; i < newApps.length; i++) {
+        const app = newApps[i];
+        const identity = newIdentities[i];
+
+        const appRef = doc(db, 'applications', app.id);
+        const identityRef = doc(db, 'applicantIdentities', app.id);
+
+        transaction.set(appRef, app);
+        transaction.set(identityRef, identity);
+      }
+
+      if (nextCounterSequence > currentSequence) {
+        transaction.set(
+          counterRef,
+          {
+            id: 'grantCodes',
+            prefix,
+            lastSequence: nextCounterSequence,
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+      }
+    });
 
     await recordAuditLog({
-      action: `REVIEWER_${reminderType.toUpperCase()}_REMINDER_SENT`,
-      category: 'System',
-      details: `Sent automated ${reminderType} review close reminder to ${rev.name} (${rev.email}). Deadline: ${programSettings.reviewClosesDate || 'Nov 16, 2026'} at 11:59 PM.`,
-      metadata: { reviewerId, email: rev.email, reminderType },
+      action: 'GOOGLE_FORM_CSV_IMPORTED',
+      category: 'Import',
+      details: `Imported ${importedCount} applications via Google Form CSV (${startCode} to ${endCode}). Duplicates skipped: ${duplicatesSkipped}. Counter updated.`,
+      metadata: { importedCount, duplicatesSkipped, startCode, endCode },
     });
 
     setActiveNotification({
-      title: `${reminderType === '3-day' ? '3-Day' : '1-Day'} Reminder Dispatched!`,
-      message: `Automated scoring deadline notice dispatched to ${rev.name} (${rev.email}).`,
-      type: 'info',
-    });
-  };
-
-  const sendReviewerThankYou = async (reviewerId: string) => {
-    const rev = reviewers.find((r) => r.id === reviewerId);
-    if (!rev) return;
-    const updated: ReviewerProfile = { ...rev, thankYouSent: true };
-    setReviewers((prev) => prev.map((r) => (r.id === reviewerId ? updated : r)));
-    try {
-      await setDoc(doc(db, 'reviewers', reviewerId), updated);
-    } catch {}
-
-    await recordAuditLog({
-      action: 'REVIEWER_THANK_YOU_DISPATCHED',
-      category: 'System',
-      details: `Dispatched official foundation thank-you recognition notice to reviewer ${rev.name} (${rev.email}) for evaluating grant proposals this cycle.`,
-      metadata: { reviewerId, email: rev.email, cyclesServed: rev.cyclesServed },
-    });
-
-    setActiveNotification({
-      title: 'Thank-You Recognition Sent!',
-      message: `Foundation thank-you appreciation dispatched to ${rev.name}.`,
+      title: 'Google Form Import Complete',
+      message: `Successfully created ${importedCount} applications (${startCode} to ${endCode}) with applicant identities stored in the admin-only collection.`,
       type: 'success',
     });
+
+    return { importedCount, duplicatesSkipped, startCode, endCode };
   };
 
-  const loginWithMagicLink = (tokenOrEmail: string): boolean => {
-    const match = reviewers.find(
-      (r) =>
-        r.magicLinkToken === tokenOrEmail ||
-        r.email.toLowerCase() === tokenOrEmail.toLowerCase().trim()
-    );
-    if (match) {
-      switchUser(match.role, match.email, match.name);
+  /**
+   * Save a single submitted application and its sensitive identity directly to Firestore
+   */
+  const saveSubmittedApplicationToFirestore = async (
+    app: Application,
+    identity?: ApplicantIdentity
+  ): Promise<void> => {
+    try {
+      const now = new Date().toISOString();
+      const updatedApp: Application = {
+        ...app,
+        updatedAt: now,
+        status: app.status || 'Submitted',
+      };
+
+      // 1. Write application proposal content to Firestore /applications/{appId}
+      const appRef = doc(db, 'applications', updatedApp.id);
+      await setDoc(appRef, updatedApp, { merge: true });
+
+      // 2. Write applicant identity to segregated /applicantIdentities/{appId}
+      if (identity) {
+        const identityRef = doc(db, 'applicantIdentities', updatedApp.id);
+        await setDoc(identityRef, identity, { merge: true });
+        setApplicantIdentities((prev) => ({
+          ...prev,
+          [updatedApp.id]: identity,
+        }));
+      }
+
+      setApplications((prev) => {
+        const idx = prev.findIndex((a) => a.id === updatedApp.id);
+        if (idx >= 0) {
+          const copy = [...prev];
+          copy[idx] = updatedApp;
+          return copy;
+        }
+        return [...prev, updatedApp].sort((a, b) => (a.sequenceNumber || 0) - (b.sequenceNumber || 0));
+      });
+
+      await recordAuditLog({
+        action: 'APPLICATION_SUBMITTED_TO_FIRESTORE',
+        category: 'Import',
+        details: `Application ${updatedApp.grantCode} (${updatedApp.title}) saved to Firestore collection /applications.`,
+        metadata: { applicationId: updatedApp.id, grantCode: updatedApp.grantCode },
+      });
+
       setActiveNotification({
-        title: `Welcome, ${match.name}!`,
-        message: `Signed in via magic link (${match.role === 'NonVotingReviewer' ? 'Observer' : 'Voting Member'}). Scoring closes ${programSettings.reviewClosesDate || 'Nov 16, 2026'}.`,
+        title: 'Application Saved to Firestore',
+        message: `${updatedApp.grantCode} saved to Firestore collection /applications.`,
         type: 'success',
       });
-      return true;
+    } catch (e: any) {
+      console.error('Failed saving application to Firestore:', e);
+      handleFirestoreError(e, OperationType.WRITE, `applications/${app.id}`);
+      throw e;
     }
-    return false;
+  };
+
+  /**
+   * Batch sync all applications and identities to Firestore
+   */
+  const syncAllApplicationsToFirestore = async (): Promise<{ syncedCount: number; errorCount: number }> => {
+    let syncedCount = 0;
+    let errorCount = 0;
+
+    for (const app of applications) {
+      try {
+        const appRef = doc(db, 'applications', app.id);
+        await setDoc(appRef, app, { merge: true });
+
+        const identity = applicantIdentities[app.id] || INITIAL_APPLICANT_IDENTITIES[app.id];
+        if (identity) {
+          const identityRef = doc(db, 'applicantIdentities', app.id);
+          await setDoc(identityRef, identity, { merge: true });
+        }
+        syncedCount++;
+      } catch (err) {
+        console.warn(`Sync failed for application ${app.grantCode}:`, err);
+        errorCount++;
+      }
+    }
+
+    await recordAuditLog({
+      action: 'BATCH_APPLICATIONS_SYNCED_FIRESTORE',
+      category: 'Import',
+      details: `Batch synced ${syncedCount} applications and identities to Firestore database. Errors: ${errorCount}.`,
+      metadata: { syncedCount, errorCount },
+    });
+
+    setActiveNotification({
+      title: 'Firestore Sync Complete',
+      message: `${syncedCount} submitted applications verified and saved in Firestore collection /applications.`,
+      type: 'success',
+    });
+
+    return { syncedCount, errorCount };
   };
 
   return (
     <GrantContext.Provider
       value={{
         currentUser,
-        switchUser,
+        authLoading,
+        sendEmailSignInLink,
+        signInWithEmailLinkDirect,
+        signInAsTestUser,
+        logout,
         applications,
+        applicantIdentities,
         programSettings,
         updateProgramSettings,
-        vendors,
-        addVendor,
-        updateVendor,
-        deleteVendor,
-        uploadVendorCsv,
         rubric,
         updateRubricCriterion,
         resetRubricToDefaults,
         reviews,
+        saveReviewDraft,
+        submitOfficialReview,
         saveReview,
-        saveApplicationDraft,
-        submitApplication,
-        updateApplicationStatus,
-        sendMoreInfoRequest,
-        respondToMoreInfo,
+        openApplicationForReview,
+        toggleRecusal,
         saveAdminEligibility,
         assignReviewersToApplication,
-        markCheckSent,
-        reportPoSubmitted,
-        reportEventDate,
-        submitFinalReport,
-        simulatePrincipalApproval,
-        toggleRecusal,
-        timelineEvents,
-        auditLogs,
-        recordAuditLog,
-        clearAuditLogs,
-        isSyncing,
-        activeNotification,
-        dismissNotification,
-        userPendingFinalReport,
+        updateApplicationAward,
+        updateApplicationStatus,
+        executeBulkDecisions,
+        loginWithMagicLink,
         reviewers,
+        invites,
         inviteReviewer,
+        resendInvite,
+        revokeInvite,
+        acceptInviteByToken,
         updateReviewerProfile,
         deleteReviewerProfile,
         sendReviewerReminder,
         sendReviewerThankYou,
-        loginWithMagicLink,
-        resetToGoogleSheetData,
+        sentEmails,
+        fetchSentEmails,
+        uploadFileToServer,
+        legalTerms,
+        legalPrivacy,
+        saveLegalDocument,
+        auditLogs,
+        recordAuditLog,
+        clearAuditLogs,
+        importGoogleFormResponses,
+        saveSubmittedApplicationToFirestore,
+        syncAllApplicationsToFirestore,
+        isReviewClosed,
+        reviewDeadlineInfo,
+        isSyncing,
+        activeNotification,
+        dismissNotification,
       }}
     >
       {children}
@@ -1678,10 +1803,12 @@ export const GrantProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-export const useGrant = () => {
+export const useGrants = () => {
   const context = useContext(GrantContext);
   if (!context) {
-    throw new Error('useGrant must be used within a GrantProvider');
+    throw new Error('useGrants must be used within a GrantProvider');
   }
   return context;
 };
+
+export const useGrant = useGrants;

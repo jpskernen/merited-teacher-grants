@@ -6,31 +6,23 @@
       "type": "object",
       "properties": {
         "id": { "type": "string" },
+        "program": { "type": "string" },
+        "season": { "type": "string" },
         "schoolYear": { "type": "string" },
         "callForGrantsDate": { "type": "string" },
         "applicationsDueDate": { "type": "string" },
+        "reviewClosesDate": { "type": "string" },
         "awardsAnnouncedDate": { "type": "string" },
+        "awardsPresentedDate": { "type": "string" },
         "category1Cap": { "type": "number" },
         "category2Cap": { "type": "number" },
         "availableFunds": { "type": "number" },
-        "blindReviewEnabled": { "type": "boolean" },
+        "notificationThreshold": { "type": "number" },
+        "adminEmailRecipient": { "type": "string" },
+        "applicationIntakeMode": { "type": "string" },
         "updatedAt": { "type": "string" }
       },
       "required": ["id", "category1Cap", "category2Cap"]
-    },
-    "Vendor": {
-      "title": "Vendor",
-      "description": "Approved district vendor record",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "category": { "type": "string" },
-        "website": { "type": "string" },
-        "notes": { "type": "string" },
-        "isApproved": { "type": "boolean" }
-      },
-      "required": ["id", "name", "isApproved"]
     },
     "Rubric": {
       "title": "Rubric",
@@ -45,17 +37,16 @@
     },
     "Application": {
       "title": "Application",
-      "description": "Teacher grant proposal document",
+      "description": "Blind grant proposal document viewable by reviewers and admins (no applicant PII)",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
-        "applicantEmail": { "type": "string" },
-        "applicantNames": { "type": "array" },
-        "campus": { "type": "string" },
+        "grantCode": { "type": "string" },
+        "sequenceNumber": { "type": "number" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
         "gradeLevels": { "type": "array" },
         "subjectArea": { "type": "string" },
-        "category": { "type": "string" },
-        "title": { "type": "string" },
         "objectives": { "type": "string" },
         "areaOfFocus": { "type": "string" },
         "areaOfFocusOther": { "type": "string" },
@@ -65,38 +56,55 @@
         "evaluationStrategy": { "type": "string" },
         "partners": { "type": "string" },
         "sustainability": { "type": "string" },
-        "budgetItems": { "type": "array" },
         "plainTextBudget": { "type": "string" },
         "involvesTech": { "type": "boolean" },
         "involvesFacilities": { "type": "boolean" },
-        "principalEmail": { "type": "string" },
-        "principalApproved": { "type": "boolean" },
-        "principalComment": { "type": "string" },
-        "ackImplementation": { "type": "boolean" },
-        "ackProperty": { "type": "boolean" },
-        "ackApprovals": { "type": "boolean" },
-        "electronicSignature": { "type": "string" },
-        "signedAt": { "type": "string" },
         "status": { "type": "string" },
         "statusReason": { "type": "string" },
         "committeeFeedback": { "type": "string" },
         "awardedAmount": { "type": "number" },
-        "moreInfoQuestion": { "type": "string" },
-        "moreInfoResponse": { "type": "string" },
         "adminEligibility": { "type": "object" },
         "assignedReviewerIds": { "type": "array" },
-        "checkSent": { "type": "boolean" },
-        "checkSentAt": { "type": "string" },
-        "checkNumber": { "type": "string" },
-        "checkAmount": { "type": "number" },
-        "checkNotes": { "type": "string" },
-        "poSubmittedAt": { "type": "string" },
-        "eventDate": { "type": "string" },
-        "finalReport": { "type": "object" },
+        "teacherUid": { "type": "string" },
+        "teacherEmail": { "type": "string" },
+        "openedForReviewAt": { "type": "string" },
+        "decisionEmailSentAt": { "type": "string" },
+        "adminNotifiedAt": { "type": "string" },
+        "rowTimestamp": { "type": "string" },
         "createdAt": { "type": "string" },
         "updatedAt": { "type": "string" }
       },
-      "required": ["id", "applicantEmail", "campus", "title", "status"]
+      "required": ["id", "grantCode", "title", "status"]
+    },
+    "ApplicantIdentity": {
+      "title": "ApplicantIdentity",
+      "description": "Sensitive applicant personal identity details accessible only to Admins",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "applicationId": { "type": "string" },
+        "grantCode": { "type": "string" },
+        "applicantEmail": { "type": "string" },
+        "applicantNames": { "type": "array" },
+        "campus": { "type": "string" },
+        "principalEmail": { "type": "string" },
+        "electronicSignature": { "type": "string" },
+        "signedAt": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "applicationId", "grantCode", "applicantEmail"]
+    },
+    "GrantCounter": {
+      "title": "GrantCounter",
+      "description": "Atomic Firestore counter for grant sequence codes (IGF2601, IGF2602...)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "lastSequence": { "type": "number" },
+        "prefix": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "lastSequence"]
     },
     "Review": {
       "title": "Review",
@@ -105,49 +113,95 @@
       "properties": {
         "id": { "type": "string" },
         "applicationId": { "type": "string" },
+        "reviewerId": { "type": "string" },
         "reviewerEmail": { "type": "string" },
         "reviewerName": { "type": "string" },
         "isVoting": { "type": "boolean" },
         "scores": { "type": "object" },
         "comments": { "type": "object" },
         "totalScore": { "type": "number" },
-        "eligibilityChecklist": { "type": "object" },
         "generalFeedback": { "type": "string" },
-        "shareWithApplicant": { "type": "boolean" },
         "recused": { "type": "boolean" },
+        "recusalReason": { "type": "string" },
+        "flaggedForDiscussion": { "type": "boolean" },
+        "isSubmitted": { "type": "boolean" },
         "submittedAt": { "type": "string" },
         "updatedAt": { "type": "string" }
       },
       "required": ["id", "applicationId", "reviewerEmail"]
     },
-    "TimelineEvent": {
-      "title": "TimelineEvent",
-      "description": "Audit trail status history for application",
+    "ReviewerProfile": {
+      "title": "ReviewerProfile",
+      "description": "Reviewer committee roster and appreciation records",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
-        "applicationId": { "type": "string" },
-        "status": { "type": "string" },
-        "title": { "type": "string" },
-        "description": { "type": "string" },
-        "actorEmail": { "type": "string" },
-        "actorRole": { "type": "string" },
-        "timestamp": { "type": "string" }
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "isVoting": { "type": "boolean" },
+        "cyclesServed": { "type": "number" },
+        "mailingAddress": { "type": "string" },
+        "shirtSize": { "type": "string" },
+        "notes": { "type": "string" },
+        "inviteSent": { "type": "boolean" },
+        "inviteSentAt": { "type": "string" }
       },
-      "required": ["id", "applicationId", "status", "timestamp"]
+      "required": ["id", "name", "email", "role"]
     },
-    "UserProfile": {
-      "title": "UserProfile",
-      "description": "User account and permission definition",
+    "SentEmail": {
+      "title": "SentEmail",
+      "description": "Server-side audit log of dispatched foundation emails",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "recipient": { "type": "string" },
+        "allRecipients": { "type": "array" },
+        "subject": { "type": "string" },
+        "type": { "type": "string" },
+        "delivered": { "type": "boolean" },
+        "simulated": { "type": "boolean" },
+        "timestamp": { "type": "string" },
+        "grantCode": { "type": "string" },
+        "applicationId": { "type": "string" },
+        "sentByUid": { "type": "string" },
+        "sentByEmail": { "type": "string" },
+        "messageId": { "type": "string" },
+        "error": { "type": "string" }
+      },
+      "required": ["id", "recipient", "subject", "type", "timestamp"]
+    },
+    "Invite": {
+      "title": "Invite",
+      "description": "Expiring reviewer and evaluator invitations with unguessable tokens",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
         "email": { "type": "string" },
-        "displayName": { "type": "string" },
+        "name": { "type": "string" },
         "role": { "type": "string" },
-        "campus": { "type": "string" }
+        "token": { "type": "string" },
+        "status": { "type": "string" },
+        "cyclesServed": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "expiresAt": { "type": "string" },
+        "acceptedAt": { "type": "string" },
+        "revokedAt": { "type": "string" }
       },
-      "required": ["id", "email", "role"]
+      "required": ["id", "email", "token", "status", "expiresAt"]
+    },
+    "LegalDocument": {
+      "title": "LegalDocument",
+      "description": "Admin-editable Terms of Service and Privacy Policy documentation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "updatedBy": { "type": "string" }
+      },
+      "required": ["id", "title", "content"]
     },
     "AdminAuditLog": {
       "title": "AdminAuditLog",
@@ -168,33 +222,45 @@
     }
   },
   "firestore": {
-    "/programs/{programId}": {
+    "/settings/{settingId}": {
       "schema": "ProgramSettings",
-      "description": "Program configuration"
-    },
-    "/vendors/{vendorId}": {
-      "schema": "Vendor",
-      "description": "Approved vendor list"
+      "description": "Program configuration and cycle dates"
     },
     "/rubrics/{rubricId}": {
       "schema": "Rubric",
-      "description": "Rubric settings"
+      "description": "Scoring rubric settings"
     },
     "/applications/{applicationId}": {
       "schema": "Application",
-      "description": "Submitted and draft grant applications"
+      "description": "Blind grant proposals without applicant personal info"
     },
     "/applications/{applicationId}/reviews/{reviewId}": {
       "schema": "Review",
-      "description": "Reviewer assessments of applications"
+      "description": "Scoring reviews by committee members"
     },
-    "/applications/{applicationId}/timeline/{timelineId}": {
-      "schema": "TimelineEvent",
-      "description": "Application lifecycle event log"
+    "/applicantIdentities/{applicationId}": {
+      "schema": "ApplicantIdentity",
+      "description": "Admin-only sensitive applicant personal identities"
     },
-    "/users/{userId}": {
-      "schema": "UserProfile",
-      "description": "User profiles and assigned role"
+    "/counters/{counterId}": {
+      "schema": "GrantCounter",
+      "description": "Atomic transaction counter for grant code generation"
+    },
+    "/reviewers/{reviewerId}": {
+      "schema": "ReviewerProfile",
+      "description": "Reviewer committee roster and appreciation info"
+    },
+    "/sent_emails/{emailId}": {
+      "schema": "SentEmail",
+      "description": "Server-side sent email audit logs"
+    },
+    "/invites/{inviteId}": {
+      "schema": "Invite",
+      "description": "Reviewer and administrator expiring invitations"
+    },
+    "/legal/{docId}": {
+      "schema": "LegalDocument",
+      "description": "Editable Terms of Service and Privacy Policy"
     },
     "/auditLogs/{logId}": {
       "schema": "AdminAuditLog",

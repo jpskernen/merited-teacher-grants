@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useGrant } from '../../context/GrantContext';
+import { useGrants } from '../../context/GrantContext';
 import { Application, ApplicationStatus } from '../../types/grant';
 import {
   Presentation,
@@ -21,7 +21,7 @@ interface InPersonMeetingModeProps {
 }
 
 export const InPersonMeetingMode: React.FC<InPersonMeetingModeProps> = ({ onClose }) => {
-  const { applications, reviews, programSettings, updateApplicationStatus } = useGrant();
+  const { applications, reviews, programSettings, updateApplicationAward, applicantIdentities } = useGrants();
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [unmaskBlindReview, setUnmaskBlindReview] = useState(false);
@@ -120,12 +120,11 @@ export const InPersonMeetingMode: React.FC<InPersonMeetingModeProps> = ({ onClos
     if (!decisionApp) return;
     const finalAmount = decisionStatus === 'Not Funded' ? 0 : awardAmount;
 
-    await updateApplicationStatus(
+    await updateApplicationAward(
       decisionApp.id,
       decisionStatus,
-      `In-person committee decision: ${decisionStatus} ($${finalAmount.toFixed(2)})`,
-      feedback,
-      finalAmount
+      finalAmount,
+      feedback
     );
     setDecisionApp(null);
   };
@@ -269,9 +268,13 @@ export const InPersonMeetingMode: React.FC<InPersonMeetingModeProps> = ({ onClos
                     <td className="py-5 px-5">
                       {unmaskBlindReview ? (
                         <div>
-                          <div className="font-bold text-white text-base">{app.campus}</div>
+                          <div className="font-bold text-white text-base">
+                            {applicantIdentities[app.id]?.campus || 'Campus on file'}
+                          </div>
                           <div className="text-xs text-slate-400 mt-0.5">
-                            {app.applicantNames.map((n) => n.name).join(', ') || app.applicantEmail}
+                            {applicantIdentities[app.id]?.applicantNames?.map((n) => n.name).join(', ') ||
+                              applicantIdentities[app.id]?.applicantEmail ||
+                              'Educators on file'}
                           </div>
                         </div>
                       ) : (

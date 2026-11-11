@@ -79,9 +79,7 @@ export const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({
           >
             <option value="all">All Roles</option>
             <option value="Admin">Admin</option>
-            <option value="Owner">Owner</option>
             <option value="Reviewer">Reviewer</option>
-            <option value="Teacher">Teacher</option>
           </select>
         </div>
       </div>

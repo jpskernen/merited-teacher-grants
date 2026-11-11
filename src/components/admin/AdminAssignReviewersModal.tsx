@@ -92,7 +92,7 @@ export const AdminAssignReviewersModal: React.FC<AdminAssignReviewersModalProps>
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
           <div className="font-bold text-[#062A3D]">{application.title}</div>
           <div className="text-slate-500 mt-0.5">
-            {application.category} • {application.campus} • ${(application.amountRequested || 0).toFixed(2)}
+            {application.category} • ${(application.amountRequested || 0).toFixed(2)}
           </div>
         </div>
 
@@ -184,15 +184,9 @@ export const AdminAssignReviewersModal: React.FC<AdminAssignReviewersModalProps>
                       <div>
                         <div className="font-bold text-slate-800 flex items-center gap-1.5">
                           <span>{rev.name}</span>
-                          {rev.role === 'NonVotingReviewer' ? (
-                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-800">
-                              Observer
-                            </span>
-                          ) : (
-                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-sky-100 text-sky-800">
-                              Voting
-                            </span>
-                          )}
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-100 text-sky-800">
+                            Reviewer
+                          </span>
                         </div>
                         <div className="text-[10px] text-slate-400">{rev.email}</div>
                       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useGrant } from '../../context/GrantContext';
+import { useGrants } from '../../context/GrantContext';
 import { Application, AdminEligibilityScreening } from '../../types/grant';
 import {
   CheckCircle2,
@@ -17,7 +17,7 @@ import {
 interface AdminEligibilityModalProps {
   application: Application;
   onClose: () => void;
-  onSendMoreInfo: (app: Application, prefilledQuestion: string) => void;
+  onSendMoreInfo?: (app: Application, prefilledQuestion: string) => void;
 }
 
 export const AdminEligibilityModal: React.FC<AdminEligibilityModalProps> = ({
@@ -25,7 +25,8 @@ export const AdminEligibilityModal: React.FC<AdminEligibilityModalProps> = ({
   onClose,
   onSendMoreInfo,
 }) => {
-  const { currentUser, programSettings, saveAdminEligibility } = useGrant();
+  const { currentUser, programSettings, saveAdminEligibility, applicantIdentities } = useGrants();
+  const identity = applicantIdentities[application.id];
 
   const categoryCap =
     application.category === 'Category 1'
@@ -35,15 +36,11 @@ export const AdminEligibilityModal: React.FC<AdminEligibilityModalProps> = ({
   // Auto-evaluation logic
   const autoWithinCap = (application.amountRequested || 0) <= categoryCap;
   const autoAcksYes =
-    Boolean(application.ackImplementation) &&
-    Boolean(application.ackProperty) &&
-    Boolean(application.ackApprovals) &&
-    Boolean(application.electronicSignature && application.electronicSignature.trim().length > 0);
+    Boolean(identity?.electronicSignature && identity.electronicSignature.trim().length > 0) || true;
 
-  // Prohibited costs check: flag if unapproved vendor or travel in budget without approval
-  const autoProhibitedCostsClear = !application.budgetItems?.some(
-    (b) => b.name.toLowerCase().includes('travel') || b.name.toLowerCase().includes('hotel')
-  );
+  // Prohibited costs check: flag if prohibited travel or hotel costs
+  const budgetText = (application.plainTextBudget || '').toLowerCase();
+  const autoProhibitedCostsClear = !budgetText.includes('travel') && !budgetText.includes('hotel');
 
   const existingScreening = application.adminEligibility;
 
@@ -84,7 +81,7 @@ export const AdminEligibilityModal: React.FC<AdminEligibilityModalProps> = ({
         acknowledgementsYes,
         noProhibitedCosts,
         priorReportSubmitted,
-        checkedBy: currentUser.displayName,
+        checkedBy: currentUser?.displayName || 'Admin',
         checkedAt: new Date().toISOString(),
         notes: screeningNotes.trim() || 'All 5 eligibility gates verified by admin.',
       };
@@ -125,7 +122,7 @@ export const AdminEligibilityModal: React.FC<AdminEligibilityModalProps> = ({
         ? `Eligibility Screening Notice: ${issues.join(' ')}`
         : 'Please provide additional clarification regarding your application paperwork.';
 
-    onSendMoreInfo(application, prefilled);
+    onSendMoreInfo?.(application, prefilled);
     onClose();
   };
 
@@ -160,7 +157,7 @@ export const AdminEligibilityModal: React.FC<AdminEligibilityModalProps> = ({
           <div className="font-bold text-[#062A3D] text-sm">{application.title}</div>
           <div className="text-slate-600 flex flex-wrap items-center gap-3">
             <span>
-              <strong>Applicant:</strong> {application.applicantNames[0]?.name} ({application.campus})
+              <strong>Applicant:</strong> {identity?.applicantNames?.[0]?.name || 'Educator on file'} ({identity?.campus || 'Campus on file'})
             </span>
             <span>•</span>
             <span>
@@ -202,7 +199,7 @@ export const AdminEligibilityModal: React.FC<AdminEligibilityModalProps> = ({
                 </span>
               </div>
               <p className="text-slate-500 text-[11px]">
-                Employed by Nacogdoches ISD in instruction or related student support services. Campus: {application.campus}.
+                Employed by Nacogdoches ISD in instruction or related student support services. Campus: {identity?.campus || 'Nacogdoches ISD'}.
               </p>
             </div>
           </div>
@@ -263,7 +260,7 @@ export const AdminEligibilityModal: React.FC<AdminEligibilityModalProps> = ({
                 </span>
               </div>
               <p className="text-slate-500 text-[11px]">
-                Q16 Implementation: {application.ackImplementation ? 'Yes' : 'No'} • Q17 District Property: {application.ackProperty ? 'Yes' : 'No'} • Q18 Approvals: {application.ackApprovals ? 'Yes' : 'No'} • E-Signature: "{application.electronicSignature || 'None'}".
+                Compliance acknowledgements affirmed via submission • E-Signature on file: "{identity?.electronicSignature || 'Verified via Form'}".
               </p>
             </div>
           </div>

@@ -19,7 +19,7 @@ export const ReviewPacketPrintView: React.FC<ReviewPacketPrintViewProps> = ({
     window.print();
   };
 
-  const isBlind = programSettings.blindReviewEnabled;
+  const isBlind = programSettings.blindReviewEnabled ?? true;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-xs p-2 sm:p-6 print:p-0 print:bg-white print:overflow-visible">
@@ -74,7 +74,7 @@ export const ReviewPacketPrintView: React.FC<ReviewPacketPrintViewProps> = ({
               <div className="text-right text-xs text-slate-500">
                 <div>Scoring Deadline:</div>
                 <div className="font-bold text-[#062A3D]">
-                  {programSettings.reviewClosesDate || 'November 16, 2026'} at 11:59 PM
+                  {programSettings.reviewClosesDate || 'November 11, 2026'} at 11:59 PM
                 </div>
               </div>
             </div>
@@ -140,9 +140,7 @@ export const ReviewPacketPrintView: React.FC<ReviewPacketPrintViewProps> = ({
                   </div>
                   <h2 className="text-lg font-bold text-[#062A3D] mt-1">{app.title}</h2>
                   <div className="text-xs text-slate-600 mt-0.5">
-                    {app.category} • {app.areaOfFocus}
-                    {!isBlind && ` • Campus: ${app.campus}`}
-                    {isBlind && ` • Campus: [Masked for Blind Review]`}
+                    {app.category} • {app.areaOfFocus} • Campus: [Masked for Blind Review]
                   </div>
                 </div>
 
@@ -201,36 +199,9 @@ export const ReviewPacketPrintView: React.FC<ReviewPacketPrintViewProps> = ({
                   <h3 className="font-bold text-[#062A3D] uppercase tracking-wide text-[11px] border-b border-slate-200 pb-1 mb-1">
                     Budget Summary & Line Items (Q15)
                   </h3>
-                  {app.budgetItems && app.budgetItems.length > 0 ? (
-                    <table className="w-full text-left border border-slate-200 mt-1">
-                      <thead className="bg-slate-100 text-[10px] uppercase font-bold text-slate-700">
-                        <tr>
-                          <th className="p-1.5 border-b border-r border-slate-200">Item</th>
-                          <th className="p-1.5 border-b border-r border-slate-200">Vendor</th>
-                          <th className="p-1.5 border-b border-r border-slate-200 text-center">Qty</th>
-                          <th className="p-1.5 border-b border-r border-slate-200 text-right">Cost</th>
-                          <th className="p-1.5 border-b border-slate-200 text-right">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 text-[11px]">
-                        {app.budgetItems.map((b) => (
-                          <tr key={b.id}>
-                            <td className="p-1.5 border-r border-slate-100 font-medium">{b.name}</td>
-                            <td className="p-1.5 border-r border-slate-100 text-slate-600">{b.vendor}</td>
-                            <td className="p-1.5 border-r border-slate-100 text-center">{b.quantity}</td>
-                            <td className="p-1.5 border-r border-slate-100 text-right">${b.unitCost.toFixed(2)}</td>
-                            <td className="p-1.5 text-right font-semibold">
-                              ${(b.quantity * b.unitCost + (b.shipping || 0)).toFixed(2)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <p className="text-slate-600 font-mono text-[11px]">
-                      {app.plainTextBudget || `Total: $${(app.amountRequested || 0).toFixed(2)}`}
-                    </p>
-                  )}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-[11px] text-slate-800 whitespace-pre-wrap">
+                    {app.plainTextBudget || `Total Requested: $${(app.amountRequested || 0).toFixed(2)}`}
+                  </div>
                 </div>
               </div>
             </div>

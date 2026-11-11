@@ -578,16 +578,17 @@ export function formatFriendlyDate(dateStr?: string): string {
  */
 export function extractMergeFields(context: EmailRenderContext): Record<string, string | boolean | number> {
   const { application, programSettings, appBaseUrl = '' } = context;
+  const appAny = application as any;
 
   // Applicant team names
-  const applicantList = application.applicantNames && application.applicantNames.length > 0
-    ? application.applicantNames
-    : [{ name: application.electronicSignature || 'Educator', email: application.applicantEmail }];
+  const applicantList = appAny.applicantNames && appAny.applicantNames.length > 0
+    ? appAny.applicantNames
+    : [{ name: appAny.electronicSignature || 'Educator', email: appAny.applicantEmail || '' }];
 
   const leadName = applicantList[0]?.name || 'Educator';
   const firstName = leadName.trim().split(/\s+/)[0] || 'Educator';
 
-  const namesList = applicantList.map((a) => a.name.trim()).filter(Boolean);
+  const namesList = applicantList.map((a: { name?: string }) => (a.name || '').trim()).filter(Boolean);
   let teamNames = namesList.join(', ');
   if (namesList.length === 2) {
     teamNames = `${namesList[0]} and ${namesList[1]}`;
@@ -605,15 +606,15 @@ export function extractMergeFields(context: EmailRenderContext): Record<string, 
   }
 
   // Non-approved vendor count
-  const vendorFlags = application.budgetItems
-    ? application.budgetItems.filter((i) => !i.isApprovedVendor).length
+  const vendorFlags = appAny.budgetItems
+    ? appAny.budgetItems.filter((i: any) => !i.isApprovedVendor).length
     : 0;
 
   // Budget summary lines
   let budgetLines = application.plainTextBudget;
-  if (!budgetLines && application.budgetItems && application.budgetItems.length > 0) {
-    budgetLines = application.budgetItems
-      .map((item) => `• ${item.quantity}x ${item.name} (${item.vendor}) @ ${formatCurrency(item.unitCost)} = ${formatCurrency(item.quantity * item.unitCost + (item.shipping || 0))}`)
+  if (!budgetLines && appAny.budgetItems && appAny.budgetItems.length > 0) {
+    budgetLines = appAny.budgetItems
+      .map((item: any) => `• ${item.quantity}x ${item.name} (${item.vendor}) @ ${formatCurrency(item.unitCost)} = ${formatCurrency(item.quantity * item.unitCost + (item.shipping || 0))}`)
       .join('\n');
   }
   if (!budgetLines) {
@@ -623,7 +624,7 @@ export function extractMergeFields(context: EmailRenderContext): Record<string, 
   // Campus with blind review check
   const campusDisplay = context.blindReviewActive
     ? '[Campus name redacted for blind review]'
-    : application.campus || 'Nacogdoches ISD';
+    : appAny.campus || 'Nacogdoches ISD';
 
   // URLs
   const dashboardLink = `${appBaseUrl}/dashboard/${application.id}`;
@@ -646,16 +647,16 @@ export function extractMergeFields(context: EmailRenderContext): Record<string, 
     grade_levels: (application.gradeLevels || []).join(', '),
     subject: application.subjectArea || 'General',
     campus: campusDisplay,
-    submitted_at: formatFriendlyDate(application.signedAt || application.createdAt),
-    signature: application.electronicSignature || leadName,
+    submitted_at: formatFriendlyDate(appAny.signedAt || application.createdAt),
+    signature: appAny.electronicSignature || leadName,
     budget_lines: budgetLines,
     vendor_flags: vendorFlags,
-    principal_email: application.principalEmail || '',
-    principal_comment: application.principalComment || '',
+    principal_email: appAny.principalEmail || '',
+    principal_comment: appAny.principalComment || '',
     needs_tech: application.involvesTech || false,
     needs_facilities: application.involvesFacilities || false,
-    question: application.moreInfoQuestion || '',
-    response: application.moreInfoResponse || '',
+    question: appAny.moreInfoQuestion || '',
+    response: appAny.moreInfoResponse || '',
     feedback: application.committeeFeedback || '',
     decision_date: programSettings?.awardsAnnouncedDate || 'Mid November',
     spending_deadline: programSettings?.spendingDeadlineDate || 'May 26, 2028',
@@ -713,20 +714,21 @@ export function determineRecipients(
   context: EmailRenderContext
 ): { to: string[]; cc?: string[] } {
   const { application } = context;
+  const appAny = application as any;
 
   const teamEmails: string[] = [];
-  if (application.applicantNames && application.applicantNames.length > 0) {
-    for (const applicant of application.applicantNames) {
+  if (appAny.applicantNames && appAny.applicantNames.length > 0) {
+    for (const applicant of appAny.applicantNames) {
       if (applicant.email && !teamEmails.includes(applicant.email)) {
         teamEmails.push(applicant.email);
       }
     }
   }
-  if (application.applicantEmail && !teamEmails.includes(application.applicantEmail)) {
-    teamEmails.push(application.applicantEmail);
+  if (appAny.applicantEmail && !teamEmails.includes(appAny.applicantEmail)) {
+    teamEmails.push(appAny.applicantEmail);
   }
 
-  const principalEmail = application.principalEmail ? [application.principalEmail] : [];
+  const principalEmail = appAny.principalEmail ? [appAny.principalEmail] : [];
 
   switch (templateCode) {
     case 'T1':
@@ -740,7 +742,7 @@ export function determineRecipients(
     case 'T5':
       // The person who replied, cc team
       return {
-        to: [teamEmails[0] || application.applicantEmail],
+        to: [teamEmails[0] || appAny.applicantEmail || ''],
         cc: teamEmails.slice(1),
       };
 

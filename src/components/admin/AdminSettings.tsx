@@ -19,7 +19,9 @@ import {
   AlertTriangle,
   Mail,
   FileSpreadsheet,
+  Upload,
 } from 'lucide-react';
+import { GoogleFormImportModal } from './GoogleFormImportModal';
 
 interface AdminSettingsProps {
   onNavigateAuditLog?: () => void;
@@ -38,6 +40,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ onNavigateAuditLog
   const [editingCriterion, setEditingCriterion] = useState<RubricCriterion | null>(null);
   const [savedNotice, setSavedNotice] = useState(false);
   const [confirmResetRubric, setConfirmResetRubric] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const handleSaveProgramSettings = async () => {
     await updateProgramSettings(formSettings);
@@ -79,6 +82,101 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ onNavigateAuditLog
               <span>View Audit Trail</span>
             </button>
           )}
+        </div>
+      </div>
+
+      {/* Application Intake Setting: In-app form / Google Form import */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <h2 className="text-base font-bold text-[#062A3D] flex items-center gap-2">
+              <FileSpreadsheet className="w-5 h-5 text-[#8CC8E8]" />
+              <span>Application Intake Setting</span>
+            </h2>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Specify how teacher grant applications are collected for the {formSettings.schoolYear} cycle.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowImportModal(true)}
+            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#062A3D] text-[#8CC8E8] hover:bg-[#0A3D59] transition flex items-center gap-2 shadow-xs self-start sm:self-auto"
+          >
+            <Upload className="w-4 h-4 text-[#8CC8E8]" />
+            <span>Import Google Form responses</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <label
+            className={`p-4 rounded-xl border-2 cursor-pointer transition flex flex-col justify-between ${
+              formSettings.applicationIntakeMode === 'google_form'
+                ? 'border-[#062A3D] bg-sky-50/50 text-[#062A3D]'
+                : 'border-slate-200 hover:border-slate-300 bg-white text-slate-600'
+            }`}
+          >
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-sm">Google Form import (Current 2026–27 Cycle)</span>
+                <input
+                  type="radio"
+                  name="intakeMode"
+                  value="google_form"
+                  checked={formSettings.applicationIntakeMode === 'google_form'}
+                  onChange={() =>
+                    setFormSettings((p) => ({ ...p, applicationIntakeMode: 'google_form' }))
+                  }
+                  className="text-[#062A3D] focus:ring-[#8CC8E8]"
+                />
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Teachers applied through our Google Form. The in-app form is hidden from teachers, and imported applications appear directly on teacher dashboards with a note explaining applications were collected via Google Form.
+              </p>
+            </div>
+            <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100/70 px-2.5 py-0.5 rounded-full w-fit mt-3 border border-emerald-200">
+              Active This Cycle
+            </span>
+          </label>
+
+          <label
+            className={`p-4 rounded-xl border-2 cursor-pointer transition flex flex-col justify-between ${
+              formSettings.applicationIntakeMode === 'in_app'
+                ? 'border-[#062A3D] bg-sky-50/50 text-[#062A3D]'
+                : 'border-slate-200 hover:border-slate-300 bg-white text-slate-600'
+            }`}
+          >
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-sm">In-app form (Preserved for Next Cycle)</span>
+                <input
+                  type="radio"
+                  name="intakeMode"
+                  value="in_app"
+                  checked={formSettings.applicationIntakeMode === 'in_app'}
+                  onChange={() =>
+                    setFormSettings((p) => ({ ...p, applicationIntakeMode: 'in_app' }))
+                  }
+                  className="text-[#062A3D] focus:ring-[#8CC8E8]"
+                />
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Teachers apply directly through Merited's in-app multi-step portal with interactive budget builder and approved vendor verification.
+              </p>
+            </div>
+            <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full w-fit mt-3 border border-slate-200">
+              Available for Future Cycles
+            </span>
+          </label>
+        </div>
+
+        <div className="pt-1 flex justify-end">
+          <button
+            onClick={handleSaveProgramSettings}
+            className="px-5 py-2 rounded-xl font-bold text-xs bg-[#062A3D] text-white hover:bg-[#0A3D59] flex items-center gap-1.5"
+          >
+            <Save className="w-4 h-4 text-[#8CC8E8]" />
+            <span>Save Intake Setting</span>
+          </button>
         </div>
       </div>
 
@@ -138,7 +236,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ onNavigateAuditLog
             </label>
             <input
               type="text"
-              value={formSettings.reviewClosesDate || 'November 16, 2026'}
+              value={formSettings.reviewClosesDate || 'November 11, 2026'}
               onChange={(e) =>
                 setFormSettings((p) => ({ ...p, reviewClosesDate: e.target.value }))
               }
@@ -868,6 +966,11 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ onNavigateAuditLog
           </div>
         </div>
       )}
+      {/* Google Form Responses Import Modal */}
+      <GoogleFormImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+      />
     </div>
   );
 };

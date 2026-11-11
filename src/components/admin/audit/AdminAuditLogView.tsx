@@ -83,7 +83,7 @@ export const AdminAuditLogView: React.FC = () => {
     setConfirmClearOpen(false);
   };
 
-  const canClear = currentUser.role === 'Owner';
+  const canClear = currentUser?.role === 'Admin';
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">

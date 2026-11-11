@@ -1,0 +1,1441 @@
+// Auto-generated 21 Authentic Grant Proposals from 2026-27 Nacogdoches ISD NEF Google Form CSV
+import { Application, ApplicantIdentity } from "../types/grant";
+
+export const AUTHENTIC_2026_APPLICATIONS: Application[] = [
+  {
+    "id": "app-igf2601",
+    "grantCode": "IGF2601",
+    "sequenceNumber": 1,
+    "title": "The Learning Lane",
+    "category": "Category 1",
+    "gradeLevels": [
+      "All elementary grades"
+    ],
+    "subjectArea": "Math & Reading",
+    "objectives": "fluency statement (§111.[grade].A.3). It's the same sentence in each grade's introduction: students must \"develop a robust sense of number\" and gain procedural fluency, working without calculators.\n \n TEKS that cover number sense would be relevant in all grade levels.",
+    "areaOfFocus": "Early Literacy/Numeracy",
+    "abstract": "At Brooks-Quinn-Jones Elementary (BQJ) , we already pass out Lakeshore operation machines and flashcards for students to use while they wait for the bus, and they love them. Our fifth-grade safety patrol students help monitor the supplies, but we don’t have enough materials for everyone who wants to study during wait time. Some buses do not arrive until 3:40. We’re requesting from NEF to buy more math flashcards, sight-word cards and Lakeshore machines so every interested bus rider can join in. We’ll organize the supplies into K–2 and grades 3–5 sets, with a dedicated, color-coordinated kit for each bus to make materials easy to track. These kits will offer students a fun way to practice math fact fluency and reading. Thank you for considering our request and helping us make this opportunity available to more BQJ students.",
+    "amountRequested": 2000,
+    "studentsImpacted": 250,
+    "evaluationStrategy": "We will have safety patrol tally how many students check out a kit each week, by bus. Monitors may ask a few quick questions, like \"Do you use the cards while you wait?\" and \"Do you feel faster at your facts?\" Classroom teachers can also report any change in student confidence.",
+    "partners": "N/A",
+    "sustainability": "Safety patrol and teachers already manage the supplies. Make kit checkout, counts, and return part of their routine, and train new patrol members each year so it doesn't depend on one teacher.Laminate cards and use sturdy bins or pouches so one purchase lasts several years. Color-coded kits make it easy to spot and replace missing pieces.",
+    "plainTextBudget": "Lakeshore Machine (All 4 Operations) - $100\n Flashcards (All 4 Operations) - $20\n \n \n Machines X 10 = $1,000\n Flashcards X 50 = $1,000\n Total: $2,000",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "10/27/2026 16:56:14",
+    "createdAt": "10/27/2026 16:56:14",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2602",
+    "grantCode": "IGF2602",
+    "sequenceNumber": 2,
+    "title": "Real Life Learning Lab",
+    "category": "Category 1",
+    "gradeLevels": [
+      "6-8"
+    ],
+    "subjectArea": "Special education- life skills",
+    "objectives": "The Real-Life Learning Lab will strengthen students’ ability to apply functional reading, mathematics, and communication skills to everyday tasks through Shop, Work, and Home learning stations. Instruction will be individualized to students’ present skill levels and IEP goals.\n \n By May 2027:\n \n 1. Functional mathematics: At least 80% of participating students will complete an individualized shopping task—such as counting requested quantities, matching prices, or calculating a purchase total—with at least 80% accuracy across three consecutive data-collection sessions, using visual supports and no more than one adult prompt.\n 2. Functional literacy and communication: At least 80% of participating students will use a picture or written list, label, or direction card to select needed materials and communicate a task-related request or response in four out of five opportunities across three consecutive sessions. Students may communicate through speech, gestures, picture symbols, or their established communication system.\n 3. Independent task completion: At least 80% of participating students will increase the percentage of steps completed independently in two targeted home or workplace routines by at least 20 percentage points from baseline. Routines may include sorting and folding clothing, assembling an order, or organizing supplies. Visual checklists will remain available; steps requiring adult prompts will not count as independent.\n \n Baseline performance will be recorded during the first two weeks of implementation. Staff will collect weekly data using task-analysis checklists, accuracy records, and prompting logs to measure progress toward these objectives.",
+    "areaOfFocus": "Workforce/Career-Connected Learning",
+    "abstract": "The Real-Life Learning Lab will help middle school students with disabilities build academic skills and independence through three classroom stations: Shop, Work, and Home.\n \n At the Shop station, students will follow shopping lists, locate products, count items, and practice using money. At the Work station, they will sort materials, assemble orders, follow directions, and check their work. At the Home station, students will fold clothing, organize belongings, and complete everyday routines. Activities will be adjusted to each student’s abilities using pictures, written directions, and hands-on materials.\n \n In December 2026, the teacher will purchase supplies, prepare stations, and record students’ starting skills. From January through April 2027, students will participate in weekly rotations while staff track accuracy and how much help students need. In May, the teacher will evaluate growth and summarize results.\n \n This project is innovative because it brings realistic home, shopping, and workplace experiences into the classroom. Students will apply reading, mathematics, communication, and problem-solving skills to meaningful tasks. As their skills improve, adults will gradually reduce assistance. Reusable materials will allow future classes to benefit, making the lab a lasting investment in student independence.",
+    "amountRequested": 2000,
+    "studentsImpacted": 10,
+    "evaluationStrategy": "Staff will record starting performance during the first two weeks and collect weekly data on accuracy, communication, independent steps, and adult prompts. Success means at least 80% of students meet each objective: (1) complete individualized shopping tasks with 80% accuracy and no more than one adult prompt across three consecutive sessions; (2) use pictures or written information to select materials and communicate a task-related request or response in four of five opportunities across three consecutive sessions; and (3) increase independent completion of two home or work routines by at least 20 percentage points from baseline. Visual supports and established communication methods will remain available. In May 2027, the teacher will compare final and starting performance using checklists, work samples, and staff observations.",
+    "partners": "N/A",
+    "sustainability": "The Real-Life Learning Lab will continue through reusable materials, durable storage, and activities that can be adapted for future students. Shopping materials, sorting tools, clothing-care supplies, and laminated directions will support repeated use across school years. Stations will become part of regular classroom instruction, with activities adjusted as students develop new skills. The teacher will maintain materials and share activity guides and progress checklists with classroom staff to ensure consistent use. Recurring costs will be limited to printing, replacement supplies, and occasional consumable materials. When needed, donations of clean clothing, empty product containers, and other everyday items will help replenish stations. All grant-funded materials will remain campus or district property, allowing the project to continue serving students in future years.",
+    "plainTextBudget": "Real-Life Learning Lab — Estimated Amazon Budget\n \n 2 freestanding shelving units from Amazon @ $90 ea = $180\n 3- 4 packs task storage bins from Amazon @ $28.99 ea = $86.97\n 4 handheld shopping baskets from Amazon @ $12.89 ea = $51.56\n 1 cash box with removable money tray from Amazon = $23.74\n 2 realistic play-money sets from Amazon @ $14.99 ea = $29.98\n 4 large-button calculators from Amazon @ $13.49 ea = $53.96\n 3 clothing folding boards from Amazon @ $16.99 ea = $50.97\n 3 laundry sorting baskets from Amazon @ $18.99 ea = $56.97\n 1 freestanding clothing rack from Amazon = $39.99\n 1 pack of clothing hangers from Amazon = $21.84\n 2 multi-packs of sorting and assembly trays from Amazon @ $31.99 ea = $63.98\n 1 desktop mail sorter from Amazon = $47.99\n 1 drill& toolbox set from Amazon = $25.99\n 3 visual timers from Amazon @ $19.99 ea = $59.97\n 1 multi-pack of reusable dry-erase pockets from Amazon = $21.99\n 1 pack of shelf-label holders from Amazon = $20.99\n 2 functional reading activity sets from Amazon @ $89 ea = $178\n 2 sorting activities from Amazon @$29.99 ea =$59.98\n 3 dressing-skills practice sets from Amazon @ $30 ea = $90\n 4 money-math activity kits from Amazon @ $25 ea = $100\n 3 realistic grocery-item sets from Amazon @ $28.99 ea = $86.97\n 2 digital scales from Amazon @ $11.14 ea = $22.28\n 1-pack tabletop workspace dividers from Amazon @ 49.97 ea = $49.97\n 3 photo-based daily-living sequencing sets from Amazon @ $23.99 ea = $71.97\n \n Total Estimated Materials Cost: $1,496",
+    "involvesTech": true,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "10/27/2026 20:13:58",
+    "createdAt": "10/27/2026 20:13:58",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2603",
+    "grantCode": "IGF2603",
+    "sequenceNumber": 3,
+    "title": "We're on a mission for ASE.",
+    "category": "Category 2",
+    "gradeLevels": [
+      "9-12"
+    ],
+    "subjectArea": "CTE Automotive",
+    "objectives": "Using the Mitchel1 diagnostic tools to enhance the real world capabilities of our Automotive students.",
+    "areaOfFocus": "Workforce/Career-Connected Learning",
+    "abstract": "It is be used as a more modern way to show our students what is being used in real shops across the country and world.",
+    "amountRequested": 2000,
+    "studentsImpacted": 128,
+    "evaluationStrategy": "With this new diagnostic capabilities, they will be on par with diagnostic capabilities with technicians in our area and it will assist them with getting their ASE certification.",
+    "partners": "We work with Cook Tire, ABC auto, Mast Motorsports, Lumberjack Harley",
+    "sustainability": "Keeping this modern diagnostic capability, future students will be equipped with the modern tools to keep pace with the ever changing Automotive world.",
+    "plainTextBudget": "Pro Demand Repair software - $1412 for a year subscription",
+    "involvesTech": true,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "10/29/2026 12:05:43",
+    "createdAt": "10/29/2026 12:05:43",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2604",
+    "grantCode": "IGF2604",
+    "sequenceNumber": 4,
+    "title": "Bowls for HOPE",
+    "category": "Category 2",
+    "gradeLevels": [
+      "9-12"
+    ],
+    "subjectArea": "Ceramics",
+    "objectives": "community involvement",
+    "areaOfFocus": "Fine Arts",
+    "abstract": "Students will create bowls for Nacogdoches HOPE (helping other people eat) one of the largest food pantries in Nacogdoches. Students learn to create functional pottery that also helps give back to their community. Students will learn alternative methods used throughout history to create a bowl. They will also look at artists who are working in these methods today, as well as artists who have found new and creative ways to build and think about bowls. Our bowls will be complete and for sale at the Spring Fine Arts Showcase. Last year we raised 4,000 and gave 50% of our proceeds to the food pantry. We also brought a lot of positive attention to the district and the department. This year, our goal is to double that amount. I have found this to be one of the most rewarding projects for our students because, while they love working with clay, they get to experience what its like to help others using the skills they have learned, and talent they have developed from being in this class. Since I have been here, our department has grown from 1 ceramics class to 4, with students being turned away due to classes being full. It is my observation that students both lose themselves and find themselves throughout the process of working with clay. They get to be a kid again, and then they get to build a community with the skills they learn. They get to be heroes.",
+    "amountRequested": 3000,
+    "studentsImpacted": 80,
+    "evaluationStrategy": "Students will show inspiration and follow blueprints created, followed by finished products.",
+    "partners": "Nacogdoches HOPE food pantry, they help support our department by getting the word out and coming to our class to talk about student impact.",
+    "sustainability": "Our students take this experience with them, and in some cases this project has helped feed their own families. We are taking care of our families right here.",
+    "plainTextBudget": "Shimpo Aspire RK-5TF Tabletop Pottery Wheel with Foot Pedal 2@ 694.00- 1,388\n Sax Low Fire Moist Earthenware Clay, 50 Pounds, Red -20 boxes- $800.00\n AMACO Teacher's Palette Glaze, Class Pack No. 3, 12 Assorted Colors\n Low Fire Cone 05 (TP) Intermixable Liquid Ceramic Pottery Gloss Glaze for Bisque-274 x3= $822",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "10/29/2026 14:16:34",
+    "createdAt": "10/29/2026 14:16:34",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2605",
+    "grantCode": "IGF2605",
+    "sequenceNumber": 5,
+    "title": "London Trip Donation Campaign",
+    "category": "Category 2",
+    "gradeLevels": [
+      "9-12"
+    ],
+    "subjectArea": "High School Choir/Fine Arts",
+    "objectives": "It is with great pleasure that I present to you today an opportunity to help students of the Nacogdoches High School Choir program. We have had the honor of being invited to perform in London, England this coming June 14-21, 2027. This performance includes working with and performing the music of living composers Rollo Dilworth, Jake Runestad; along with performing with the world renowned chorus Voces8 (the number 1 downloaded classical group on streaming platforms) . \n \n Twenty-nine choir members and chaperones have taken it upon themselves to spend thousands of dollars to register for this event. To put that membership number in perspective, when we first got together in 2024, the choir program at Nacogdoches only had twenty-four members in the entire program. As you can see, we are making steps in the right direction and this trip will only garner more excitement for years to come. For most of these students who have registered, this will likely be a “once in a lifetime experience” that will definitely have an impact that will last forever.",
+    "areaOfFocus": "Fine Arts",
+    "abstract": "RESIDENCY EXPERIENCE INCLUDES:\n ● Rehearsals and concert performance at iconic venues\n ● Meet and greet with the composer-in-residence*\n ● Celebration dinner\n ● Souvenir concert programme for each Performer\n ● Souvenir concert poster (for groups of 5+) signed by composer-in-residence*,\n conductor, and guest artists\n ● Archival recording of the concert and access to professional photos\n of rehearsals and concert\n ● Access to The Vox Shop for exclusive merchandise\n ● Personalised schedule detailing rehearsal and performance times\n and venues\n ● Personal security badge for all Performers\n ● Friends & Family receive a premium concert ticket, programme, and\n celebration dinner invitation\n \n TOUR PACKAGE ALSO INCLUDES:\n ● Six nights at a Central London hotel. Breakfast included\n ● One group dinner\n ● Round trip airport transfer\n ● West End Show\n ● Admission to the Tower of London\n ● Sightseeing River Cruise to Greenwich and guided tour of Greenwich\n ● Guided walking tour passing by Buckingham Palace, Parliament Square,\n Westminster Abbey, and Big Ben\n ● Pre-loaded card for use on London public transport\n ● Access to Blue Badge Tour Guide services",
+    "amountRequested": 6000,
+    "studentsImpacted": 21,
+    "evaluationStrategy": "We will measure success by having extra rehearsals for the students who are attending this choral trip. We are also preparing one of the works for the trip with the Stone Fort Chorale in the Spring of 2027.",
+    "partners": "Community Donors (small business, large business, local churches, and citizens of the city of Nacogdoches), their roles are helping give our students the opportunity to have a \"once in a lifetime experience. Their donations will help cover the costs of the airfare for our trip.",
+    "sustainability": "When I was hired as the choir director in 2024, the choral program at NHS only had 24 students in the entire program. This trip will garner excitement for years to come; for most of these students who have registered, this will likely be a \"once in a lifetime experience\" that will definitely have an impact that will last forever.",
+    "plainTextBudget": "Airfare is $1,185-1,750 @29 ea = $34,365-50,750",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": false,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": false,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Flagged: Amount requested ($6,000) meets/exceeds notification threshold ($6,000)."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/1/2026 17:48:43",
+    "createdAt": "11/1/2026 17:48:43",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2606",
+    "grantCode": "IGF2606",
+    "sequenceNumber": 6,
+    "title": "Listening Centers",
+    "category": "Category 2",
+    "gradeLevels": [
+      "kindergarten"
+    ],
+    "subjectArea": "ELAR",
+    "objectives": "K.1(A): Listen actively and ask questions to understand information and answer questions using multi-word responses.\n \n Students will be able to actively listen to a text at the listening center. Students will be able listen to fiction and nonfiction texts at the listening center, ask questions to understand the information, and respond to the text using drawings, writing, or multi-word answers.",
+    "areaOfFocus": "Early Literacy/Numeracy",
+    "abstract": "The purpose for this grant is to establish an interactive, independent listening center in our Kindergarten classroom utilizing Toniebox audio players. This project will bridge the gap for emerging readers, allowing them to independently access high-quality text, build vital comprehension skills, and actively respond to literature.\n \n  In Kindergarten, students enter the classroom with vastly different literacy baselines. While they possess the capacity to understand complex narratives and vocabulary, many have not yet mastered independent reading mechanics. Traditional listening centers often rely on tablets or complicated CD players that present technical barriers or excessive screen time.\n \n The Toniebox provides a tactile, screen-free alternative perfectly tailored to young learners. By physically placing a \"Tonie\" figurine onto the box, students can independently operate the station, building a sense of ownership over their literacy development. This station will directly support diverse learners, including English Language Learners (ELL) and students with special needs, by providing clear, expressive storytelling modeling.",
+    "amountRequested": 1000,
+    "studentsImpacted": 100,
+    "evaluationStrategy": "Growth in Literacy Comprehension & Response Skills (TEKS K.6 & K.7C)\n \n We will measure students' ability to understand and respond to both fiction and nonfiction texts using concrete data points.\n • Weekly Accountability Rubrics: We will assess students' post-listening response sheets using a simple 3-point rubric (Beginning, Developing, Proficient). Success will be defined as 85% of students scoring 'Proficient' by the end of the grant period, meaning they can successfully draw or write to identify key plot elements (fiction) or recall key facts (nonfiction).\n • Oral Story Retelling Assessments: Educators will conduct monthly 1-on-1 check-ins where students verbally retell a story or summarize a topic they listened to. We will track their ability to use multi-word responses and accurate sequencing.",
+    "partners": "none",
+    "sustainability": "As classroom demographics change year to year, the Toniebox can be repurposed to support specific student subgroups:\n • English Language Learners (ELLs): The tactile figurines allow newcomers to independently select audiobooks in their home language or listen to English vocabulary-building audios at their own pace without needing text-decoding skills.\n \n • Special Education & Speech Support: Teachers can use the station for targeted auditory processing interventions, playing specialized articulation tracks, phoneme-blending drills, or social-emotional learning stories.",
+    "plainTextBudget": "5 Tonieboxes from tonies @ 150 each= $750\n 25 Creative Tonies from tonies @10 each= $250",
+    "involvesTech": true,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/2/2026 14:03:33",
+    "createdAt": "11/2/2026 14:03:33",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2607",
+    "grantCode": "IGF2607",
+    "sequenceNumber": 7,
+    "title": "Frog Dissection",
+    "category": "Category 2",
+    "gradeLevels": [
+      "9"
+    ],
+    "subjectArea": "Biology (science)",
+    "objectives": "Students participating in this project will:\n - Examine, perform a guided dissection, identify major organs and associate them with their corresponding organ systems.\n - Observe the relationships between anatomical structures and their functions.\n - Complete a dissection worksheet documenting their observations and findings.\n - Discuss how the different organ systems interact to support the life of an organism.\n TEKS Alignment:\n Biology BIO.12.A: Analyze the interactions among systems that perform the functions of regulation, nutrient absorption, reproduction, and defense from injury or illness in animals.\n Biology BIO.5: Understand how biological structures at multiple levels perform specific functions and processes that affect life.",
+    "areaOfFocus": "STEM",
+    "abstract": "The NHS Biology Department serves approximately 410 Biology students across 5 teachers. Our goal is to provide students with meaningful, hands-on learning experiences that strengthen their understanding of biological structures, organ systems, and the relationships between structure and function. While students learn about anatomy and organ systems through textbooks, diagrams, videos, and classroom instruction, examining an actual biological specimen provides a deeper level of understanding. Frog dissection allows students to move beyond memorizing anatomical structures and apply their knowledge by identifying organs, examining their functions, and observing how different systems work together to maintain life. This project will provide preserved grass frogs and necessary dissection supplies so Biology students can participate in a collaborative, hands-on laboratory experience. The project supports district and campus goals by promoting student engagement, scientific investigation, critical thinking, and mastery of Texas Essential Knowledge and Skills (TEKS).",
+    "amountRequested": 1260,
+    "studentsImpacted": 410,
+    "evaluationStrategy": "The success of this project will be evaluated through student performance and participation in the dissection activity.\n - Pre- and post-assessments: Compare student understanding of anatomical structures and organ system functions before and after the activity.\n - Dissection worksheets: Evaluate students' ability to correctly identify anatomical structures and explain their functions.\n - Teacher observations: Assess student participation, laboratory skills, collaboration, and ability to make scientific observations.\n - TEKS-aligned assessments: Evaluate student understanding of the relationships between organ systems and how they contribute to maintaining homeostasis.\n The project will be considered successful if students demonstrate measurable improvement in anatomical identification, understanding of organ system functions, and their ability to explain how biological systems interact.",
+    "partners": "This project will involve collaboration among the five Biology teachers at Nacogdoches High School:\n Jones – 75 students\n Schaefer – 50 students\n Ray – 105 students\n Ellisor – 100 students\n Perry – 80 students\n Together, these teachers will coordinate ordering supplies, preparing specimens, providing instruction, supervising laboratory procedures, and evaluating student learning through their PLC (planning period).\n Each teacher will receive one 600-pack of dissection pins to ensure adequate supplies are available for their individual classrooms.\n Students will also work collaboratively in small groups during the dissection, allowing them to share observations, discuss anatomical structures, and develop scientific communication and teamwork skills.",
+    "sustainability": "The requested supplies will support approximately 410 Biology students during the school year. Preserved frogs can be used for the planned laboratory experience, making this a relatively low-cost investment in hands-on science instruction. ($2.80/student)\n The dissection pins are reusable and can be stored for future laboratory activities. Existing dissection trays and classroom equipment will be utilized to minimize additional expenses.\n Because preserved specimens are consumable, additional frogs will need to be purchased in subsequent years if the department continues offering this activity to incoming Biology students. Future recurring costs will primarily include replacement specimens.\n This project will establish a foundation for continuing hands-on anatomy instruction and provide future students with opportunities to experience meaningful, inquiry-based science learning.",
+    "plainTextBudget": "2 Preserved Grass Frogs (100-pack) from Flinn Scientific @ $509 ea = $1018\n 5 packs Dissection Pins (600-pack) from Amazon @ $6 ea = $30\n Total BEFORE taxes, fees, & shipping: $1048 \n Flinn shipping & taxes = $207\n Total AFTER taxes & shipping = $1255",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/2/2026 15:22:37",
+    "createdAt": "11/2/2026 15:22:37",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2608",
+    "grantCode": "IGF2608",
+    "sequenceNumber": 8,
+    "title": "Bringing Knowledge to Life",
+    "category": "Category 1",
+    "gradeLevels": [
+      "2nd Grade"
+    ],
+    "subjectArea": "Reading",
+    "objectives": "The objective of Bringing Knowledge to Life is to improve second-grade students' reading comprehension, academic vocabulary, and understanding of science and history through meaningful, hands-on learning experiences aligned with the Bluebonnet Reading Language Arts curriculum.\n \n The project will focus on three measurable objectives:\n \n Reading Comprehension: At least 80% of participating students will demonstrate mastery of targeted concepts on end-of-unit assessments.\n \n Vocabulary Development: At least 80% of students will demonstrate growth in their understanding and use of unit-specific vocabulary, measured through pre- and post-assessments.\n \n Application of Knowledge: At least 80% of students will accurately explain or demonstrate learned concepts through oral discussions, written responses, or hands-on activities.\n \n Aligned Second-Grade TEKS:\n \n 2.6(G): Evaluate details to determine key ideas.\n \n 2.6(H): Synthesize information to create new understanding.\n \n 2.7(B): Write responses demonstrating understanding of informational or literary texts.\n \n 2.7(F): Respond using newly acquired vocabulary.\n \n These objectives support the development of stronger background knowledge, critical thinking, and academic achievement.",
+    "areaOfFocus": "Early Literacy/Numeracy",
+    "abstract": "Bringing Knowledge to Life is an innovative project designed to strengthen second-grade students' reading comprehension, academic vocabulary, and background knowledge through hands-on learning experiences.\n \n Many concepts introduced in the reading curriculum are unfamiliar to young learners. This project will bring lessons to life through interactive scientific models, historical artifacts, and engaging activities that allow students to explore and better understand their learning.\n \n Students will investigate the human body, explore ancient Greek traditions, examine historical artifacts, and discover life cycles and natural processes. These experiences will encourage critical thinking, collaboration, and meaningful academic discussions.\n \n Beginning during the 2026–2027 school year, materials will be incorporated into reading lessons to help students connect vocabulary and content to real-world experiences. All materials will be reusable, benefiting students for years to come.",
+    "amountRequested": 1853,
+    "studentsImpacted": 38,
+    "evaluationStrategy": "The success of Bringing Knowledge to Life will be measured through student assessments, vocabulary checks, and demonstrations of understanding.\n \n Students will complete brief pre- and post-assessments to measure growth in academic vocabulary and understanding of key concepts. Bluebonnet Knowledge end-of-unit assessments will measure reading comprehension and content knowledge, with a goal of at least 80% of students demonstrating mastery.\n \n Students will also demonstrate their learning through classroom discussions, written responses, and hands-on activities. Teacher observations and student work samples will be used to evaluate their ability to explain concepts and accurately use newly acquired vocabulary.\n \n Assessment results will be compared to determine student growth and evaluate the effectiveness of the project.",
+    "partners": "This project will be implemented by the second-grade reading teacher, who will organize materials, facilitate hands-on learning experiences, and monitor student progress. Campus administration will provide oversight and support to ensure the project aligns with instructional goals. Successful activities and instructional strategies may be shared with grade-level colleagues to support future implementation.",
+    "sustainability": "Bringing Knowledge to Life is designed to provide lasting benefits for students year after year. All purchased materials, including scientific models, historical artifacts, and interactive learning tools, will remain in the classroom and be reused during teacher-guided instruction.\n \n Materials will be organized in labeled storage containers by instructional unit to ensure proper care, easy access, and continued use. Because these materials align with the second-grade curriculum, they can be incorporated into lessons each year, allowing multiple groups of students to benefit from the same hands-on learning experiences.\n \n No materials will be sent home with students, reducing the risk of loss or damage. The project requires no recurring subscriptions or consumable supplies, making it sustainable without additional funding.",
+    "plainTextBudget": "HUMAN BODY\n 2 packs of children's lab coats (24 total) from Amazon = $115.98\n 12 packs of children's stethoscopes (24 total) from Amazon @ $10 each = $120.00\n 1 human anatomy torso model from Amazon = $116.00\n 1 empty medical bag for storing instructional materials from Amazon = $66.00\n Human Body Total = $417.98\n \n ANCIENT GREECE\n 1 artificial olive tree from Amazon = $65.00\n 1 Ancient Greece map from Amazon = $10.00\n 1 set of Greek mythology posters from Amazon = $7.00\n 1 set of Greek gods and goddesses figurines from Amazon = $103.00\n Ancient Greece Total = $185.00\n \n WAR OF 1812\n 1 USS Constitution historical ship model from Amazon = $180.00\n 1 historical artifact storage trunk from Amazon = $56.00\n 1 historical map from Amazon = $25.00\n 1 quill writing set from Amazon = $19.00\n 1 historical spyglass telescope from Amazon = $20.00\n War of 1812 Total = $300.00\n \n CIVIL WAR\n 1 historical canteen from Amazon = $18.00\n 1 set of replica currency from Amazon = $10.00\n 1 historical costume from Amazon = $34.00\n 1 wooden artifact storage trunk from Amazon = $56.00\n 1 historical map from Amazon = $15.00\n Civil War Total = $133.00\n \n INSECTS AND LIFE CYCLES\n 1 life cycle model kit from Amazon = $50.00\n 1 set of resin insect specimens from Amazon = $56.00\n 9 magnifying glasses from Amazon = $30.00\n 1 acrylic display case from Amazon = $23.00\n Insects and Life Cycles Total = $159.00\n \n FLIGHT\n 1 Wright Brothers Wright Flyer airplane model from Amazon = $287.00\n 1 hot-air balloon model from Amazon = $35.00\n 1 helicopter model from Amazon = $150.00\n Flight Total = $472.00\n \n CYCLES OF NATURE\n 1 Sun–Earth model from Amazon = $51.00\n 1 plant life cycle model from Amazon = $25.00\n 1 water cycle investigation kit from Amazon = $21.00\n 1 water cycle educational poster from Amazon = $9.00\n Cycles of Nature Total = $106.00\n \n AMERICAN PRESIDENTS\n 1 set of American Presidents posters from Amazon = $30.00\n American Presidents Total = $30.00\n \n GENERAL STORAGE\n 6 clear 66-quart storage containers from Walmart = $49.98\n Storage Total = $49.98\n \n TOTAL ITEMIZED MATERIALS = $1,852.96",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/2/2026 19:58:19",
+    "createdAt": "11/2/2026 19:58:19",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2609",
+    "grantCode": "IGF2609",
+    "sequenceNumber": 9,
+    "title": "Every Child Has a Voice: Communication, Regulation & Independence",
+    "category": "Category 2",
+    "gradeLevels": [
+      "Special Education"
+    ],
+    "subjectArea": "Life Skills Class",
+    "objectives": "Our goal is to increase functional communication, sensory regulation, early literacy participation, and daily living independence for the nine students in our Life Skills classroom. Instruction will be individualized according to each student's abilities and educational goals.\n \n We will measure progress through four objectives:\n \n Functional Communication: At least 8 of 10 students will demonstrate improvement from their individual baseline in communicating a need, making a choice, or requesting assistance using speech, gestures, pictures, or an appropriate communication device.\n \n Sensory Regulation: At least 8 of 10 students will demonstrate increased participation in classroom activities through the use of appropriate calming or sensory supports, measured by successful transitions, engagement, or reduced adult prompting.\n \n Early Literacy and Object Recognition: At least 8 of 10 students will demonstrate improvement in identifying or matching pictures with corresponding real-world objects, selecting books, or following simple directions, according to their individual learning goals.\n \n Functional Independence: At least 8 of 10 students will demonstrate progress in completing steps of daily living activities, including organizing materials, setting a table, hygiene routines, or cleaning up, with increased independence.\n \n These objectives support applicable Texas Essential Knowledge and Skills (TEKS) in English Language Arts and Reading, including listening, communication, vocabulary development, and comprehension, along with individualized special education goals. Progress will be measured through baseline assessments, instructional observations, and ongoing data collection.",
+    "areaOfFocus": "Early Literacy/Numeracy",
+    "abstract": "Our project, Every Child Has a Voice, will create purposeful learning stations for nine students in our Life Skills special education classroom. Our goal is to improve communication, sensory regulation, early literacy, and independence through hands-on learning.\n \n We will establish a calming area with soft seating, a privacy tent, and sensory lighting; a sensory exploration table for scooping, pouring, and transferring; and a quiet reading area with accessible books and comfortable seating.\n \n We will enhance our existing kitchen with a child-sized table and larger, realistic food and household items to help students connect pictures with actual objects, follow directions, and practice daily living skills. Visual communication supports will be incorporated throughout the classroom.\n \n Following the award, we will purchase materials, organize the stations, and introduce structured activities. We will monitor student progress and adjust instruction to individual needs.\n \n Our innovative approach transforms ordinary classroom activities into intentional learning opportunities. Each station will help students develop meaningful skills, increase classroom participation, and become more independent.",
+    "amountRequested": 4000,
+    "studentsImpacted": 10,
+    "evaluationStrategy": "We will measure success by documenting each student's progress before and after implementing the learning stations. Initial observations will establish individual starting points in communication, sensory regulation, picture-to-object recognition, classroom participation, and daily living skills.\n \n We will use skill-tracking sheets, classroom observations, and records of assistance needed to complete activities. Our goal is for at least 8 of our 10 students to demonstrate measurable improvement in their targeted skills.\n \n Progress will be reviewed regularly, and instructional strategies will be adjusted according to individual needs. Success will be determined by each student's growth from their starting point, increased participation, and greater independence in daily classroom routines.",
+    "partners": "This grant is being requested by Neil Reyes, Life Skills Special Education Teacher, and Kelly Rowland, Special Education Paraprofessional. Together, we will coordinate instructional planning, develop learning activities, organize materials, and monitor student progress.\n \n Two additional Special Education Paraprofessionals will assist with implementing the learning stations, supporting individualized instruction, reinforcing communication and independent living skills, and documenting student progress.\n \n We will also collaborate with speech-language, occupational therapy, and other special education personnel as appropriate. Parents and guardians may provide insight into their children's individual needs, while campus administration will provide guidance and support.",
+    "sustainability": "The materials purchased through this grant will benefit current and future Life Skills students for years to come. Durable items, including the sensory table, calming equipment, classroom furniture, book display, kitchen materials, and communication supports, will be reused each school year.\n \n Activities and visual materials will be adapted to meet the changing needs and abilities of our students. Minor replacement supplies, such as picture cards, laminating materials, and sensory items, will be maintained through available classroom resources.\n \n By incorporating these learning stations into our daily instructional routines, we will continue strengthening communication, sensory regulation, early literacy, and independent living skills long after the initial grant funding has been used.",
+    "plainTextBudget": "https://docs.google.com/spreadsheets/d/14Uv1TovUwj6e5ScTeq4_fDu27tAMofefiuwieIAsh-U/edit?gid=0#gid=0",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/3/2026 4:25:27",
+    "createdAt": "11/3/2026 4:25:27",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2610",
+    "grantCode": "IGF2610",
+    "sequenceNumber": 10,
+    "title": "Calm Minds, Happy Hearts, Ready to Learn",
+    "category": "Category 1",
+    "gradeLevels": [
+      "Pre-K ECSE"
+    ],
+    "subjectArea": "ECSE",
+    "objectives": "PK4.I.B.2.c Child is able to manage intensity of emotions more consistently, although adult guidance is sometimes necessary.",
+    "areaOfFocus": "Other",
+    "abstract": "Our ECSE Pre-K classroom serves young learners with a variety of developmental, sensory, and individual learning needs. We want to create a more welcoming, comfortable, and sensory-friendly environment where every child has the tools and support they need to feel safe, calm, and ready to learn.\n \n This grant would help us purchase additional sensory materials, weighted stuffed animals, weighted blankets, and comfortable seating options such as bean bags and soft chairs. These resources will provide students with opportunities for sensory exploration, calming breaks, and comfortable spaces to regroup when they feel overwhelmed or need a quiet moment.",
+    "amountRequested": 1000,
+    "studentsImpacted": 24,
+    "evaluationStrategy": "Success will be measured through teacher observations, student participation, and progress in social-emotional development and self-regulation skills. We will monitor how often students independently or with adult support use sensory materials and comfortable seating to calm their bodies, manage emotions, and return to classroom activities.",
+    "partners": "ECSE Pre-K Teacher (Project Lead): Will oversee implementation, integrate sensory supports into daily classroom routines, monitor student progress, and evaluate the effectiveness of the materials.\n \n Paraprofessionals: Will assist students in using sensory tools appropriately, support calming strategies, and help collect observation data on student engagement and self-regulation.\n \n Campus Administration: Will support the implementation of the project and ensure the resources are used to meet the needs of ECSE students.\n \n Families: Will reinforce self-regulation strategies by communicating with the classroom about students' sensory needs and supporting consistency between home and school when appropriate.",
+    "sustainability": "The sensory-friendly classroom resources purchased through this grant will be used for multiple school years to support current and future ECSE Pre-K students. These materials will be maintained, organized, and incorporated into daily classroom routines to ensure they continue to benefit students as their sensory and developmental needs change.\n \n The classroom teacher and paraprofessionals will work together to care for the materials and use them appropriately throughout the school year. We will also seek continued support through school resources, future grants, and community donations as additional needs arise.\n \n By investing in durable, reusable sensory materials and comfortable seating, we hope to create a lasting, supportive classroom environment that promotes self-regulation, independence, and successful learning experiences for years to come.",
+    "plainTextBudget": "Proposed Grant Budget\n \n 2 bean bag chairs from Walmart @ $49.98 ea = $99.96\n \n 2 soft floor loungers from Amazon @ $59.99 ea = $119.98\n \n 3 weighted stuffed animals @ $34.99 ea = $104.97\n \n 1 weighted blanket = $105.00\n \n 2 sensory fidget kits @ $26.39 ea = $52.78\n \n 2 sensory exploration kits @ $49.99 ea = $99.98\n \n 1 classroom sensory swing or alternative sensory equipment = $150.00\n \n 4 soft floor cushions @ $24.99 ea = $99.96\n \n 1 calming corner sensory kit = $75.00\n \n Additional sensory toys and tactile materials = $92.37\n \n Total: $1,000.00",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/3/2026 11:13:26",
+    "createdAt": "11/3/2026 11:13:26",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2611",
+    "grantCode": "IGF2611",
+    "sequenceNumber": 11,
+    "title": "Brewing Opportunities",
+    "category": "Category 2",
+    "gradeLevels": [
+      "6-8"
+    ],
+    "subjectArea": "Special Education Resource Self-Contained Social Studies & ELA",
+    "objectives": "6th grade - SS.6(A) Understand factors of production (natural resources, labor, capital, and entrepreneurship).\n 7th grade - SS.7.12(B) Understand how goods and services are produced and distributed.\n 8th grade - SS 8.12 Understand different types of industries and businesses.",
+    "areaOfFocus": "Workforce/Career-Connected Learning",
+    "abstract": "Brewing Opportunities will create a student operated coffee shop where students in grades 6th–8th receiving Special Education services learn how to run a small business while developing valuable academic, social, and workplace skills. Students will create menus, set prices, organize supplies, take customer orders, prepare beverages, handle money, track inventory, and provide customer service to teachers and school staff. Students will rotate through different job responsibilities based on their individual strengths and abilities.They will also practice communication, teamwork, problem-solving, budgeting, and decision-making. This project is meaningful because it transforms traditional classroom instruction into a business experience. Instead of simply reading about how an economy works, students will experience it firsthand. The coffee shop will provide opportunities for students with diverse learning needs to build confidence, independence, and practical skills while contributing to their school community. Brewing Opportunities will demonstrate that every student has valuable abilities and can make meaningful contributions to a learning environment, workplace, and community.",
+    "amountRequested": 3000,
+    "studentsImpacted": 41,
+    "evaluationStrategy": "Student success will be measured through pre- and post-assessments, teacher observations, and hands-on performance activities. Students will demonstrate their understanding of economic concepts by identifying factors of production, explaining how goods and services are produced and distributed, and describing how businesses operate.\n I will use observation checklists to monitor student progress in communication, customer service, money management, teamwork, problem-solving, and completing assigned job responsibilities. Students will demonstrate learning through creating menus, taking customer orders, handling transactions, tracking inventory, and participating in daily coffee shop operations. Individual progress will be measured based on each student's abilities and level of independence, with appropriate accommodations and supports.",
+    "partners": "Teachers and support staff will assist with instruction, provide individualized accommodations, supervise business operations, and monitor student progress. Campus administrators, teachers, and school personnel will serve as customers, giving students authentic opportunities to practice communication and customer service skills.",
+    "sustainability": "Brewing Opportunities will become an ongoing instructional program that can be incorporated into Social Studies and Special Education instruction each school year. Equipment and reusable materials purchased through grant funding will remain available for future students to use. As new students enter the program, returning students can help teach business procedures and responsibilities, creating opportunities for peer mentoring and leadership.",
+    "plainTextBudget": "1 Commercial Coffee Maker from Home Depot @ $590 = $590\n \n 1 Cuisinart Conical Burr Coffee Grinder from Target @ $129.99 = $130\n \n 1 Cold Brew Coffee Dispenser from Amazon (estimated) = $120\n \n 1 Countertop Ice Maker from Walmart (estimated) = $150\n \n 1 Mini Refrigerator from Walmart (estimated) = $250\n \n 1 Two-Tier Pastry Display Case from VEVOR @ $75.95 = $76\n \n 2 Storage Shelving Units from Walmart @ $50 ea = $100\n \n 4 Stainless Steel Beverage Pitchers from Amazon @ $15 ea = $60\n \n Measuring Cups, Spoons, and Digital Thermometers from Walmart = $35\n \n 1 Cash Register from Amazon (estimated) = $120\n \n Coffee shop serving supplies\n 1,000 Hot Coffee Cups and Lids from Restaurant Supply Store = $100\n \n 1,000 Clear Iced Coffee Cups and Lids from Restaurant Supply Store = $150\n \n Coffee Sleeves, Straws, Stir Sticks, and Napkins from Sam's Club = $100\n \n 2 Pastry Serving Trays and Food-Safe Tongs from Walmart = $60\n \n Food and beverage inventory\n 10 lbs Coffee Beans from Walmart = $135\n \n Initial Supply of Coffee Creamers, Milk, and Non-Dairy Milk from Sam's Club = $100\n \n Coffee Syrups (Vanilla, Caramel, and Hazelnut) from Walmart = $60\n \n Sugar, Sweeteners, and Chocolate Syrup from Walmart = $40\n \n Hot Chocolate Mix from Sam's Club = $20\n \n Initial Pastry Inventory (Muffins, Danishes, Croissants, and Other Pastries) from Sam's Club or Local Bakery = $150\n \n Ice, Food Storage Containers, and Food-Safe Labels from Walmart = $65\n \n Business operations and student materials\n Cleaning and Sanitizing Supplies from Sam's Club = $100\n \n 4 Student Aprons and Name Badges from Amazon @ $15 ea = $60\n \n Menu Board, Business Signs, and Promotional Materials from Walmart = $75\n \n Order Pads, Receipts, Calculators, and Inventory Tracking Supplies from Walmart = $50\n \n \n TOTAL GRANT REQUEST: $3,000",
+    "involvesTech": true,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/4/2026 12:46:15",
+    "createdAt": "11/4/2026 12:46:15",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2612",
+    "grantCode": "IGF2612",
+    "sequenceNumber": 12,
+    "title": "Transportation Assistance Program",
+    "category": "Category 2",
+    "gradeLevels": [
+      "1st through 12th"
+    ],
+    "subjectArea": "All areas and departments",
+    "objectives": "Student Bus Fare Assistance Program",
+    "areaOfFocus": "Other",
+    "abstract": "Middle and high school students need reliable transportation in order to have consistent access to educational opportunities. Our middle and high school campus serves an alternative student population throughout the school year, with enrollment ranging from approximately 125 to 265 students. Nacogdoches ISD is not required to provide bus transportation for students attending our campus due to behavior and safety concerns. \n \n For some families, the cost of daily transportation presents a financial hardship and can become a barrier to regular school attendance and academic participation. These costs can quickly add up for families experiencing financial difficulties. At a cost of $1.00 per one-way trip, the grant will provide approximately 1000 one-way student rides, or 500 complete round trips. The $1000 is funding to assist students with the greatest financial need, rather than cover transportation for the entire enrollment.\n \n The requested $1000 will be used exclusively to assist middle and high school students with public transportation fares to and from campus. This assistance will help students access school more consistently, reduce transportation-related barriers, and ensure that financial circumstances do not prevent students from taking advantage of their educational opportunities.\n \n Because our enrollment fluctuates throughout the school year, transportation assistance will be distributed based on demonstrated student need and available funding.",
+    "amountRequested": 1000,
+    "studentsImpacted": 100,
+    "evaluationStrategy": "The expected outcomes of our project include:\n 1. Reduce transportation barriers that negatively affect student attendance.\n 2. Provide financial assistance to students and families who struggle to afford daily bus fare and do not have a reliable automobile.\n 3. Promote consistent school attendance and student participation.\n 4. Increase equitable access to academic instruction, support services, and educational participation.\n 5. Support families by reducing the financial burden assiciated with getting students to school.\n \n The success of this project will be evaluated by tracking the number of students receiving transportation assistance, the number of bus fares provided, and student attendance patterns. We will also monitor the use of grant funds to ensure all funding is directed toward its intended purpose.",
+    "partners": "For public transportation, our campus works in conjuction with the Brazos Transit District. The BTD is a subdivision of the State of Texas that provides general public mass transportation across 20 counties in Central and East Texas. In Nacogdoches, BTD provides public transportation service including four fixed-route bus lines and demand-response (point to point) services.",
+    "sustainability": "Our goal is to make student transportation assistance an ongoing resource for our middle and high school students. While the initial $1000 grant will provide immediate assistance to students experiencing transportation challenges, we will also pursue additional grants and donations each school year to replenish transportation assistance funds.\n \n To ensure long-term sustainability, we will monitor student needs, track the use of funds, and document the impact of transportation assistance on student attendance and participation. This information will help demonstrate the value of the program to future funders and community partners.\n \n By building strong community relationships and maintaining responsible oversight of funds, we hope to establish a dependable transportation assistance program that reduces financial barriers and helps students consistently access their education.",
+    "plainTextBudget": "1000 - $1 bills or a check that we can cash for $1 bills as students are required to have exact bus fare.",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/6/2026 9:21:37",
+    "createdAt": "11/6/2026 9:21:37",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2613",
+    "grantCode": "IGF2613",
+    "sequenceNumber": 13,
+    "title": "Raising our Flags: Symbols of our Patriotism and Unity",
+    "category": "Category 2",
+    "gradeLevels": [
+      "1st through 12th"
+    ],
+    "subjectArea": "All areas and departments",
+    "objectives": "Texas Education Code 1.003",
+    "areaOfFocus": "Other",
+    "abstract": "School is more than a place where students ome to learn. It is a place where relationships are built, futures are shaped, and students develop a sense of belonging and responsibility to their community. We are seeking grant funding in the amount of $3,500 to purchase and install a 40-foot outdoor flagpole and provide both a United States flag and a Texas flag for permanent display on our school campus. \n \n The specific objectives of this project include:\n 1. Purchase and install one 40-foot commercial-grade outdoor flagpole.\n 2. Purchase of display one United States flag and one Texas state flag.\n 3. Purchase of appropriate foundation materials and hardware.\n 4. Provide opportunities to reinforce student understanding of citizenship, civic responsibility, and American and Texas history.\n 5. Establish a lasting campus improvement that benefits current and future students, employees, families, and community members.\n \n We anticipate completing the project within 60-90 days of receiving funding and securing the necessary approvals.\n \n We want our school grounds to reflect the pride we have in our students, our community, our state, and our country. This project will help create a stronger sense of belonging and shared identity, while providing a lasting reminder that our students are part of something bigger than themselves.",
+    "amountRequested": 3500,
+    "studentsImpacted": 265,
+    "evaluationStrategy": "The success of this project will be measured through:\n Susccessful purchase and installation of the 40-foot flagpole.\n Proper display of the U.S. and Texas flags.\n Completion of the project within the approved budget.\n Integration of the flagpole into campus celebrations and appropriate educational opportunities.\n Positive visibility and lasting benefit to the school community.",
+    "partners": "School administration will serve as the project coordinator, oversee grant funds, approve installation plans, and ensure compliance with district policies. \n School district maintenance department will identify an appropriate location, review installation requirements, and assist with site preparation and ongoing maintenance.\n School leadership members will encourage student participation, promote patriotism and civic responsibility, and assist with a flag dedication ceremony.\n Teachers and staff will incorporate lessons about American history, Texas history, citizenship, and the symbolism of the flags.\n Parent and community volunteers will provide volunteer assistance and participate in the dedication ceremony.",
+    "sustainability": "The flagpole is intended to be a permanent campus improvement that will serve our school for many years. Our campus will assume responsibility for routine maintenance and ongoing care for the flagpole. These responsibilities will be incorporated into existing campus maintenance practices. To purchase replacement flags in the future we will depend on education grants, community donations, civic organizations, veterans' groups, local businesses, and/or campus operating budget.",
+    "plainTextBudget": "40-foot commercial-grade outdoor flagpole $1,600\n Professional installation and labor $900\n Concrete foundation and installation materials $500\n Unites States flag $100\n Texas state flag $100\n Hardware and accessories $150\n Contingency $150\n Total Grant Request $3,500",
+    "involvesTech": true,
+    "involvesFacilities": true,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/6/2026 11:02:15",
+    "createdAt": "11/6/2026 11:02:15",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2614",
+    "grantCode": "IGF2614",
+    "sequenceNumber": 14,
+    "title": "Project Title: Adaptive Active: Custom-Engineered Physical Education for Inclusive Learning",
+    "category": "Category 2",
+    "gradeLevels": [
+      "all"
+    ],
+    "subjectArea": "Adaptive PE",
+    "objectives": "Objective: By the end of the Spring semester (May 2027), given access to adapted physical education equipment (e.g., modular frame targets, modified ball-pushers/ramps, tethered balls, and tactile guides), the student will demonstrate fundamental motor skills and movement patterns by actively participating in structured physical education activities (such as soccer dribbling, aiming/rolling, or hitting a target) for at least 15 minutes per session as measured by teacher observation and rubric tracking.\n Targeted Physical Education TEKS:\n \n \n PE.K-5.1 / PE.6-8.1 / PE.9-12.1 (Movement Skills & Concepts): Demonstrates competency in motor skills and movement patterns needed to perform a variety of physical activities.\n PE.K-5.3 / PE.6-8.3 / PE.9-12.3 (Health-Related Fitness): Achieves and maintains a health-enhancing level of physical fitness and active participation.",
+    "areaOfFocus": "Other",
+    "abstract": "Physical education is essential for building gross motor skills, motor planning, social interaction, and overall physical health. However, standard physical education equipment often presents significant physical and sensory barriers for students with special needs and motor limitations, leaving them unable to participate fully alongside their peers. Currently, our district lacks specialized, adaptable equipment designed to accommodate diverse physical, motor, and sensory profiles across grade levels to use in PE.\n \n This project directly addresses student growth, active inclusion, and health-related quality of life for specialized student populations. By securing funds to purchase specialized adaptors, tactile/sensory materials, modular mounting devices, lighter/high-visibility apparatuses, and specialized fabrication tools, our team will work with Nacogdoches High School CTE department to construct and customize physical education equipment designed so that students with special needs and motor limitations can participate. \n \n This project removes physical barriers to learning and growth, fosters inclusive learning environments, elevates student wellness, and provides equitable educational access to all learners regardless of ability.",
+    "amountRequested": 2830,
+    "studentsImpacted": 40,
+    "evaluationStrategy": "Weekly observation logs, adaptive PE rubrics, and checklists.",
+    "partners": "Adaptive PE / General PE Teachers: Lead the activity design, integrate adapted devices into daily curriculum, and execute performance assessments.\n Special Education Teachers & Paraprofessionals: Assist with individual student fitting, physical positioning, and real-time encouragement during PE sessions.\n District Occupational Therapists (OT) & Physical Therapists (PT): Provide clinical guidance on ergonomic needs, physical mechanics, safety parameters, and custom device positioning for optimal biomechanics.\n CTE Students (and staff) at high school: Design, construct and customize physical education equipment designed so that students with special needs and motor limitations can participate.",
+    "sustainability": "Long-Term Utility: The primary purchases are durable, non-consumable structural components, mounting frames, adaptive hardware, and multi-use athletic equipment. These assets will remain campus/district property and will benefit multiple cohorts of students over many school years.\n Minimal Recurring Costs: Because the core framework consists of durable hardware, ongoing costs in future years will be minimal (under 50–100 annually for minor wear-and-tear repairs, extra foam padding, or velcro replacement), which can easily be absorbed by standard department maintenance budgets.",
+    "plainTextBudget": "Lowe's Materials\n \n • PVC Piping (1 in): 30 units (20 feet each, Schedule 40) — $600.00\n • PVC Piping (1.5 in): 10 units (20 feet each, Schedule 40) — $220.00\n • Tee Fittings (3-way): 3 packs (4-packs) — $60.00\n • Tee Fittings (4-way): 1 pack (10-pack) — $17.00\n • Standard Tee Fittings: 2 packs (5-packs) — $30.00\n • PVC End Caps: 6 units — $18.00\n • Corner/Elbow Fittings (90°): 10 units — $30.00\n • Side Outlet Elbow Fittings (45° or 3-way): 12 units — $144.00\n • Spacer Pipes: 3 units — $36.00\n • PVC Cement and Primer: 5 units — $75.00\n • Corded Leaf Blower: 1 unit (e.g., Worx Turbine 600) — $100.00\n • Heavy Duty Zip Ties: 3 packs — $42.00\n • Fasteners and Pivot Hardware: 15 units (estimated cost) — $150.00\n \n 💻 AbleNet (Assistive Technology)\n \n • Switch Control Unit: 2 unit (Powerlink 4) — $660.00\n • Adapted Switch Buttons: 3 units — $225.00\n  Plus shipping- $100.00\n \n 📦 Amazon Materials & Logistics\n \n • Inflatable Basketballs (16-inch): 4 units — $40.00\n • Tethered Target Ball: 1 unit — $30.00\n • Adjustable Mounts: 1 unit (Magic Arm with Super Clamp) — $30.00\n • Pool Noodles: 1 pack (6-pack) — $30.00\n • Overhead Swivel: 1 unit — $20.00\n • Weighted Rubber Base: 2 units — $40.00\n • Rubber Tee Topper: 1 unit — $15.00\n • Shipping Fees: Flat rate — $25.00\n Grand Total Budget: $2,737.00",
+    "involvesTech": true,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/6/2026 12:04:23",
+    "createdAt": "11/6/2026 12:04:23",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2615",
+    "grantCode": "IGF2615",
+    "sequenceNumber": 15,
+    "title": "ESL STEM Muesum Experience",
+    "category": "Category 2",
+    "gradeLevels": [
+      "6",
+      "7",
+      "2008"
+    ],
+    "subjectArea": "ESL",
+    "objectives": "TEKS Summary (Science Skills & Content)\n \n • Scientific Practices: Students use the museum's interactive displays to ask questions, observe scientific phenomena, and analyze physical models.\n • Life & Earth Science: Students investigate real-world examples of animal adaptations (dinosaur fossils) and internal body systems (human anatomy).\n \n ELPS Summary (Language Development)\n \n • Vocabulary & Context: Students use highly visual exhibits and prior knowledge to learn new STEM words without relying strictly on heavy reading.\n • Teamwork & Communication: Students practice listening to informational guides and speaking with peers to solve hands-on challenges.\n • Reading & Writing: Students decode simple diagrams or labels and write down their observations using newly learned vocabulary.\n A visit to the Perot Museum of Nature and Science perfectly maps to the Texas science standards, utilizing the mandatory Scientific and Engineering Practices (SEPs) and specific Content Strands across grades 6–8.\n \n 1. Scientific and Engineering Practices (SEPs)\n \n Because the museum focuses heavily on visual and physical interaction, students naturally practice these cross-cutting skills:\n • TEKS 6.1(A), 7.1(A), 8.1(A): Ask questions and define problems based on observations or information from text, phenomena, models, or investigations. (Application: Questioning scale and function when observing the massive skeletons in the Life Then and Now Hall).\n • TEKS 6.1(G), 7.1(G), 8.1(G): Develop and use models to represent phenomena, systems, processes, or design solutions. (Application: Interacting with physical body systems or mechanical simulations in the Being Human Hall).\n \n 2. Core Content Strands (Life and Earth Science)\n \n • TEKS 7.12(A) — Organisms and Environments: Investigate and explain how internal structures of organisms have adaptations that allow specific functions. (Application: Examining real human anatomy, organ systems, and skeletal structures).\n • TEKS 8.11(B) — Organisms and Environments: Explain how variations in traits within a population increase some individuals' probability of surviving and reproducing. (Application: Comparing fossil evidence, teeth formations, and adaptive traits of dinosaurs).\n The experiential nature of this trip leverages multi-sensory inputs to break down heavy language barriers. These standards apply directly to the Grades 4–12 Band:\n \n 1. Learning Strategies\n \n • ELPS 1(A): Use prior knowledge and experiences to understand meanings in English.\n • ELPS 1(F): Use accessible language and learn new essential vocabulary, expressions, and concept words in both formal and informal settings. (Application: Acquiring high-frequency STEM terms like \"fossil,\" \"adaptation,\" and \"system\" through visual immersion).\n \n 2. Listening & Speaking (Oral Language Development)\n \n • ELPS 2(B): Use contextual factors or word analysis (such as cognates or roots) to comprehend content-specific vocabulary when heard. (Application: Listening to video narrations or museum docents while looking directly at the moving anatomical models).\n • ELPS 3(E): Share information in cooperative learning interactions using newly acquired vocabulary. (Application: Working in small peer groups to navigate interactive kiosks or test hands-on physical simulators).\n \n 3. Reading & Writing (Literacy Integration)\n \n • ELPS 4(F): Use visual and contextual support to read and understand graphics, diagrams, and labels. (Application: Using simplified museum graphics and structural displays to decode complex informational texts).\n • ELPS 5(B): Write using newly acquired basic vocabulary and content-based grade-level vocabulary. (Application: Documenting observations in a field-trip notebook or writing a short summary of their favorite interactive station).",
+    "areaOfFocus": "STEM",
+    "abstract": "Middle school ESL students will visit the Perot Museum of Nature and Science in Dallas, Texas, to learn STEM concepts through interactive, highly visual exhibits. By exploring hands-on spaces like the dinosaur and human anatomy halls, the students will experience and break through heavy language barriers. The experiential trip will successfully boost their scientific vocabulary, encourage peer teamwork, and make complex STEM topics accessible and engaging for English language learners.",
+    "amountRequested": 4529,
+    "studentsImpacted": 70,
+    "evaluationStrategy": "Field Trip Evaluation Strategy\n \n • Academic Vocabulary Growth: Assess scientific language acquisition by comparing pre- and post-trip vocabulary quizzes or analyzing student-created bilingual glossaries.\n • Concept Comprehension: Review student worksheets, digital photo journals, or short video reflections where they explain a STEM concept learned at a specific exhibit.\n • Peer Collaboration & Communication: Monitor and log student interactions during the trip using an observation rubric to track teamwork, peer-to-peer coaching, and English usage.\n • Student Engagement & Confidence: Conduct a simple, visual post-trip survey (using emojis or scale ratings) to gauge how confident, included, and interested students felt during the hands-on activities.",
+    "partners": "McMichael Middle School",
+    "sustainability": "We will continue to explore funding options for future student learning experiences as a department.",
+    "plainTextBudget": "Museum Entry: Students $8x 69=$552 \n Chaperones Free.\n 3D Film $6/person x78= $468\n Box Lunches: $9.95 x 78=$776.10\n LAZ Parking 1100 McKinney Ave discount\n $27.50/bus x2=$55..00\n Snacks- $300 for the entire trip\n Team T-shirts- $650 = 79 x $8.22\n Instructional tools- $300 Student Journals and materials (Amazon)\n 2951+\n Transportation- $1400\n =$4,528.50",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/6/2026 14:37:16",
+    "createdAt": "11/6/2026 14:37:16",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2616",
+    "grantCode": "IGF2616",
+    "sequenceNumber": 16,
+    "title": "Bridging Cultures: A Cross-Cultural Exchange Initiative to Japan",
+    "category": "Category 2",
+    "gradeLevels": [
+      "6-8"
+    ],
+    "subjectArea": "Cross Curricular",
+    "objectives": "The objective of this grant is to provide a trans-formative exchange program to Japan for students, aiming to enhance their global competence and cultural awareness. By participating in this program, we expect measurable outcomes, including:\n \n 1) Cultural Understanding: 90% of participants will report an increased understanding of Japanese culture as evidenced by pre- and post-trip surveys.\n \n 2) Global Competence Skills: At least 75% of students will demonstrate improved collaboration and communication skills, assessed through reflections during the program.\n 3) Empathy Development: Participants will show a 25% increase in empathy scores, measured through reflection journals before and after the trip.\n 4) Leadership in Recruitment: Students who participated in the trip will return to lead recruitment efforts for the following year’s program, with at least 80% actively involved in presentations and outreach to encourage participation among their peers.\n \n This exchange program will empower students with the skills and experiences necessary for success in a diverse world.",
+    "areaOfFocus": "Other",
+    "abstract": "With funds from this grant, we will subsidize program fees, enabling students to experience daily life as a student in Japan.\n \n Trip Timeline (Actual dates TBD based on best travel rates):\n \n May 24: Students fly to Tokyo for approximately 2 days to visit historical sites, experience technological advancements, participate in cultural events, and practice navigating the city's transit system.\n \n May 26 – June 5: Students fly to Amami Oshima for 6–8 days. During this portion, students will stay with local host families to live daily Japanese life, sample authentic cuisine, and engage in unique island activities.\n \n June 6: Students return home.\n \n This fully immersive, innovative trip combines interactive learning across both urban and rural settings. By living with host families and engaging directly with local communities, participants will gain real-world insights, build meaningful international connections, and enhance their overall global competence.",
+    "amountRequested": 4800,
+    "studentsImpacted": 12,
+    "evaluationStrategy": "Evaluation Strategy\n To assess program success, we will track the following measurable outcomes:\n \n Pre- & Post-Trip Surveys: Evaluate students' cultural competence before and after the trip, targeting a 90% increase in cultural awareness.\n \n Reflection Journals: Students will document daily experiences, with at least 75% demonstrating improved collaboration and communication skills.\n \n Recruitment Participation: Track student involvement in future program outreach, targeting 80% active participation in presentations and recruitment.\n \n Host Family Feedback: Gather host family evaluations on engagement and adaptability, aiming for positive feedback from at least 90% of families.\n \n These metrics will comprehensively measure the program's impact on student learning and growth.",
+    "partners": "This exchange program relies on vital community and institutional partnerships:\n \n Amami Oshima School Board: Fosters cross-cultural collaboration and meaningful interactions between local and Japanese students.\n \n Nacogdoches ISD & NEF: NISD has supported this 30-year exchange tradition, with NEF providing essential financial support starting last year.\n \n Parents & Community: Generous donations and fundraising help subsidize program fees, ensuring all interested students can participate and build global competence.\n \n McKnight Financial: Retired chaperone Linda McKnight and her husband provide ongoing financial support and host Japanese chaperones visiting Nacogdoches.\n \n Together, these partners create a supportive environment for student learning and growth.",
+    "sustainability": "To ensure future sustainability, we will implement four key strategies:\n \n Annual Fundraising: Organize events involving students, parents, and community members for ongoing financial support.\n \n Partnership Development: Explore shared funding and collaborative grant opportunities with the Amami Oshima School Board.\n \n Alumni Engagement: Empower past participants as program ambassadors to assist with outreach and fundraising.\n \n Grant Applications: Pursue funding from educational foundations supporting cultural exchanges.\n \n Recurring Costs:\n \n Travel Expenses: Airfare and local transportation (100% student-funded).\n \n Program Fees: Covers lodging, food, and activities.\n \n These combined efforts will build a lasting, community-backed model for future student generations.",
+    "plainTextBudget": "The program fee for students that is paid to the Amami Oshima/Kagoshima School Board is $400 per student. That equals to $4800.",
+    "involvesTech": true,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": false,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/9/2026 10:29:34",
+    "createdAt": "11/9/2026 10:29:34",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2617",
+    "grantCode": "IGF2617",
+    "sequenceNumber": 17,
+    "title": "Salon Ready:Real Tools for Real License",
+    "category": "Category 2",
+    "gradeLevels": [
+      "9",
+      "10",
+      "11",
+      "12"
+    ],
+    "subjectArea": "CTE cosmetology",
+    "objectives": "1.By May 2027, each cosmetology I\n and Il student will have at least 10 scored mannequin services (shear haircuts at 0, 45, 90, and 180 degrees, clipper work, thermal curling, and mock chemical application), graded on the state practical exam criteria. (TEKS 19\n TAC §130.283 (c)(5) (D), (E), (F))\n 2. Each Cosmetology | and I| student will set up, perform, and clean and disinfect a pedicure station, scoring at least 70% (the state exam passing standard) on a sanitation and procedure checklist. (TEKS\n §130.283 (c)(1)(K), (c) (2)(G), (c)(3)\n (A))\n 3. 100% of student training hours will be recorded electronically, and each month students will check their own hour totals toward the 1,000 hours required for licensure.\n (TEKS §130.283(c)(3) (C))\n 4. Average mock practical exam scores will rise from the January 2027 pre-test to 70% or higher by May 2027. (Cosmetology II: parallel expectations in TEKS §130.284",
+    "areaOfFocus": "Workforce/Career-Connected Learning",
+    "abstract": "We teach high school cosmetology, where students work toward a Texas cosmetology license. To earn it, each student must complete 1,000 training hours and pass a written exam and a hands-on state exam. Every hands-on exam service is performed on a mannequin head, so mannequin practice is the key to passing.\n \n Right now my students share worn, matted mannequin heads, and we do not have enough shears or clippers for everyone to cut at once. Training hours are tracked by hand on paper, and our pedicure station is worn. Many of my students learn best through repeated hands-on practice.\n \n This grant buys new mannequin heads (including textured-hair heads so students learn to serve every client), table clamps, student shears and clippers, an electronic time clock, and a pedicure chair with a foot spa.\n \n Timeline: Order in November and set up in December. In January, students take a skills pre-test and start clocking in electronically. From January through April, students complete weekly scored mannequin practice and give pedicures in our student-run school salon. In April and May, they take practice state exams, and I compare their scores to the January pre-test.\n \n This project is innovative because it turns my classroom into a working salon where every student practices the exact services on the state exam with their own tools and tracks their own progress toward a license. Everything purchased stays with the program for future classes.",
+    "amountRequested": 6000,
+    "studentsImpacted": 200,
+    "evaluationStrategy": "Students take a skills pre-test in January 2027, then learn in modules. Success means:\n 1. Every student completes at least 10 scored mannequin services on state exam checklists.\n 2. 90% of students score 70% or higher on a pedicure and sanitation checklist in our student-run salon.\n 3. 100% of training hours are recorded on the time clock. Students 20+ minutes late now lose credit for the whole period; the clock lets them earn credit for the minutes they attend.\n 4. Average scores on April and May mock state exams rise to 70% or higher.\n I will also compare state licensing exam results with last year's.\n \n Partners and Sustainability probably have the same 900-character limit, so I'll shorten those next if they turn red too.",
+    "partners": "Onecimo Garcia - Cosmetology/Barber instructor: Helps run salon rotations and scores mannequin practice and mock exams.\n - Dottie McClain- CTE Administration Assistant: Helps adapt step-by-step visuals and checklists so students with learning plans can practice on their own.\n - Shawn Lucena- Career and Technical Education director: Oversees purchasing and program reporting.\n - Campus administration and district technology staff: Approve purchases and help set up the time clock.",
+    "sustainability": "Everything purchased is durable and stays with the cosmetology program for future classes. The pedicure chair, mannequin holders, shears, clippers, and time clock will serve students for years. \n \n Ongoing costs are small: replacement mannequin heads as they wear out (about $40 to $55 each), replacement clipper blades (about $23), shear sharpening, and disposable pedicure liners. These will be covered by our program's yearly supply budget and income from our student-run salon.\n \n The practice routines, skill checklists, and hour-tracking process will be written into our program procedures, so they continue every year no matter which students are enrolled. Each new class of students will start with licensure-ready tools from day one.",
+    "plainTextBudget": "https://docs.google.com/spreadsheets/d/1GSdYqsUjaO2-XdLzwxfXna1ICB8BiU1JakNneQSLuL4/edit?gid=324496563#gid=324496563",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": false,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Flagged: Amount requested ($6,000) meets/exceeds notification threshold ($6,000)."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/9/2026 12:35:47",
+    "createdAt": "11/9/2026 12:35:47",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2618",
+    "grantCode": "IGF2618",
+    "sequenceNumber": 18,
+    "title": "Dinosaur George",
+    "category": "Category 2",
+    "gradeLevels": [
+      "Second Grade"
+    ],
+    "subjectArea": "Second Grade All Subjects",
+    "objectives": "Kindergarten K.13.B Identify animal body structures that help animals see, hear, move, and interact with their environment.\n 1st Grade 1.13.A Compare animal body structures and explain how they help animals move and survive.\n 2nd Grade 2.13.B Compare how animal structures and behaviors help them find and take in food, water, and air.\n 3rd Grade 3.12.D Identify fossils as evidence of past living organisms and environments, including common Texas fossils.\n 4th Grade 4.12.C Identify and describe past environments using fossil evidence, including common Texas fossils.\n 5th Grade 5.13.A Analyze how different species' structures and functions help them survive in the same environment.",
+    "areaOfFocus": "STEM",
+    "abstract": "Bringing Dinosaur George to Raguet Elementary would provide a meaningful learning experience for K-5 students, exploring dinosaurs and fossils beyond the textbook. By hosting this event at school, we ensure equal access for all students, removing financial and transportation barriers that prevent some families from visiting museums. This expert-led presentation will inspire curiosity and scientific inquiry, which teachers can further extend through classroom discussions and hands-on activities. Every child deserves the chance to experience something extraordinary.",
+    "amountRequested": 6000,
+    "studentsImpacted": 400,
+    "evaluationStrategy": "Fossils as Evidence of Past Life\n \n Activity: Become a Paleontologist\n \n Students examine fossil replicas or photographs and record observations. They draw conclusions about what the fossil tells us about the organism that once lived.\n \n Measure success: Students identify a fossil as evidence of past life and describe one thing it can tell scientists.",
+    "partners": "No community partners needed.",
+    "sustainability": "This would be one time funded event, but could be opened up to all NAC ISD campuses for families to attend. Allowing ALL access to an enriching educational experience.",
+    "plainTextBudget": "https://docs.google.com/document/d/18vfkvMNPXu5zIrWUXIDm3hSv5QHoixqpGQfPNCGekto/edit?usp=sharing",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": false,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Flagged: Amount requested ($6,000) meets/exceeds notification threshold ($6,000)."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/9/2026 13:13:14",
+    "createdAt": "11/9/2026 13:13:14",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2619",
+    "grantCode": "IGF2619",
+    "sequenceNumber": 19,
+    "title": "\"Little Hands, Big Futures\"",
+    "category": "Category 1",
+    "gradeLevels": [
+      "Pre-K"
+    ],
+    "subjectArea": "Fine Motor Dexterity & Pre-Writing Readiness",
+    "objectives": "Measurable Objectives:\n \n Pincer Grasp & Dexterity: 85% of participating students will demonstrate age-appropriate pincer grasp and finger isolation when operating fasteners (buttons, zippers, snaps) and manipulative tools (tweezers, lock/key sets, squirt droppers) by the end of the grant period.\n \n Independent Self-Care: 80% of students will successfully open lunchroom milk cartons, peel snack packages, and button/unbutton clothing items independently during daily routines.\n \n Pre-Writing Readiness: 90% of students will improve visual-motor integration and hand strength, progressing from basic palm-grasp marks to a tripod pencil grip on pre-writing line tracing assessments.\n \n Applicable Pre-K Guidelines / TEKS Alignment:\n \n PK4.Physical.1 (Fine Motor Development): Student shows control of tasks requiring small-muscle strength, dexterity, and control (e.g., cutting, buttoning, placing small objects, holding writing utensils).\n \n PK4.Personal Care.1 (Self-Care Skills): Student demonstrates independence in personal care and daily living activities (e.g., dressing, opening food containers, managing clothing fasteners).",
+    "areaOfFocus": "Early Literacy/Numeracy",
+    "abstract": "The \"Little Hands, Big Future\" project builds essential hand strength, finger coordination, and self-care independence in early childhood learners through hands-on, play-based motor stations. Post-pandemic early learners increasingly enter preschool with significant delays in manual dexterity, making everyday tasks like holding a pencil, using scissors, buttoning a coat, or opening a milk carton at lunch difficult and frustrating.\n \n This proposal establishes a multi-sensory Fine Motor and Self-Care Lab in the classroom. Funding will provide specialized tools including loop scissors, jumbo tweezers, resistance putty, lock-and-key sets, button/zipper dressing boards, and food-container practice kits (milk carton simulators, twist-cap jars, and pouch openers). Activities run daily during small-group centers over a 36-week school year. Students rotate through targeted stations: pinching pom-poms with tongs, twisting locks, practicing daily life fasteners on dressing frames, and exercising hand muscles with weighted therapy clay.\n \n What makes this project innovative is its dual focus: blending therapeutic motor exercises with practical real-world self-care skills. Rather than isolated handwriting drills, children build the palm muscles needed for writing while learning how to open their own lunch items and dress themselves for recess. This project bridges the gap between physical readiness, personal independence, and kindergarten success.",
+    "amountRequested": 500,
+    "studentsImpacted": 18,
+    "evaluationStrategy": "Project success will be measured using a multi-step pre- and post-assessment framework evaluated quarterly:\n \n Self-Care Independence Checklist: Teachers will assess each student's ability to independently button a shirt, slide a zipper, snap fasteners, and squeeze/open a milk carton/pouch.\n \n Fine Motor Skill Rubric: Observational tracking of pincer grasp maturity, scissor control (cutting on a straight line), and tool manipulation (using tweezers and keys).\n \n Pre-Writing Readiness Work Samples: Baseline vs. end-of-year comparisons of pencil grip position and control during line and shape tracing tasks.\n \n Quantitative goal: At least 85% of students will achieve age-appropriate mastery across all three evaluation rubrics by the end of the school year.",
+    "partners": "Campus Occupational Therapist (OT): Provides consultation on station setup, adaptive tool selection, and staff training for correct finger positioning and posture strategies.\n \n District Child Nutrition / Cafeteria Staff: Partners with classroom teachers to provide clean, empty milk cartons and food containers for real-world lunchroom practice in the self-care center.\n \n Parents & Families: Receives home connection practice sheets to reinforce buttoning, zipping, and packaging-opening skills during daily home routines.",
+    "sustainability": "All core items requested in this grant—including dressing boards, lock-and-key sets, adaptive scissors, magnetic mazes, and jumbo tweezers—are constructed from durable, high-quality, washable materials designed for multi-year preschool classroom use. Consumables like therapy putty and practice paper will be replenished annually through standard instructional supply budgets. Because the program establishes a reusable physical library of fine motor and self-care tools, this grant project will directly benefit future cohorts of early childhood students for 5+ years with zero additional funding required.",
+    "plainTextBudget": "https://docs.google.com/document/d/1yq0wdmpy47SzIwpGrDeM6FSqwuuHXpUDmCsKYdw1H0o/edit?usp=sharing",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/9/2026 13:45:27",
+    "createdAt": "11/9/2026 13:45:27",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2620",
+    "grantCode": "IGF2620",
+    "sequenceNumber": 20,
+    "title": "Math in Motion: The Portable Math Challenge Lab",
+    "category": "Category 1",
+    "gradeLevels": [
+      "Second Grade"
+    ],
+    "subjectArea": "Mathematics",
+    "objectives": "Math in Motion will improve mathematical achievement for 40 second-grade students through hands-on, collaborative, and movement-based learning experiences.\n \n At least 60% of students (24 of 40) will demonstrate measurable growth in place value, computation, or mathematical problem-solving, as measured by pre- and post-assessments.\n \n At least 50% of students (20 of 40) will meet individualized mathematics growth targets established using baseline assessments.\n \n Students will participate in differentiated, hands-on mathematical challenges at least three times weekly to strengthen mathematical reasoning, problem-solving skills, and conceptual understanding.\n \n This project supports second-grade mathematics TEKS 2.2A-B (number representation and place value), 2.4A-C (addition, subtraction, and problem-solving), and 2.1B-G (mathematical processes, representations, and communication).",
+    "areaOfFocus": "Early Literacy/Numeracy",
+    "abstract": "Math in Motion: The Portable Math Challenge Lab is an innovative, hands-on mathematics initiative designed to improve foundational math skills for 40 second-grade students.\n \n The project will address learning gaps in place value, addition and subtraction, and mathematical problem-solving through interactive activities that promote movement, collaboration, and critical thinking.\n \n Grant funding will provide reusable escape-room kits, interactive math floor mats, collaborative learning games, engineering challenges, and two rolling storage carts. Students will complete engaging math missions that require them to solve problems, explain their reasoning, and apply mathematical concepts to real-world situations.\n \n Beginning in Spring 2027, students will participate in structured math challenges at least three times weekly. Student growth will be monitored through assessments, observations, and work samples, with final evaluations conducted in May 2027.\n \n Unlike traditional worksheets, this portable lab will combine physical movement, teamwork, and hands-on problem-solving. All materials will be reusable, allowing the project to benefit future second-grade students without requiring significant additional funding.",
+    "amountRequested": 1184,
+    "studentsImpacted": 40,
+    "evaluationStrategy": "The success of Math in Motion will be measured through baseline assessments, ongoing progress monitoring, and post-implementation evaluations.\n \n Before implementation, students will complete assessments measuring place value, addition and subtraction, and mathematical problem-solving. Results will identify instructional needs and establish individualized growth targets.\n \n Student progress will be monitored biweekly through skill assessments, work samples, and teacher observations. Instructional activities will be adjusted based on student performance.\n \n At the conclusion of the project, students will complete comparable post-assessments to measure academic improvement.\n \n The project will be considered successful if at least 60% of students (24 of 40) demonstrate measurable growth in targeted mathematical skills and at least 50% (20 of 40) meet individualized growth targets.",
+    "partners": "The classroom teacher will serve as the primary project coordinator, overseeing instructional planning, implementation, student assessments, and progress monitoring.\n \n Campus administration will provide oversight and support alignment with campus academic improvement goals.\n \n Grade-level colleagues may contribute through collaborative planning, sharing instructional strategies, and reviewing student performance data to identify effective interventions.\n \n The project will utilize existing classroom technology and instructional resources to maximize grant funding. No additional personnel or outside organizations are required for successful implementation.",
+    "sustainability": "Math in Motion is designed to benefit students for years beyond the initial grant period. Funding will provide durable, reusable math games, escape-room kits, interactive floor mats, and two rolling storage carts.\n \n The portable design will allow materials to be quickly assembled, used, and stored without requiring permanent classroom space.\n \n Instructional challenges and activities can be updated annually to address changing student needs while utilizing the same equipment.\n \n Existing Chromebooks and mathematical manipulatives will supplement the program, eliminating the need for additional technology purchases.\n \n All grant-funded materials will continue benefiting future second-grade students. Because the project primarily utilizes reusable equipment, minimal ongoing funding will be required to sustain implementation.",
+    "plainTextBudget": "https://docs.google.com/spreadsheets/d/1IjA7TCOtHu2rXY_zPqkoe2X55VbStmL_Zmck4lkY34U/edit?usp=sharing",
+    "involvesTech": false,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/10/2026 9:08:56",
+    "createdAt": "11/10/2026 9:08:56",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  },
+  {
+    "id": "app-igf2621",
+    "grantCode": "IGF2621",
+    "sequenceNumber": 21,
+    "title": "NASA",
+    "category": "Category 1",
+    "gradeLevels": [
+      "3-5"
+    ],
+    "subjectArea": "ESL",
+    "objectives": "Objective statement and TEKS/ELPS (state-specific and measurable objectives and mention TEKS/ELPS wherever applicable):\n Objective 1: Exploring the Sun, Earth, Moon, and Solar System\n Students will observe and compare the physical characteristics of the Sun, Earth, and Moon using interactive exhibits, visual models, and scientific observations. Students will identify similarities and differences and use scientific evidence and vocabulary to describe what they learn about space.\n \n TEKS: Grade 4 Science 4.9(A–B); Grade 5 Science 5.8(D).\n ELPS: Students will acquire and use academic science vocabulary to describe, compare, and communicate observations through supported speaking and writing activities.\n Objective 2: Understanding Earth and Space Patterns\n Students will use visual models, demonstrations, and observations to explain how Earth's rotation causes day and night and identify patterns involving the Sun, Earth, and Moon.\n TEKS: Grade 4 Science 4.9(A–B); Grade 5 Science 5.9.\n ELPS: Students will interpret visual information and communicate scientific concepts using illustrations, labeled diagrams, sentence frames, academic vocabulary, and oral explanations.\n Objective 3: Space Exploration, Technology, and STEM Careers\n Students will identify spacecraft, astronaut equipment, and technologies used in space exploration and explain how scientists and astronauts use scientific observations, models, and problem-solving skills to investigate space and advance scientific knowledge.\n TEKS: Grade 4 and Grade 5 Science and Engineering Practices, including asking questions, developing and using models, analyzing evidence, communicating findings, and recognizing the impact of science and technology.\n ELPS: Students will engage in structured listening and speaking activities, ask and answer questions, share observations, and demonstrate new learning through oral discussions and written or illustrated reflections.",
+    "areaOfFocus": "STEM",
+    "abstract": "Our elementary newcomer students in grades 3rd through 5th will take a hands-on learning trip to Space Center Houston, the Official Visitor Center for NASA , to explore space science, technology, and human space exploration. This guided experience will allow students to learn beyond the classroom and participate in educational activities that many may have never experienced before, such as exploring real space technology and discovering how astronauts prepare for space missions.\n During the trip, students will identify objects in space, learn about the Sun, Earth, and Moon, and explore how astronauts and scientists use technology to study space. SEnglish learners will have access to visual support, simple language, and group discussions to fully engage with the content. Students will reflect on their observations and share what they learned through field journals, pictures, and written responses.\n This proposal is innovative because it moves learning beyond the classroom, providing a meaningful and memorable experience with real-world science and technology. By combining space exploration with hands-on learning, students develop observation, communication, and critical thinking skills. This approach makes science tangible, exciting, and relevant, fostering curiosity, confidence, and a lifelong interest in science, technology, engineering, and mathematics.",
+    "amountRequested": 1339,
+    "studentsImpacted": 20,
+    "evaluationStrategy": "Success will be measured through student reflection, observation, and classroom follow-up. Before the trip, students will participate in introductory lessons about space, the solar system, astronauts, and important science vocabulary. During the trip, students will use field journals to record what they observe about spacecraft, astronaut equipment, and space exploration technology. After returning, they will complete a short reflection or drawing about what they learned and their favorite discoveries. Teachers will use a simple rubric to assess understanding, participation, and use of science vocabulary. English learners will be evaluated on their ability to communicate ideas with visuals, key terms, or short responses. Teacher observations and student feedback will show how the experience increased engagement, curiosity, and confidence in science.",
+    "partners": "his project is a collaboration between the Nacogdoches ISD Elementary Newcomer Team and Space Center Houston. Space Center Houston will provide students with opportunities to explore spacecraft, astronaut equipment, interactive exhibits, and the NASA Tram Tour, providing educational experiences related to space exploration, science, and technology. The Newcomer Team will connect the experience to classroom learning, support English learners, and lead discussions and reflections. The Nacogdoches ISD Transportation Department will coordinate travel, and teacher chaperones will assist with supervision. Together, these partners will ensure a safe, hands-on learning experience that promotes language development, scientific understanding, and interest in STEM.",
+    "sustainability": "This project will create an annual learning experience for Nacogdoches ISD Elementary Newcomer students. After the first year, teachers will use the same lesson plans, reflection tools, and materials to repeat and improve the trip. The experience will provide future newcomer students with opportunities to explore science and technology outside the classroom.\n The Newcomer Team will include pre- and post-trip lessons in the curriculum to reinforce science and language goals. Future trips may be funded through district support, education foundation grants, or community partners. By building a structured, repeatable model and maintaining educational partnerships, this experience can continue to benefit new students each year and foster lasting interest in science, technology, engineering, and mathematics.",
+    "plainTextBudget": "24 Space Center Houston admission tickets (20 students + 4 chaperones) @ estimated $10.95 each = $262.80\n Transportation: 1 Nacogdoches ISD bus @ estimated $600 = $600\n 4 chaperones @ 19==$19 each = $76\n 20 student lunches @ $10 each = $200\n Snacks (water/snacks for students and chaperones) = $100\n Additional educational activities / program expenses = $100\n (This amount will help cover any supplemental educational activities, interactive STEM experiences, or optional learning program fees offered by Space Center Houston that may not be included with general admission. If no additional program is available, these funds may be used for other approved educational expenses related to the field trip.)\n Total: $1,339",
+    "involvesTech": true,
+    "involvesFacilities": false,
+    "status": "Under Review",
+    "statusReason": "Imported from Google Form. Under review by committee.",
+    "adminEligibility": {
+      "passed": true,
+      "eligibleApplicant": true,
+      "withinCategoryCap": true,
+      "acknowledgementsYes": true,
+      "noProhibitedCosts": true,
+      "priorReportSubmitted": true,
+      "checkedBy": "System Pre-Screening (Google Form Import)",
+      "checkedAt": "2026-11-10T18:45:14.211Z",
+      "notes": "Google Form intake pre-screening passed."
+    },
+    "isImportedFromGoogleForm": true,
+    "rowTimestamp": "11/10/2026 9:57:22",
+    "createdAt": "11/10/2026 9:57:22",
+    "updatedAt": "2026-11-10T18:45:14.211Z",
+    "assignedReviewerIds": [
+      "rev-judy-abbott",
+      "rev-sydney-kroll",
+      "rev-monica-loa",
+      "abottja021820@gmail.com",
+      "sydneykr@gmail.com",
+      "mmloa@asp-inc.com"
+    ]
+  }
+];
+
+export const AUTHENTIC_2026_IDENTITIES: Record<string, ApplicantIdentity> = {
+  "app-igf2601": {
+    "id": "app-igf2601",
+    "applicationId": "app-igf2601",
+    "grantCode": "IGF2601",
+    "applicantEmail": "jcmay@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Jessica May",
+        "email": "jcmay@nacisd.org"
+      }
+    ],
+    "campus": "Brooks Quinn Jones Elementary",
+    "electronicSignature": "Jessica May",
+    "signedAt": "10/27/2026 16:56:14",
+    "importedTimestamp": "10/27/2026 16:56:14",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2602": {
+    "id": "app-igf2602",
+    "applicationId": "app-igf2602",
+    "grantCode": "IGF2602",
+    "applicantEmail": "jchurch@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Jennifer Church",
+        "email": "jchurch@nacisd.org"
+      }
+    ],
+    "campus": "McMichael Middle School",
+    "electronicSignature": "Jennifer Church",
+    "signedAt": "10/27/2026 20:13:58",
+    "importedTimestamp": "10/27/2026 20:13:58",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2603": {
+    "id": "app-igf2603",
+    "applicationId": "app-igf2603",
+    "grantCode": "IGF2603",
+    "applicantEmail": "jrocha@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Jeff Rocha",
+        "email": "jrocha@nacisd.org"
+      },
+      {
+        "name": "Stanley Warren",
+        "email": "stanleywarren@nacisd.org"
+      }
+    ],
+    "campus": "Nacogdoches High School",
+    "electronicSignature": "Jefferey A Rocha",
+    "signedAt": "10/29/2026 12:05:43",
+    "importedTimestamp": "10/29/2026 12:05:43",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2604": {
+    "id": "app-igf2604",
+    "applicationId": "app-igf2604",
+    "grantCode": "IGF2604",
+    "applicantEmail": "mmarshall@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Mandy Marshall",
+        "email": "mmarshall@nacisd.org"
+      }
+    ],
+    "campus": "Nacogdoches High School",
+    "electronicSignature": "Maranda Marshall",
+    "signedAt": "10/29/2026 14:16:34",
+    "importedTimestamp": "10/29/2026 14:16:34",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2605": {
+    "id": "app-igf2605",
+    "applicationId": "app-igf2605",
+    "grantCode": "IGF2605",
+    "applicantEmail": "dbrewer@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "David Brewer",
+        "email": "dbrewer@nacisd.org"
+      }
+    ],
+    "campus": "Nacogdoches High School",
+    "electronicSignature": "David W. Brewer",
+    "signedAt": "11/1/2026 17:48:43",
+    "importedTimestamp": "11/1/2026 17:48:43",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2606": {
+    "id": "app-igf2606",
+    "applicationId": "app-igf2606",
+    "grantCode": "IGF2606",
+    "applicantEmail": "mtaylor@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Michele Taylor",
+        "email": "mtaylor@nacisd.org"
+      },
+      {
+        "name": "Brooke Dewitt",
+        "email": "brookedewitt@nacisd.org"
+      },
+      {
+        "name": "Cacie Lockett",
+        "email": "cacielockett@nacisd.org"
+      },
+      {
+        "name": "Sanjuana Aguirre",
+        "email": "sanjuanaaguirre@nacisd.org"
+      },
+      {
+        "name": "Sara De La Garza",
+        "email": "saradelagarza@nacisd.org"
+      }
+    ],
+    "campus": "Mike Moses Elementary",
+    "electronicSignature": "Michele Taylor",
+    "signedAt": "11/2/2026 14:03:33",
+    "importedTimestamp": "11/2/2026 14:03:33",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2607": {
+    "id": "app-igf2607",
+    "applicationId": "app-igf2607",
+    "grantCode": "IGF2607",
+    "applicantEmail": "rrjones@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Rachel Jones",
+        "email": "rrjones@nacisd.org"
+      },
+      {
+        "name": "Jason Ray",
+        "email": "jasonray@nacisd.org"
+      },
+      {
+        "name": "Lindsey Perry",
+        "email": "lindseyperry@nacisd.org"
+      },
+      {
+        "name": "Taylor Ellisor",
+        "email": "taylorellisor@nacisd.org"
+      },
+      {
+        "name": "Mitchell Schaefer",
+        "email": "mitchellschaefer@nacisd.org"
+      }
+    ],
+    "campus": "Nacogdoches High School",
+    "electronicSignature": "Rachel Jones",
+    "signedAt": "11/2/2026 15:22:37",
+    "importedTimestamp": "11/2/2026 15:22:37",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2608": {
+    "id": "app-igf2608",
+    "applicationId": "app-igf2608",
+    "grantCode": "IGF2608",
+    "applicantEmail": "lanthony@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Lisa Anthony",
+        "email": "lanthony@nacisd.org"
+      }
+    ],
+    "campus": "Brooks Quinn Jones Elementary",
+    "electronicSignature": "Lisa Anthony",
+    "signedAt": "11/2/2026 19:58:19",
+    "importedTimestamp": "11/2/2026 19:58:19",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2609": {
+    "id": "app-igf2609",
+    "applicationId": "app-igf2609",
+    "grantCode": "IGF2609",
+    "applicantEmail": "krowland@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Neil Reyes",
+        "email": "krowland@nacisd.org"
+      },
+      {
+        "name": "Kelly Rowland",
+        "email": "kellyrowland@nacisd.org"
+      }
+    ],
+    "campus": "Brooks Quinn Jones Elementary",
+    "electronicSignature": "Neil Reyes and Kelly Rowland",
+    "signedAt": "11/3/2026 4:25:27",
+    "importedTimestamp": "11/3/2026 4:25:27",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2610": {
+    "id": "app-igf2610",
+    "applicationId": "app-igf2610",
+    "grantCode": "IGF2610",
+    "applicantEmail": "ewhoolery@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Elena Whoolery",
+        "email": "ewhoolery@nacisd.org"
+      }
+    ],
+    "campus": "Fredonia Early Childhood Center",
+    "electronicSignature": "Elena Rose Whoolery",
+    "signedAt": "11/3/2026 11:13:26",
+    "importedTimestamp": "11/3/2026 11:13:26",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2611": {
+    "id": "app-igf2611",
+    "applicationId": "app-igf2611",
+    "grantCode": "IGF2611",
+    "applicantEmail": "ygallegos@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Yasmeen Gallegos",
+        "email": "ygallegos@nacisd.org"
+      },
+      {
+        "name": "Breanna White",
+        "email": "breannawhite@nacisd.org"
+      },
+      {
+        "name": "Chantrell Trotty",
+        "email": "chantrelltrotty@nacisd.org"
+      }
+    ],
+    "campus": "McMichael Middle School",
+    "electronicSignature": "Yasmeen Gallegos",
+    "signedAt": "11/4/2026 12:46:15",
+    "importedTimestamp": "11/4/2026 12:46:15",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2612": {
+    "id": "app-igf2612",
+    "applicationId": "app-igf2612",
+    "grantCode": "IGF2612",
+    "applicantEmail": "afenton@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Allison Fenton representing all staff",
+        "email": "afenton@nacisd.org"
+      },
+      {
+        "name": "students",
+        "email": "students@nacisd.org"
+      }
+    ],
+    "campus": "Margie Chumbley",
+    "electronicSignature": "Allison Fenton",
+    "signedAt": "11/6/2026 9:21:37",
+    "importedTimestamp": "11/6/2026 9:21:37",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2613": {
+    "id": "app-igf2613",
+    "applicationId": "app-igf2613",
+    "grantCode": "IGF2613",
+    "applicantEmail": "afenton@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Allison Fenton for all campus staff",
+        "email": "afenton@nacisd.org"
+      }
+    ],
+    "campus": "Margie Chumbley",
+    "electronicSignature": "Allison Fenton",
+    "signedAt": "11/6/2026 11:02:15",
+    "importedTimestamp": "11/6/2026 11:02:15",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2614": {
+    "id": "app-igf2614",
+    "applicationId": "app-igf2614",
+    "grantCode": "IGF2614",
+    "applicantEmail": "prabon@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Paula Rabon",
+        "email": "prabon@nacisd.org"
+      },
+      {
+        "name": "Brenna Johnson",
+        "email": "brennajohnson@nacisd.org"
+      },
+      {
+        "name": "Janet Westbrook",
+        "email": "janetwestbrook@nacisd.org"
+      },
+      {
+        "name": "Bailey Craig",
+        "email": "baileycraig@nacisd.org"
+      },
+      {
+        "name": "Torree Negron",
+        "email": "torreenegron@nacisd.org"
+      }
+    ],
+    "campus": "Special Education",
+    "electronicSignature": "Paula Rabon",
+    "signedAt": "11/6/2026 12:04:23",
+    "importedTimestamp": "11/6/2026 12:04:23",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2615": {
+    "id": "app-igf2615",
+    "applicationId": "app-igf2615",
+    "grantCode": "IGF2615",
+    "applicantEmail": "bvermeulen@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Bonnie Vermeulen",
+        "email": "bvermeulen@nacisd.org"
+      },
+      {
+        "name": "Mario Torres",
+        "email": "mariotorres@nacisd.org"
+      },
+      {
+        "name": "Cynthia Olvera",
+        "email": "cynthiaolvera@nacisd.org"
+      }
+    ],
+    "campus": "McMichael Middle School",
+    "electronicSignature": "Bonnie Vermeulen",
+    "signedAt": "11/6/2026 14:37:16",
+    "importedTimestamp": "11/6/2026 14:37:16",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2616": {
+    "id": "app-igf2616",
+    "applicationId": "app-igf2616",
+    "grantCode": "IGF2616",
+    "applicantEmail": "agrady@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "April Grady",
+        "email": "agrady@nacisd.org"
+      }
+    ],
+    "campus": "McMichael Middle School",
+    "electronicSignature": "April A. Grady",
+    "signedAt": "11/9/2026 10:29:34",
+    "importedTimestamp": "11/9/2026 10:29:34",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2617": {
+    "id": "app-igf2617",
+    "applicationId": "app-igf2617",
+    "grantCode": "IGF2617",
+    "applicantEmail": "kdharris@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Kelli harris",
+        "email": "kdharris@nacisd.org"
+      }
+    ],
+    "campus": "Nacogdoches High School",
+    "electronicSignature": "Kelli Harris",
+    "signedAt": "11/9/2026 12:35:47",
+    "importedTimestamp": "11/9/2026 12:35:47",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2618": {
+    "id": "app-igf2618",
+    "applicationId": "app-igf2618",
+    "grantCode": "IGF2618",
+    "applicantEmail": "mcross@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Morgan Cross",
+        "email": "mcross@nacisd.org"
+      },
+      {
+        "name": "Ryleigh Bates",
+        "email": "ryleighbates@nacisd.org"
+      },
+      {
+        "name": "Jenna Tiritilli",
+        "email": "jennatiritilli@nacisd.org"
+      }
+    ],
+    "campus": "Raguet Elementary",
+    "electronicSignature": "Morgan Cross",
+    "signedAt": "11/9/2026 13:13:14",
+    "importedTimestamp": "11/9/2026 13:13:14",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2619": {
+    "id": "app-igf2619",
+    "applicationId": "app-igf2619",
+    "grantCode": "IGF2619",
+    "applicantEmail": "sgarcia@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Savannah Garcia",
+        "email": "sgarcia@nacisd.org"
+      }
+    ],
+    "campus": "Fredonia Early Childhood Center",
+    "electronicSignature": "Savannah Garcia",
+    "signedAt": "11/9/2026 13:45:27",
+    "importedTimestamp": "11/9/2026 13:45:27",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2620": {
+    "id": "app-igf2620",
+    "applicationId": "app-igf2620",
+    "grantCode": "IGF2620",
+    "applicantEmail": "tburney@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Tabitha Burney",
+        "email": "tburney@nacisd.org"
+      }
+    ],
+    "campus": "Carpenter Elementary",
+    "electronicSignature": "Tabitha Burney",
+    "signedAt": "11/10/2026 9:08:56",
+    "importedTimestamp": "11/10/2026 9:08:56",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  },
+  "app-igf2621": {
+    "id": "app-igf2621",
+    "applicationId": "app-igf2621",
+    "grantCode": "IGF2621",
+    "applicantEmail": "evenegas@nacisd.org",
+    "applicantNames": [
+      {
+        "name": "Enrique Venegas",
+        "email": "evenegas@nacisd.org"
+      }
+    ],
+    "campus": "Mike Moses Elementary",
+    "electronicSignature": "Enrique Venegas",
+    "signedAt": "11/10/2026 9:57:22",
+    "importedTimestamp": "11/10/2026 9:57:22",
+    "createdAt": "2026-11-10T18:45:14.211Z"
+  }
+};
